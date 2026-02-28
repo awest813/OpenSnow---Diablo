@@ -15,6 +15,7 @@ import CompressMpq from './mpqcmp';
 import { getDropFile, isDropFile } from './input/fileDrop';
 import createFileDropTarget from './input/fileDropTarget';
 import createEventListeners from './input/eventListeners';
+import { TOUCH_MOVE, TOUCH_RMB, TOUCH_SHIFT, setTouchMod as applyTouchMod, updateTouchButton as applyTouchButtonUpdate } from './input/touchControls';
 
 import Peer from 'peerjs';
 
@@ -48,10 +49,6 @@ ${message.split("\n").map(line => "    " + line).join("\n")}
 `);
   return url.toString();
 }
-
-const TOUCH_MOVE = 0;
-const TOUCH_RMB = 1;
-const TOUCH_SHIFT = 2;
 
 function findKeyboardRule() {
   for (let sheet of document.styleSheets) {
@@ -501,102 +498,11 @@ class App extends React.Component {
   touchCanvas = null;
 
   setTouchMod(index, value, use) {
-    if (index < 3) {
-      this.touchMods[index] = value;
-      if (this.touchButtons[index]) {
-        this.touchButtons[index].classList.toggle("active", value);
-      }
-    } else if (use && this.touchBelt[index] >= 0) {
-      const now = performance.now();
-      if (!this.beltTime || now - this.beltTime > 750) {
-        this.game("DApi_Char", 49 + this.touchBelt[index]);
-        this.beltTime = now;
-      }
-    }
+    applyTouchMod(this, index, value, use);
   }
 
   updateTouchButton(touches, release) {
-    let touchOther = null;
-    if (!this.touchControls) {
-      this.touchControls = true;
-      this.element.classList.add("touch");
-    }
-    const btn = this.touchButton;
-    for (let {target, identifier, clientX, clientY} of touches) {
-      if (btn && btn.id === identifier && this.touchButtons[btn.index] === target) {
-        if (touches.length > 1) {
-          btn.stick = false;
-        }
-        btn.clientX = clientX;
-        btn.clientY = clientY;
-        this.touchCanvas = [...touches].find(t => t.identifier !== identifier);
-        if (this.touchCanvas) {
-          this.touchCanvas = {clientX: this.touchCanvas.clientX, clientY: this.touchCanvas.clientY};
-        }
-        delete this.panPos;
-        return this.touchCanvas != null;
-      }
-      const idx = this.touchButtons.indexOf(target);
-      if (idx >= 0 && !touchOther) {
-        touchOther = {id: identifier, index: idx, stick: true, original: this.touchMods[idx], clientX, clientY};
-      }
-    }
-    if (btn && !touchOther && release && btn.stick) {
-      const rect = this.touchButtons[btn.index].getBoundingClientRect();
-      const {clientX, clientY} = btn;
-      if (clientX >= rect.left && clientX < rect.right && clientY >= rect.top && clientY < rect.bottom) {
-        this.setTouchMod(btn.index, !btn.original, true);
-      } else {
-        this.setTouchMod(btn.index, btn.original);
-      }
-    } else if (btn) {
-      this.setTouchMod(btn.index, false);
-    }
-    this.touchButton = touchOther;
-    if (touchOther) {
-      if (touchOther.index < 6) {
-        this.setTouchMod(touchOther.index, true);
-        if (touchOther.index === TOUCH_MOVE) {
-          this.setTouchMod(TOUCH_RMB, false);
-        } else if (touchOther.index === TOUCH_RMB) {
-          this.setTouchMod(TOUCH_MOVE, false);
-        }
-        delete this.panPos;
-      } else {
-        // touching F key
-        this.game("DApi_Key", 0, 0, 110 + touchOther.index);
-      }
-    } else if (touches.length === 2) {
-      const x = (touches[1].clientX + touches[0].clientX) / 2, y = (touches[1].clientY + touches[0].clientY) / 2;
-      if (this.panPos) {
-        const dx = x - this.panPos.x, dy = y - this.panPos.y;
-        const step = this.canvas.offsetHeight / 12;
-        if (Math.max(Math.abs(dx), Math.abs(dy)) > step) {
-          let key;
-          if (Math.abs(dx) > Math.abs(dy)) {
-            key = (dx > 0 ? 0x25 : 0x27);
-          } else {
-            key = (dy > 0 ? 0x26 : 0x28);
-          }
-          this.game("DApi_Key", 0, 0, key);
-          // key up is ignored anyway
-          this.panPos = {x, y};
-        }
-      } else {
-        this.game("DApi_Mouse", 0, 0, 24, 320, 180);
-        this.game("DApi_Mouse", 2, 1, 24, 320, 180);
-        this.panPos = {x, y};
-      }
-      this.touchCanvas = null;
-      return false;
-    } else {
-      delete this.panPos;
-    }
-    this.touchCanvas = [...touches].find(t => !touchOther || t.identifier !== touchOther.id);
-    if (this.touchCanvas) {
-      this.touchCanvas = {clientX: this.touchCanvas.clientX, clientY: this.touchCanvas.clientY};
-    }
-    return this.touchCanvas != null;
+    return applyTouchButtonUpdate(this, touches, release);
   }
 
   onTouchStart = e => {
