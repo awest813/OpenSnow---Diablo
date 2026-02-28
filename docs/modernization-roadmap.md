@@ -9,6 +9,13 @@ This roadmap focuses on practical, low-risk modernization while preserving game 
 - System flow diagrams (boot/lifecycle/handshake/storage): `docs/system-diagrams.md`.
 - ADR template: `docs/adr-template.md`.
 
+## Recent Progress
+
+- Extracted drag/drop file-detection logic from `src/App.js` into `src/input/fileDrop.js` as the first step of Phase 1 decomposition.
+- Added unit tests for the extracted file-drop behavior in `src/input/fileDrop.test.js`.
+- Added `src/input/fileDropTarget.js` to centralize drag/drop listener lifecycle with explicit `attach()` / `detach()` operations, and wired `App` to use it.
+- Added `src/input/eventListeners.js` and moved runtime input/window listener wiring in `App` behind an explicit attach/detach lifecycle to prevent leaked global listeners.
+
 ## Modernization Outcomes
 
 - Faster onboarding and safer contributor workflows.

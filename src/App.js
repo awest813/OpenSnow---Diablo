@@ -12,6 +12,9 @@ import create_fs from './fs';
 import load_game from './api/loader';
 import { SpawnSizes } from './api/load_spawn';
 import CompressMpq from './mpqcmp';
+import { getDropFile, isDropFile } from './input/fileDrop';
+import createFileDropTarget from './input/fileDropTarget';
+import createEventListeners from './input/eventListeners';
 
 import Peer from 'peerjs';
 
@@ -44,30 +47,6 @@ ${message.split("\n").map(line => "    " + line).join("\n")}
 [Please attach the save file, if applicable. The error box should have a link to download the current save you were playing; alternatively, you can open dev console on the game page (F12) and type in ${"`DownloadSaves()`"}]
 `);
   return url.toString();
-}
-
-function isDropFile(e) {
-  if (e.dataTransfer.items) {
-    for (let i = 0; i < e.dataTransfer.items.length; ++i) {
-      if (e.dataTransfer.items[i].kind === "file") {
-        return true;
-      }
-    }
-  } if (e.dataTransfer.files.length) {
-    return true;
-  }
-  return false;
-}
-function getDropFile(e) {
-  if (e.dataTransfer.items) {
-    for (let i = 0; i < e.dataTransfer.items.length; ++i) {
-      if (e.dataTransfer.items[i].kind === "file") {
-        return e.dataTransfer.items[i].getAsFile();
-      }
-    }
-  } if (e.dataTransfer.files.length) {
-    return e.dataTransfer.files[0];
-  }
 }
 
 const TOUCH_MOVE = 0;
@@ -112,6 +91,29 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
+    this.fileDropTarget = createFileDropTarget({
+      target: document,
+      onDrop: this.onDrop,
+      onDragOver: this.onDragOver,
+      onDragEnter: this.onDragEnter,
+      onDragLeave: this.onDragLeave,
+    });
+
+    const touchListenerOptions = {passive: false, capture: true};
+    this.runtimeListeners = createEventListeners([
+      {target: document, event: 'mousemove', handler: this.onMouseMove, options: true},
+      {target: document, event: 'mousedown', handler: this.onMouseDown, options: true},
+      {target: document, event: 'mouseup', handler: this.onMouseUp, options: true},
+      {target: document, event: 'keydown', handler: this.onKeyDown, options: true},
+      {target: document, event: 'keyup', handler: this.onKeyUp, options: true},
+      {target: document, event: 'contextmenu', handler: this.onMenu, options: true},
+      {target: document, event: 'touchstart', handler: this.onTouchStart, options: touchListenerOptions},
+      {target: document, event: 'touchmove', handler: this.onTouchMove, options: touchListenerOptions},
+      {target: document, event: 'touchend', handler: this.onTouchEnd, options: touchListenerOptions},
+      {target: document, event: 'pointerlockchange', handler: this.onPointerLockChange},
+      {target: window, event: 'resize', handler: this.onResize},
+    ]);
+
     this.setTouch0 = this.setTouch_.bind(this, 0);
     this.setTouch1 = this.setTouch_.bind(this, 1);
     this.setTouch2 = this.setTouch_.bind(this, 2);
@@ -126,10 +128,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    document.addEventListener("drop", this.onDrop, true);
-    document.addEventListener("dragover", this.onDragOver, true);
-    document.addEventListener("dragenter", this.onDragEnter, true);
-    document.addEventListener("dragleave", this.onDragLeave, true);
+    this.fileDropTarget.attach();
 
     this.fs.then(fs => {
       const spawn = fs.files.get('spawn.mpq');
@@ -314,10 +313,7 @@ class App extends React.Component {
       return;
     }
 
-    document.removeEventListener("drop", this.onDrop, true);
-    document.removeEventListener("dragover", this.onDragOver, true);
-    document.removeEventListener("dragenter", this.onDragEnter, true);
-    document.removeEventListener("dragleave", this.onDragLeave, true);
+    this.fileDropTarget.detach();
     this.setState({dropping: 0});
 
     const retail = !!(file && !file.name.match(/^spawn\.mpq$/i));
@@ -333,22 +329,15 @@ class App extends React.Component {
     load_game(this, file, !retail).then(game => {
       this.game = game;
 
-      document.addEventListener('mousemove', this.onMouseMove, true);
-      document.addEventListener('mousedown', this.onMouseDown, true);
-      document.addEventListener('mouseup', this.onMouseUp, true);
-      document.addEventListener('keydown', this.onKeyDown, true);
-      document.addEventListener('keyup', this.onKeyUp, true);
-      document.addEventListener('contextmenu', this.onMenu, true);
-
-      document.addEventListener('touchstart', this.onTouchStart, {passive: false, capture: true});
-      document.addEventListener('touchmove', this.onTouchMove, {passive: false, capture: true});
-      document.addEventListener('touchend', this.onTouchEnd, {passive: false, capture: true});
-
-      document.addEventListener('pointerlockchange', this.onPointerLockChange);
-      window.addEventListener('resize', this.onResize);
+      this.runtimeListeners.attach();
 
       this.setState({started: true});
     }, e => this.onError(e.message, e.stack));
+  }
+
+  componentWillUnmount() {
+    this.fileDropTarget.detach();
+    this.runtimeListeners.detach();
   }
 
   pointerLocked() {
