@@ -2,6 +2,13 @@
 
 This roadmap focuses on practical, low-risk modernization while preserving game behavior and multiplayer compatibility.
 
+## Current Status
+
+- **Phase 0:** In progress.
+- Architecture baseline overview: `docs/architecture-overview.md`.
+- System flow diagrams (boot/lifecycle/handshake/storage): `docs/system-diagrams.md`.
+- ADR template: `docs/adr-template.md`.
+
 ## Modernization Outcomes
 
 - Faster onboarding and safer contributor workflows.
