@@ -1,12 +1,21 @@
-import create_fs from './fs';
+import createFs from './fs';
 
-const fs = create_fs();
-window.addEventListener('message', ({data, source}) => {
-  if (data.method === 'transfer') {
-    fs.then(({files}) => {
-      source.postMessage({method: 'storage', files}, '*');
-    });
-  } else if (data.method === 'clear') {
-    fs.then(({clear}) => clear());
+const fsPromise = createFs();
+
+window.addEventListener('message', async ({ data, source }) => {
+  switch (data?.method) {
+    case 'transfer': {
+      if (!source?.postMessage) return;
+      const { files } = await fsPromise;
+      source.postMessage({ method: 'storage', files }, '*');
+      break;
+    }
+    case 'clear': {
+      const { clear } = await fsPromise;
+      clear();
+      break;
+    }
+    default:
+      break;
   }
 });
