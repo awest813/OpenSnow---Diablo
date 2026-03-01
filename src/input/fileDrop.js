@@ -1,23 +1,33 @@
 export function isDropFile(e) {
-  if (e.dataTransfer.items) {
-    for (let i = 0; i < e.dataTransfer.items.length; ++i) {
-      if (e.dataTransfer.items[i].kind === 'file') {
+  const dataTransfer = e && e.dataTransfer;
+  if (!dataTransfer) {
+    return false;
+  }
+
+  if (dataTransfer.items) {
+    for (let i = 0; i < dataTransfer.items.length; ++i) {
+      if (dataTransfer.items[i].kind === 'file') {
         return true;
       }
     }
   }
 
-  return e.dataTransfer.files.length > 0;
+  return !!(dataTransfer.files && dataTransfer.files.length > 0);
 }
 
 export function getDropFile(e) {
-  if (e.dataTransfer.items) {
-    for (let i = 0; i < e.dataTransfer.items.length; ++i) {
-      if (e.dataTransfer.items[i].kind === 'file') {
-        return e.dataTransfer.items[i].getAsFile();
+  const dataTransfer = e && e.dataTransfer;
+  if (!dataTransfer) {
+    return undefined;
+  }
+
+  if (dataTransfer.items) {
+    for (let i = 0; i < dataTransfer.items.length; ++i) {
+      if (dataTransfer.items[i].kind === 'file') {
+        return dataTransfer.items[i].getAsFile();
       }
     }
   }
 
-  return e.dataTransfer.files[0];
+  return dataTransfer.files && dataTransfer.files[0];
 }

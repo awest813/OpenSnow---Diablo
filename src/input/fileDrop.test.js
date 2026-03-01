@@ -40,4 +40,11 @@ describe('fileDrop utilities', () => {
     expect(isDropFile(event)).toBe(false);
     expect(getDropFile(event)).toBeUndefined();
   });
+
+  it('handles missing dataTransfer payload safely', () => {
+    const event = {};
+
+    expect(isDropFile(event)).toBe(false);
+    expect(getDropFile(event)).toBeUndefined();
+  });
 });
