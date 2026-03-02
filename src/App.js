@@ -41,7 +41,7 @@ try {
 
 class App extends React.Component {
   files = new Map();
-  state = {started: false, loading: false, dropping: 0, has_spawn: false, has_saves: false, savesVersion: 0, updateAvailable: false};
+  state = {started: false, loading: false, dropping: 0, has_spawn: false, has_saves: false, savesVersion: 0, updateAvailable: false, storageError: null};
   cursorPos = {x: 0, y: 0};
 
   touchControls = false;
@@ -99,6 +99,9 @@ class App extends React.Component {
     window.addEventListener('swUpdate', this.onSwUpdate);
 
     this.fs.then(fs => {
+      if (fs.initError) {
+        this.setState({storageError: fs.initError.message || String(fs.initError)});
+      }
       const spawn = fs.files.get('spawn.mpq');
       if (spawn && SpawnSizes.includes(spawn.byteLength)) {
         this.setState({has_spawn: true});
@@ -371,6 +374,12 @@ class App extends React.Component {
             <div className="updateBanner">
               A new version is available.{' '}
               <button onClick={() => window.location.reload()}>Reload</button>
+            </div>
+          )}
+          {this.state.storageError && (
+            <div className="storageBanner">
+              Save storage unavailable — game progress will not be saved.{' '}
+              <small>({this.state.storageError})</small>
             </div>
           )}
           <div className="touch-ui touch-mods">
