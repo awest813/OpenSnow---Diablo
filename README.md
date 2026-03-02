@@ -1,171 +1,133 @@
-# DiabloWeb
+# OpenSnow — Diablo (DiabloWeb)
 
-> Diablo 1 (1996) running natively in your browser — no plugins, no installs.
+> Play Diablo 1 in a modern browser using WebAssembly, with local save persistence, touch controls, and multiplayer support.
 
 [![CI](https://github.com/d07RiV/diabloweb/actions/workflows/ci.yml/badge.svg)](https://github.com/d07RiV/diabloweb/actions/workflows/ci.yml)
 [![Version](https://img.shields.io/badge/version-1.0.39-blue.svg)](package.json)
 [![Live Demo](https://img.shields.io/badge/play-live%20demo-darkred.svg)](https://d07RiV.github.io/diabloweb/)
 
-**[Play now →](https://d07RiV.github.io/diabloweb/)**
-
-DiabloWeb compiles the reverse-engineered [devilution](https://github.com/diasurgical/devilution) game engine to **WebAssembly** and wraps it in a React shell that handles input, audio, networking, and save-file persistence — all inside a standard browser tab.
+**Live demo:** [https://d07RiV.github.io/diabloweb/](https://d07RiV.github.io/diabloweb/)
 
 ---
 
-## Contents
+## What this project is
 
-- [Features](#features)
-- [How to Play](#how-to-play)
-- [Running Locally](#running-locally)
-- [Building from Source](#building-from-source)
-- [Architecture](#architecture)
-- [Contributing](#contributing)
-- [Roadmap](#roadmap)
-- [Credits](#credits)
+This repository packages the reverse-engineered Diablo 1 engine (via [devilution](https://github.com/diasurgical/devilution)) for browser execution.
 
----
+At runtime:
+- The game engine runs in a **Web Worker** via **WebAssembly**.
+- The app shell (React) handles UI, input, storage, and session orchestration.
+- Save data and imported MPQ files are persisted locally in **IndexedDB**.
+- Multiplayer uses **WebRTC** first, with a **WebSocket relay** fallback.
 
-## Features
-
-| Category | Details |
-|---|---|
-| **Engine** | Full Diablo 1 engine compiled to WebAssembly via Emscripten |
-| **Versions** | Shareware (`spawn.mpq`) and full retail (`DIABDAT.MPQ`) |
-| **Multiplayer** | Peer-to-peer via WebRTC (PeerJS) and relay via WebSocket |
-| **Mobile** | Touch controls with configurable on-screen buttons and 2-finger pan |
-| **PWA** | Installable, full-screen, service-worker cached for offline use |
-| **Save files** | Persisted in IndexedDB; import/export/download supported |
-| **Platforms** | Chrome, Firefox, Safari (desktop and mobile) |
-| **No server required** | Shareware mode works entirely client-side; retail game data stays local |
+No game data is uploaded by default: imported retail MPQ files stay in browser storage.
 
 ---
 
-## How to Play
+## Quick start
 
-### Shareware (free, no files needed)
+### Play immediately (shareware)
+1. Open the live demo.
+2. Start playing (shareware `spawn.mpq` is loaded automatically).
 
-Visit **[https://d07RiV.github.io/diabloweb/](https://d07RiV.github.io/diabloweb/)**.
+### Play retail Diablo 1
+1. Get `DIABDAT.MPQ` from a legitimate installation (e.g., GOG).
+2. Open the app.
+3. Drag-and-drop `DIABDAT.MPQ` into the game, or use the upload flow.
+4. The file is stored locally and reused on next launch.
 
-The shareware data file (`spawn.mpq`) is served automatically. You can explore the Cathedral through level 4 with one pre-set character.
-
-### Full Retail Game
-
-You need `DIABDAT.MPQ` from a legitimate copy of Diablo 1 (available on [GOG](https://www.gog.com/game/diablo)).
-
-1. Open the live site.
-2. Drag and drop `DIABDAT.MPQ` onto the browser window, **or** click the upload button.
-3. The file is stored locally in your browser — it is never uploaded to any server.
-4. Your save games are also kept in browser storage and persist across sessions.
-
-> **Note:** If your `DIABDAT.MPQ` is larger than ~600 MB, use the built-in MPQ compression tool on the site to produce a trimmed version that loads faster.
-
-### Multiplayer
-
-- **Host:** Click **Create Game** and share the displayed game ID with other players.
-- **Join:** Click **Join Game** and enter the host's game ID.
-- Both players must be running the same version (shareware or retail).
-- WebRTC (direct P2P) is attempted first; the relay server at `diablo.rivsoft.net` is used as a fallback.
+> Tip: If your MPQ is large, use the in-app MPQ compression tool for faster loads.
 
 ---
 
-## Running Locally
+## Feature overview
 
-See **[docs/build-guide.md](docs/build-guide.md)** for the complete guide. The short version:
+- **Engine parity:** Diablo 1 core engine running in the browser.
+- **Modes:** Shareware (`spawn.mpq`) and full retail (`DIABDAT.MPQ`).
+- **Multiplayer:** Peer-to-peer with fallback relay transport.
+- **Cross-device input:** Keyboard/mouse and touch controls.
+- **Persistent saves:** Import/export/delete saves without leaving the browser.
+- **PWA support:** Installable and offline-capable foundation.
 
+---
+
+## Local development
+
+### Prerequisites
+- Node.js 20.x
+- npm
+
+### Run in development
 ```bash
 git clone https://github.com/d07RiV/diabloweb.git
 cd diabloweb
 npm ci --legacy-peer-deps
-npm start          # dev server at http://localhost:3000
+npm start
 ```
 
-To play the shareware version locally, place `spawn.mpq` inside the `public/` folder before starting. The dev server will serve it automatically.
+The dev server runs at `http://localhost:3000`.
 
----
+For shareware testing, place `spawn.mpq` in `public/`.
 
-## Building from Source
-
+### Build and test
 ```bash
-npm run build      # production bundle → build/
-npm test           # run the test suite
-npm run deploy     # push build/ to GitHub Pages (requires repo access)
+npm test
+npm run build
 ```
 
-The build requires **Node.js 20** and uses **Webpack 4** with Babel. Full environment details and troubleshooting tips are in **[docs/build-guide.md](docs/build-guide.md)**.
-
-### WebAssembly Modules
-
-The pre-built WASM binaries (`Diablo.jscc`, `DiabloSpawn.jscc`, `MpqCmp.jscc`) are checked into `src/api/` and `src/mpqcmp/`. Rebuilding them from C++ source is a separate process — see the [devilution fork](https://github.com/d07RiV/devilution) for instructions.
+For full setup and troubleshooting, see [docs/build-guide.md](docs/build-guide.md).
 
 ---
 
-## Architecture
+## Architecture map
 
-```
-User Input (keyboard / touch / drag-and-drop)
-       │
-  src/App.js  ─────────────────────────────────────────────────┐
-       │                                                         │
-  src/api/loader.js  ──────────────────────────────────────┐    │
-       │                                                    │    │
-  src/api/game.worker.js                             src/fs.js  │
-  (WASM engine, render loop)                    (IndexedDB)     │
-       │                                                    │    │
-  Canvas + Web Audio                      webrtc.js / websocket.js
-                                           (P2P / relay multiplayer)
-```
+High-level flow:
 
-Key source files:
+1. `src/App.js` coordinates session lifecycle, overlays, and input wiring.
+2. `src/api/loader.js` boots the worker and adapts audio/render/storage/network boundaries.
+3. `src/api/game.worker.js` hosts the WASM engine loop and game-side APIs.
+4. `src/fs.js` persists files/saves through IndexedDB.
+5. `src/api/webrtc.js` / `src/api/websocket.js` manage multiplayer transport.
 
-| File | Role |
-|---|---|
-| `src/App.js` | Root React component — input, session lifecycle, UI overlays |
-| `src/api/loader.js` | Bootstraps the game worker, wires render/audio/network/storage |
-| `src/api/game.worker.js` | Runs inside a Web Worker; drives the WASM game engine |
-| `src/api/packet.js` | Binary multiplayer packet serialization |
-| `src/api/webrtc.js` | PeerJS WebRTC multiplayer host/client |
-| `src/api/websocket.js` | WebSocket relay transport |
-| `src/api/savefile.js` | MPQ reader and save-file parser |
-| `src/api/codec.js` | Blizzard save-file encryption (SHA1-based stream cipher) |
-| `src/fs.js` | IndexedDB persistence layer |
-| `src/input/` | Extracted input modules — drag-drop, event listeners, touch |
+Helpful docs:
+- [docs/architecture-overview.md](docs/architecture-overview.md)
+- [docs/system-diagrams.md](docs/system-diagrams.md)
+- [docs/modernization-roadmap.md](docs/modernization-roadmap.md)
 
-Detailed docs: [docs/architecture-overview.md](docs/architecture-overview.md) · [docs/system-diagrams.md](docs/system-diagrams.md)
+---
+
+## Project status
+
+This project is active and currently focused on:
+- continued decomposition of the app shell,
+- toolchain modernization,
+- stronger runtime boundary contracts,
+- multiplayer reliability and diagnostics.
+
+See [ROADMAP.md](ROADMAP.md) for milestone-level planning.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. Before opening a large PR, please read:
+Contributions are welcome.
 
-- [docs/modernization-roadmap.md](docs/modernization-roadmap.md) — active work and phase priorities
-- [docs/architecture-overview.md](docs/architecture-overview.md) — current module boundaries
-- [docs/adr-template.md](docs/adr-template.md) — how to document architecture decisions
-
-**Rules of thumb:**
-
-1. Don't break gameplay — protocol and simulation behavior must remain deterministic.
-2. Add or update tests for any changed module.
-3. All PRs must pass CI (lint + tests + build) before merging.
-4. Prefer incremental, reviewable changes over large rewrites.
+Before sending a larger PR:
+1. Review [ROADMAP.md](ROADMAP.md) and [docs/modernization-roadmap.md](docs/modernization-roadmap.md).
+2. Open an issue describing scope and approach.
+3. Include tests (or rationale when tests are not practical).
+4. Keep changes focused and incremental where possible.
 
 ---
 
-## Roadmap
+## Legal note
 
-See [ROADMAP.md](ROADMAP.md) for the full feature and modernization roadmap.
-
-Current focus (Phase 0–1): CI hardening, unit test coverage, and decomposing `App.js` into focused modules.
+Diablo is a Blizzard Entertainment property. This project does not distribute commercial game assets. You must provide your own legally obtained retail data file (`DIABDAT.MPQ`) for full-version play.
 
 ---
 
 ## Credits
 
-- **[devilution](https://github.com/diasurgical/devilution)** — the reverse-engineered Diablo 1 engine that makes this possible.
-- **[d07RiV/devilution](https://github.com/d07RiV/devilution)** — the WebAssembly fork with JS interface modifications.
-- **[PeerJS](https://peerjs.com/)** — WebRTC abstraction used for peer-to-peer multiplayer.
-- All Diablo 1 game content is property of **Blizzard Entertainment**. This project does not distribute any copyrighted game assets.
-
----
-
-*DiabloWeb is an unofficial fan project and is not affiliated with or endorsed by Blizzard Entertainment.*
+- [d07RiV/diabloweb](https://github.com/d07RiV/diabloweb) original project
+- [diasurgical/devilution](https://github.com/diasurgical/devilution) reverse-engineered Diablo engine
+- Contributors maintaining browser compatibility, tooling, and UX improvements
