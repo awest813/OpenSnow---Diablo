@@ -47,11 +47,8 @@ async function uploadFile(store, files, file) {
 export default async function create_fs() {
   try {
     const store = new IdbKvStore('diablo_fs');
-    const files = new Map();
     const storeJson = await store.json();
-    for (let [name, data] of Object.entries(storeJson)) {
-      files.set(name, data);
-    }
+    const files = new Map(Object.entries(storeJson));
     return {
       initError: null,
       files,
