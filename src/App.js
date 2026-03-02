@@ -71,6 +71,7 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
+    this.multiplayerOptions = this.resolveMultiplayerOptions();
 
     this.fileDropTarget = createFileDropTarget({
       target: document,
@@ -106,6 +107,20 @@ class App extends React.Component {
     this.setTouch7 = this.setTouch_.bind(this, 7);
     this.setTouch8 = this.setTouch_.bind(this, 8);
     this.setTouch9 = this.setTouch_.bind(this, 9);
+  }
+
+  resolveMultiplayerOptions() {
+    const config = {...(window.DIABLOWEB_MULTIPLAYER_OPTIONS || {})};
+    const params = new URLSearchParams(window.location.search);
+    const transport = params.get('transport');
+    if (transport === 'peerjs' || transport === 'websocket') {
+      config.kind = transport;
+    }
+    const websocketUrl = params.get('websocketUrl');
+    if (websocketUrl) {
+      config.websocketUrl = websocketUrl;
+    }
+    return config;
   }
 
   onSwUpdate = () => this.setState({updateAvailable: true});
@@ -223,12 +238,20 @@ class App extends React.Component {
     if (!text) {
       return false;
     }
+    let clipboardFailed = false;
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(text);
         return true;
       }
     } catch (e) {
+      clipboardFailed = true;
+    }
+    if (!clipboardFailed && (!navigator.clipboard || !navigator.clipboard.writeText)) {
+      clipboardFailed = true;
+    }
+    if (!clipboardFailed) {
+      return false;
     }
     const input = document.createElement('textarea');
     input.value = text;

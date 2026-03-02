@@ -14,6 +14,7 @@ This guide covers everything you need to develop, test, and build DiabloWeb loca
 - [Linting](#linting)
 - [Production Build](#production-build)
 - [Deploying to GitHub Pages](#deploying-to-github-pages)
+- [Self-Hosted Multiplayer Relay](#self-hosted-multiplayer-relay)
 - [Rebuilding the WebAssembly Modules](#rebuilding-the-webassembly-modules)
 - [Environment Variables](#environment-variables)
 - [Common Issues](#common-issues)
@@ -195,6 +196,16 @@ npm run deploy
 This requires push access to the repository. The live site at [https://d07RiV.github.io/diabloweb/](https://d07RiV.github.io/diabloweb/) is served from that branch.
 
 The Vite build sets `base: '/diabloweb/'` so all asset paths are rooted correctly under the GitHub Pages sub-path.
+
+---
+
+## Self-Hosted Multiplayer Relay
+
+If you run your own multiplayer relay endpoint, see:
+
+- [docs/self-host-relay.md](self-host-relay.md)
+
+That guide covers runtime client configuration (`transport=websocket` + `websocketUrl`) and operational relay requirements.
 
 ---
 

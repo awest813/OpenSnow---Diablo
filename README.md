@@ -93,6 +93,7 @@ Helpful docs:
 - [docs/architecture-overview.md](docs/architecture-overview.md)
 - [docs/system-diagrams.md](docs/system-diagrams.md)
 - [docs/modernization-roadmap.md](docs/modernization-roadmap.md)
+- [docs/self-host-relay.md](docs/self-host-relay.md)
 
 ---
 
@@ -102,7 +103,7 @@ This project is active and currently focused on:
 - continued decomposition of the app shell,
 - toolchain modernization,
 - stronger runtime boundary contracts,
-- multiplayer reliability and diagnostics.
+- multiplayer reliability and diagnostics (connection lifecycle logging, status UX, and guided recovery).
 
 See [ROADMAP.md](ROADMAP.md) for milestone-level planning.
 
@@ -112,7 +113,7 @@ See [ROADMAP.md](ROADMAP.md) for milestone-level planning.
 
 Contributions are welcome.
 
-Current focus (Phase 2): toolchain and dependency modernization while preserving runtime behavior.
+Current focus (Phase 4): multiplayer reliability, observability, and compatibility hardening.
 
 ---
 

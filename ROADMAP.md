@@ -89,12 +89,12 @@ Status legend:
 **Goal:** make multiplayer failures diagnosable and recoverable by users.
 
 - ✅ Introduce transport abstraction (`Transport` interface with PeerJS/WebSocket adapters) — `src/api/transports/index.js`, `peerjsTransport.js`, `websocketTransport.js`
-- 🔲 Add structured connection lifecycle logging and error categorization
-- 🔲 Expose connection status in UI (`connecting`, `connected`, `retrying`, `failed`)
-- 🔲 Add guided recovery actions (retry, reconnect, copy session ID, share link)
-- 🔲 Add handshake/version checks to reduce protocol mismatch failures
+- ✅ Add structured connection lifecycle logging and error categorization — `src/api/multiplayerDiagnostics.js` + transport lifecycle hooks
+- ✅ Expose connection status in UI (`connecting`, `connected`, `retrying`, `failed`) — `src/ui/MultiplayerStatusBanner.js`
+- ✅ Add guided recovery actions (retry, reconnect, copy session ID, share link) — banner actions wired through loader transport controls
+- ✅ Add handshake/version checks to reduce protocol mismatch failures — diagnostics classify reject/version protocol mismatch paths
 - 🔲 Add compatibility regression tests for common join/host flows
-- 🔲 Publish self-host relay server documentation for advanced users
+- ✅ Publish self-host relay server documentation for advanced users — `docs/self-host-relay.md`
 
 ---
 
