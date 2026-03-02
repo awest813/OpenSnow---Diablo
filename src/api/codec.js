@@ -88,7 +88,7 @@ class Random {
   }
 }
 
-function codec_init_key(password) {
+export function codec_init_key(password) {
   const rand = new Random(0x7058);
   const key = new Uint8Array(136);
   const k32 = new Uint32Array(key.buffer);
