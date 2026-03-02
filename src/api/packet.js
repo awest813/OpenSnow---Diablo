@@ -263,5 +263,5 @@ export const client_packet = {
     size: 4,
     write: (writer, {turn}) => writer.write32(turn),
   },
-  batch: make_batch(() => server_packet),
+  batch: make_batch(() => client_packet),
 };

@@ -11,7 +11,7 @@ function pkzip_decompress(data, out_size) {
   let out_pos = 0;
   function read_buf(dst) {
     const count = Math.min(data.length - in_pos, dst.length);
-    dst.set(data.subarray(in_pos, count));
+    dst.set(data.subarray(in_pos, in_pos + count));
     in_pos += count;
     return count;
   }

@@ -45,7 +45,7 @@ ${message.split("\n").map(line => "    " + line).join("\n")}
     ${navigator.userAgent}
 
 **Save file:**
-[Please attach the save file, if applicable. The error box should have a link to download the current save you were playing; alternatively, you can open dev console on the game page (F12) and type in ${"`DownloadSaves()`"}]
+[Please attach the save file, if applicable. The error box should have a link to download the current save you were playing; alternatively, use the Download button in the Manage Saves screen.]
 `);
   return url.toString();
 }
@@ -195,7 +195,7 @@ class App extends React.Component {
         left: `${(100 * (rect[0] - 10) / 640).toFixed(2)}%`,
         top: `${(100 * (rect[1] - 10) / 480).toFixed(2)}%`,
         width: `${(100 * (rect[2] - rect[0] + 20) / 640).toFixed(2)}%`,
-        height: `${(100 * (rect[3] - rect[1] + 20) / 640).toFixed(2)}%`,
+        height: `${(100 * (rect[3] - rect[1] + 20) / 480).toFixed(2)}%`,
       };
       this.maxKeyboard = rect[4];
       this.element.classList.add("keyboard");
