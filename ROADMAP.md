@@ -93,7 +93,7 @@ Status legend:
 - ✅ Expose connection status in UI (`connecting`, `connected`, `retrying`, `failed`) — `src/ui/MultiplayerStatusBanner.js`
 - ✅ Add guided recovery actions (retry, reconnect, copy session ID, share link) — banner actions wired through loader transport controls
 - ✅ Add handshake/version checks to reduce protocol mismatch failures — diagnostics classify reject/version protocol mismatch paths
-- 🔲 Add compatibility regression tests for common join/host flows
+- ✅ Add compatibility regression tests for common join/host flows — `src/api/transports/peerjsTransport.test.js`, `src/api/transports/websocketTransport.test.js`, `src/api/transports/index.test.js`
 - ✅ Publish self-host relay server documentation for advanced users — `docs/self-host-relay.md`
 
 ---
