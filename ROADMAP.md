@@ -1,47 +1,45 @@
-# DiabloWeb Roadmap
+# OpenSnow — Diablo Roadmap
 
-This document tracks the feature goals and technical modernization work for DiabloWeb. It is organized by phase and updated as work progresses.
+This roadmap tracks modernization and reliability work for the browser-based Diablo runtime.
 
-For the detailed engineering breakdown of each phase (exit criteria, ticket list, risks), see [docs/modernization-roadmap.md](docs/modernization-roadmap.md).
-
----
-
-## Status Key
-
-| Symbol | Meaning |
-|---|---|
-| ✅ | Done |
-| 🔄 | In progress |
-| 🔲 | Planned |
-| ⏸ | Deferred / on hold |
+Status legend:
+- ✅ Done
+- 🚧 In Progress
+- 🔲 Planned
+- ⏸ Deferred
 
 ---
 
-## Phase 0 — Baseline and Safety Net
+## 2026 Strategic Objectives
 
-Goal: establish CI, documentation, and minimum test coverage before any structural changes.
-
-- ✅ Architecture overview doc (`docs/architecture-overview.md`)
-- ✅ System flow diagrams (`docs/system-diagrams.md`)
-- ✅ ADR template (`docs/adr-template.md`)
-- ✅ GitHub Actions CI (lint + tests + build on every push and PR)
-- ✅ Unit tests for packet codec (`src/api/packet.test.js`)
-- ✅ Unit tests for save-file parser (`src/api/savefile.test.js`)
-- ✅ Unit tests for codec encryption (`src/api/codec.test.js`)
-- ✅ Unit tests for sound API (`src/api/sound.test.js`)
-- ✅ Extract drag-and-drop detection into `src/input/fileDrop.js`
-- ✅ Extract event listener lifecycle into `src/input/eventListeners.js`
-- ✅ Extract file-drop target lifecycle into `src/input/fileDropTarget.js`
-- ✅ Unit tests for all extracted input modules
-- ✅ README overhaul
-- ✅ Build guide (`docs/build-guide.md`)
-- ✅ Root roadmap (`ROADMAP.md`)
+1. **Stabilize architecture boundaries** between app shell, worker, storage, and transports.
+2. **Modernize the toolchain** to reduce contributor setup friction and build times.
+3. **Increase multiplayer reliability** with better diagnostics and recovery UX.
+4. **Improve accessibility and mobile UX** without regressing core gameplay behavior.
+5. **Raise confidence** through targeted unit, integration, and regression coverage.
 
 ---
 
-## Phase 1 — App Surface Decomposition
+## Phase 0 — Completed Foundations
 
-Goal: reduce `App.js` from a monolithic orchestration class to a thin composition shell.
+- ✅ Worker extraction and loader boundary setup (`src/api/loader.js`, `src/api/game.worker.js`)
+- ✅ Input module extraction for file drop and event listener lifecycle
+- ✅ Unit tests for packet handling, codec, and key extracted modules
+- ✅ Save manager and UI decomposition started from monolithic app flow
+- ✅ Build and architecture docs established (`README.md`, `docs/build-guide.md`, architecture docs)
+
+---
+
+## Phase 1 — Application Surface Decomposition
+
+**Goal:** keep `App.js` focused on composition, routing of intent, and top-level state.
+
+### Completed
+- ✅ Touch control state machine extraction
+- ✅ Keyboard and mouse handler extraction
+- ✅ Session lifecycle extraction into dedicated engine/session module
+- ✅ Error overlay and save manager isolation
+- ✅ Loading/start screen isolation from core orchestration logic
 
 - ✅ Extract touch state machine from `App.js` into `src/input/touchControls` with unit tests
 - ✅ Extract game session lifecycle (start / stop / reset / error) into `src/engine/session.js`
@@ -57,9 +55,9 @@ Goal: reduce `App.js` from a monolithic orchestration class to a thin compositio
 
 ---
 
-## Phase 2 — Toolchain Upgrade
+## Phase 2 — Toolchain Modernization
 
-Goal: replace the CRA-era Webpack 4 / React 16 / Jest 24 stack with a faster, better-supported toolchain.
+**Goal:** replace legacy CRA/Webpack-4 constraints with a maintainable modern stack.
 
 - ✅ Evaluate Vite + React 18 migration track (preferred) vs Webpack 5 fallback — Vite 6 chosen
 - ✅ Migrate bundler — Webpack 4 → Vite 6; workers use `?worker`, WASM uses `?url`, `.jscc` files wrapped via custom Vite plugin; build: 149 modules in ~1.6s
@@ -74,7 +72,7 @@ Goal: replace the CRA-era Webpack 4 / React 16 / Jest 24 stack with a faster, be
 
 ## Phase 3 — Runtime Boundary Hardening
 
-Goal: make the worker, storage, and loader boundaries explicit, typed, and safely teardown-able.
+**Goal:** prevent lifecycle leaks and reduce implicit coupling across modules.
 
 - ✅ Define formal worker message types (request / response / event schemas) — `src/api/workerMessages.js`
 - ✅ Add adapter shim so existing implicit messages continue to work during migration — `WorkerToMain` / `MainToWorker` constants used in both `loader.js` and `game.worker.js`
@@ -86,66 +84,64 @@ Goal: make the worker, storage, and loader boundaries explicit, typed, and safel
 
 ---
 
-## Phase 4 — Multiplayer Reliability and Observability
+## Phase 4 — Multiplayer Reliability and Visibility
 
-Goal: make multiplayer failures diagnosable, recoverable, and visible to users.
+**Goal:** make multiplayer failures diagnosable and recoverable by users.
 
-- 🔲 Add `Transport` abstraction with PeerJS and WebSocket as interchangeable adapters
-- 🔲 Add structured event logging for connect / join / reject / disconnect paths
-- 🔲 Surface connection state in UI (connecting, connected, disconnected, error)
-- 🔲 Add actionable recovery UI for common multiplayer failures (retry, copy ID, share link)
-- 🔲 Establish protocol version policy — server and client handshake version checks
-- 🔲 Add multiplayer compatibility regression tests to CI
-- 🔲 Document relay server (`diablo.rivsoft.net`) setup for self-hosting
+- 🔲 Introduce transport abstraction (`Transport` interface with PeerJS/WebSocket adapters)
+- 🔲 Add structured connection lifecycle logging and error categorization
+- 🔲 Expose connection status in UI (`connecting`, `connected`, `retrying`, `failed`)
+- 🔲 Add guided recovery actions (retry, reconnect, copy session ID, share link)
+- 🔲 Add handshake/version checks to reduce protocol mismatch failures
+- 🔲 Add compatibility regression tests for common join/host flows
+- 🔲 Publish self-host relay server documentation for advanced users
 
 ---
 
-## Phase 5 — UX, Accessibility, and Performance (Ongoing)
+## Phase 5 — UX, Accessibility, and Performance
 
-Goal: incremental quality-of-life improvements without regressions.
+**Goal:** iterative improvements that preserve gameplay correctness.
 
-### Touch / Mobile
-- 🔲 Configurable touch button layout presets saved per-device
-- 🔲 Improved 2-finger pan sensitivity and dead-zone tuning
-- 🔲 Gesture conflict resolution (pan vs. tap vs. long-press)
-- 🔲 Mobile onboarding flow for first-time DIABDAT.MPQ import
+### Mobile & Touch
+- 🔲 Layout presets for touch controls
+- 🔲 Better two-finger pan sensitivity calibration
+- 🔲 Gesture conflict handling (tap/pan/long-press)
+- 🔲 First-run onboarding for MPQ import on mobile
 
 ### Accessibility
-- 🔲 Keyboard-navigable UI overlays (save manager, error overlay, game menu)
-- 🔲 Focus management on dialog open/close
-- 🔲 ARIA labels on canvas and interactive overlays
-- 🔲 High-contrast mode for UI chrome (game canvas rendering is unchanged)
+- 🔲 Keyboard-operable overlay controls
+- 🔲 Focus trap + return-focus behavior for dialogs
+- 🔲 Improved ARIA labeling and semantic landmarks in app chrome
+- 🔲 Optional high-contrast UI mode (outside core game rendering)
 
 ### Performance
-- 🔲 Measure and reduce main-thread blocking during game startup
-- 🔲 Profile and optimize text-draw and render-patch costs in the worker
-- 🔲 Lazy-load MPQ compression tool (not needed on startup)
-- 🔲 Reduce initial JS bundle size; establish a size budget enforced in CI
+- 🔲 Reduce startup main-thread blocking
+- 🔲 Profile worker hotspots and optimize render patch pipeline
+- 🔲 Lazy-load MPQ compression tooling
+- 🔲 Add bundle-size budget checks in CI
 
-### PWA
-- 🔲 Service worker update flow with clear user notification
-- 🔲 Offline-capable shareware mode (all assets pre-cached)
-- 🔲 Install prompt surfaced at the right moment (after game loads successfully)
-
----
-
-## Deferred / Considering
-
-These items are tracked but not scheduled.
-
-- ⏸ TypeScript migration — currently blocked by the toolchain upgrade; revisit in Phase 2
-- ⏸ Audio improvements — low-latency scheduling for sound effects
-- ⏸ Gamepad / controller input support
-- ⏸ Save-file cross-browser sync (export/import flow exists; cloud sync would need a backend)
-- ⏸ Self-hostable relay server documentation and Docker image
+### PWA & Offline
+- 🔲 Clear service-worker update UX
+- 🔲 Reliable offline shareware mode with deterministic precache
+- 🔲 Better timing for install prompt surfacing
 
 ---
 
-## How to Contribute
+## Deferred / Under Consideration
 
-If you want to pick up a `🔲 Planned` item:
+- ⏸ TypeScript migration (revisit after toolchain stabilization)
+- ⏸ Gamepad/controller support
+- ⏸ Advanced low-latency audio scheduling improvements
+- ⏸ Optional cloud save sync (would require backend)
+- ⏸ Official Dockerized relay reference deployment
 
-1. Check [docs/modernization-roadmap.md](docs/modernization-roadmap.md) for engineering context on the relevant phase.
-2. Open an issue describing your approach before starting large changes.
-3. All PRs must pass CI and include tests for changed behavior.
-4. See [README.md](README.md#contributing) for the full contributing guidelines.
+---
+
+## Contribution alignment
+
+If you want to contribute against this roadmap:
+
+1. Choose a 🔲 planned item and open a scoped issue first.
+2. Describe expected behavior changes and risks.
+3. Land work in small PRs with tests where feasible.
+4. Update docs when workflows, setup, or user-visible behavior changes.
