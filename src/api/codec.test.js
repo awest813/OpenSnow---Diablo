@@ -40,6 +40,17 @@ describe('codec_decode', () => {
     expect(decoded).toEqual(origData);
   });
 
+  test('happy path: correctly decodes data with complex bitwise patterns', () => {
+    const origData = new Uint8Array(64);
+    const patterns = [0xAA, 0x55, 0xFF, 0x00, 0xCC, 0x33, 0xF0, 0x0F];
+    for (let i = 0; i < 64; i++) {
+      origData[i] = patterns[i % patterns.length];
+    }
+    const encoded = codec_encode(origData, password);
+    const decoded = codec_decode(encoded, password);
+    expect(decoded).toEqual(origData);
+  });
+
   test('happy path: correctly decodes valid encoded data (large size)', () => {
     const origData = new Uint8Array(150);
     for (let i = 0; i < 150; i++) {
@@ -67,8 +78,14 @@ describe('codec_decode', () => {
     expect(decoded).toBeUndefined();
   });
 
-  test('edge case: decoding data that is too short returns undefined', () => {
-    const shortData = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]); // length <= 8
+  test('edge case: decoding data that is exactly 8 bytes returns undefined', () => {
+    const shortData = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]); // exactly 8
+    const decoded = codec_decode(shortData, password);
+    expect(decoded).toBeUndefined();
+  });
+
+  test('edge case: decoding data that is less than 8 bytes returns undefined', () => {
+    const shortData = new Uint8Array([1, 2, 3, 4, 5, 6, 7]); // less than 8
     const decoded = codec_decode(shortData, password);
     expect(decoded).toBeUndefined();
   });
