@@ -15,8 +15,20 @@ process.on('unhandledRejection', err => {
 // Ensure environment variables are read.
 require('../config/env');
 
+let jest;
+try {
+  jest = require('jest');
+} catch (error) {
+  if (error && error.code === 'MODULE_NOT_FOUND' && /['\"]jest['\"]/.test(error.message)) {
+    console.error(
+      'Unable to start tests because the "jest" package is missing. ' +
+      'Install dependencies first (for example: "npm ci --legacy-peer-deps") and retry.'
+    );
+    process.exit(1);
+  }
 
-const jest = require('jest');
+  throw error;
+}
 const execSync = require('child_process').execSync;
 let argv = process.argv.slice(2);
 
