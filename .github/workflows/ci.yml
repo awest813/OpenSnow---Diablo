@@ -30,6 +30,9 @@ jobs:
         run: npm test -- --watchAll=false --ci
 
       - name: Build production bundle
+        # Webpack 4 uses MD4 hashing which was removed from OpenSSL 3's default
+        # provider (shipped with Node 17+). The legacy provider flag restores it.
         run: npm run build
         env:
           CI: false
+          NODE_OPTIONS: --openssl-legacy-provider
