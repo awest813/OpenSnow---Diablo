@@ -1,4 +1,85 @@
-import { buffer_reader, buffer_writer } from './packet';
+import { buffer_reader, buffer_writer, make_batch } from './packet';
+
+describe('make_batch', () => {
+  const dummy_types = {
+    dummy1: {
+      code: 0x10,
+      read: reader => ({ val: reader.read8() }),
+      size: 1,
+      write: (writer, packet) => writer.write8(packet.val)
+    },
+    dummy2: {
+      code: 0x20,
+      read: reader => ({ str: reader.read_str() }),
+      size: packet => 1 + packet.str.length,
+      write: (writer, packet) => writer.write_str(packet.str)
+    }
+  };
+
+  const get_types = () => dummy_types;
+  const batch_type = make_batch(get_types);
+
+  it('calculates the correct size', () => {
+    const packets = [
+      { type: dummy_types.dummy1, packet: { val: 42 } },
+      { type: dummy_types.dummy2, packet: { str: 'abc' } }
+    ];
+    // Size should be:
+    // 2 bytes for the packet count (UInt16)
+    // Packet 1: 1 byte for code (0x10) + 1 byte for val = 2 bytes
+    // Packet 2: 1 byte for code (0x20) + 1 byte for str length + 3 bytes for 'abc' = 5 bytes
+    // Total: 2 + 2 + 5 = 9 bytes
+    expect(batch_type.size(packets)).toBe(9);
+  });
+
+  it('writes and reads a batch of packets', () => {
+    const packets = [
+      { type: dummy_types.dummy1, packet: { val: 42 } },
+      { type: dummy_types.dummy2, packet: { str: 'abc' } }
+    ];
+
+    const writer = new buffer_writer(9);
+    batch_type.write(writer, packets);
+
+    // Verify written buffer structure
+    const buf = new Uint8Array(writer.result);
+    // [0]: count lower byte (2), [1]: count upper byte (0)
+    expect(buf[0]).toBe(2);
+    expect(buf[1]).toBe(0);
+    // [2]: code for dummy1 (0x10)
+    expect(buf[2]).toBe(0x10);
+    // [3]: val for dummy1 (42)
+    expect(buf[3]).toBe(42);
+    // [4]: code for dummy2 (0x20)
+    expect(buf[4]).toBe(0x20);
+    // [5]: str length (3)
+    expect(buf[5]).toBe(3);
+    // [6-8]: 'a', 'b', 'c' (97, 98, 99)
+    expect(buf[6]).toBe(97);
+    expect(buf[7]).toBe(98);
+    expect(buf[8]).toBe(99);
+
+    const reader = new buffer_reader(writer.result);
+    const result = batch_type.read(reader);
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual({ type: dummy_types.dummy1, packet: { val: 42 } });
+    expect(result[1]).toEqual({ type: dummy_types.dummy2, packet: { str: 'abc' } });
+  });
+
+  it('handles an empty batch', () => {
+    const packets = [];
+    expect(batch_type.size(packets)).toBe(2); // 2 bytes for count
+
+    const writer = new buffer_writer(2);
+    batch_type.write(writer, packets);
+
+    const reader = new buffer_reader(writer.result);
+    const result = batch_type.read(reader);
+
+    expect(result).toEqual([]);
+  });
+});
 
 describe('buffer_writer', () => {
   it('initializes correctly with length', () => {
