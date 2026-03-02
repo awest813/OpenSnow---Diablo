@@ -1,35 +1,5 @@
 import IdbKvStore from  'idb-kv-store';
 
-/*const importStorage = () => new Promise((resolve, reject) => {
-  let done = false;
-  const frame = document.createElement('iframe');
-  window.addEventListener('message', ({data}) => {
-    if (data.method === 'storage' && !done) {
-      done = true;
-      resolve(data.files);
-      frame.contentWindow.postMessage({method: 'clear'}, '*');
-    }
-  });
-  frame.addEventListener('load', () => {
-    frame.contentWindow.postMessage({method: 'transfer'}, '*');
-  });
-  frame.addEventListener('error', () => {
-    if (!done) {
-      done = true;
-      resolve(null);
-    }
-  });
-  frame.src = "https://diablo.rivsoft.net/storage.html";
-  frame.style.display = "none";
-  document.body.appendChild(frame);
-  setTimeout(() => {
-    if (!done) {
-      done = true;
-      resolve(null);
-    }
-  }, 10000);
-});*/
-
 async function downloadFile(store, name) {
   const file = await store.get(name.toLowerCase());
   if (file) {
@@ -60,7 +30,7 @@ async function uploadFile(store, files, file) {
   return store.set(file.name.toLowerCase(), data);
 }
 
-export default async function create_fs(load) {
+export default async function create_fs() {
   try {
     const store = new IdbKvStore('diablo_fs');
     const files = new Map();
@@ -68,15 +38,6 @@ export default async function create_fs(load) {
     for (let [name, data] of Object.entries(storeJson)) {
       files.set(name, data);
     }
-    /*if (load) {
-      const files = await importStorage();
-      if (files) {
-        for (let [name, data] of files) {
-          files.set(name, data);
-          store.set(name, data);
-        }
-      }
-    }*/
     return {
       files,
       update: (name, data) => store.set(name, data),

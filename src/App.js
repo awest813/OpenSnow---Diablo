@@ -40,7 +40,7 @@ try {
 
 class App extends React.Component {
   files = new Map();
-  state = {started: false, loading: false, dropping: 0, has_spawn: false, has_saves: false, savesVersion: 0};
+  state = {started: false, loading: false, dropping: 0, has_spawn: false, has_saves: false, savesVersion: 0, updateAvailable: false};
   cursorPos = {x: 0, y: 0};
 
   touchControls = false;
@@ -50,7 +50,7 @@ class App extends React.Component {
   touchBelt = [-1, -1, -1, -1, -1, -1];
   maxKeyboard = 0;
 
-  fs = create_fs(true);
+  fs = create_fs();
 
   constructor(props) {
     super(props);
@@ -91,8 +91,11 @@ class App extends React.Component {
     this.setTouch9 = this.setTouch_.bind(this, 9);
   }
 
+  onSwUpdate = () => this.setState({updateAvailable: true});
+
   componentDidMount() {
     this.fileDropTarget.attach();
+    window.addEventListener('swUpdate', this.onSwUpdate);
 
     this.fs.then(fs => {
       const spawn = fs.files.get('spawn.mpq');
@@ -111,6 +114,7 @@ class App extends React.Component {
   componentWillUnmount() {
     this.fileDropTarget.detach();
     this.runtimeListeners.detach();
+    window.removeEventListener('swUpdate', this.onSwUpdate);
   }
 
   // ─── Drag-and-drop ──────────────────────────────────────────────────────────
@@ -343,9 +347,15 @@ class App extends React.Component {
   }
 
   render() {
-    const {started, error, dropping} = this.state;
+    const {started, error, dropping, updateAvailable} = this.state;
     return (
       <div className={classNames('App', {touch: this.touchControls, started, dropping, keyboard: !!this.showKeyboard})} ref={this.setElement}>
+        {updateAvailable && (
+          <div className="updateBanner">
+            A new version is available.{' '}
+            <button onClick={() => window.location.reload()}>Reload</button>
+          </div>
+        )}
         <div className="touch-ui touch-mods">
           <div className={classNames('touch-button', 'touch-button-0', {active: this.touchMods[0]})} ref={this.setTouch0}/>
           <div className={classNames('touch-button', 'touch-button-1', {active: this.touchMods[1]})} ref={this.setTouch1}/>

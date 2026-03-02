@@ -9,5 +9,6 @@ ReactDOM.render(<App />, document.getElementById('root'));
 
 serviceWorker.register({
   onUpdate() {
+    window.dispatchEvent(new CustomEvent('swUpdate'));
   },
 });

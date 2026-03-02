@@ -115,9 +115,6 @@ const DApi = {
   },
   put_file_contents(path, array) {
     path = path.toLowerCase();
-    // if (!path.match(/^(spawn\d+\.sv|single_\d+\.sv|config\.ini)$/i)) {
-    //   alert(`Bad file name: ${path}`);
-    // }
     files.set(path, array);
     worker.postMessage({action: "fs", func: "update", params: [path, array]});
   },
@@ -168,18 +165,7 @@ const DApi = {
     return websocket ? websocket.readyState !== 1 : false;
   },
 };
-/*
-let frameTime = 0, lastTime = 0;
-function getFPS() {
-  const time = performance.now();
-  if (!lastTime) {
-    lastTime = time;
-  }
-  frameTime = 0.9 * frameTime + 0.1 * (time - lastTime);
-  lastTime = time;
-  return frameTime ? 1000.0 / frameTime : 0.0;
-}
-*/
+
 const DApi_renderLegacy = {
   draw_begin() {
     renderBatch = {
@@ -200,7 +186,6 @@ const DApi_renderLegacy = {
     renderBatch.text.push({x, y, text, color});
   },
   draw_end() {
-    //DApi.draw_text(10, 10, `FPS: ${getFPS().toFixed(1)} (Transfer)`, 0xFFCC00);
     const transfer = renderBatch.images.map(({data}) => data.buffer);
     if (renderBatch.belt) {
       transfer.push(renderBatch.belt.buffer);
@@ -235,7 +220,6 @@ const DApi_renderOffscreen = {
     context.fillText(text, x, y + 22);
   },
   draw_end() {
-    //DApi.draw_text(10, 10, `FPS: ${getFPS().toFixed(1)} (Offscreen)`, 0xFFCC00);
     context.restore();
     const bitmap = canvas.transferToImageBitmap();
     const transfer = [bitmap];
@@ -413,7 +397,6 @@ async function init_game(mpq, spawn, offscreen) {
 
   const vers = process.env.VERSION.match(/(\d+)\.(\d+)\.(\d+)/);
 
-  //wasm._SNet_InitWebsocket();
   wasm._DApi_Init(Math.floor(performance.now()), offscreen ? 1 : 0, parseInt(vers[1]), parseInt(vers[2]), parseInt(vers[3]));
 
   renderInterval = setInterval(() => {

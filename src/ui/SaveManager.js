@@ -57,7 +57,7 @@ export default class SaveManager extends React.Component {
           {Object.entries(saves).map(([name, info]) => (
             <li key={name}>
               {name}
-              {info && <span className="info">{info.name} (lv. {info.level} {PLAYER_CLASSES[info.cls]})</span>}
+              {info && <span className="info">{info.name} (lv. {info.level} {PLAYER_CLASSES[info.cls] ?? 'Unknown'})</span>}
               <FontAwesomeIcon className="btnDownload" icon={faDownload} onClick={() => this.downloadSave(name)}/>
               <FontAwesomeIcon className="btnRemove" icon={faTimes} onClick={() => this.removeSave(name)}/>
             </li>
