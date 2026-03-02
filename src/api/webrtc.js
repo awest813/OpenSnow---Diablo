@@ -29,7 +29,7 @@ class webrtc_server {
     this.players = [];
     this.myplr = 0;
 
-    this.seed = Math.floor(Math.random() * Math.pow(2, 32));
+    this.seed = window.crypto.getRandomValues(new Uint32Array(1))[0];
 
     const onError = () => {
       onMessage(write_packet(server_packet.join_reject, {cookie, reason: RejectionReason.CREATE_GAME_EXISTS}));
