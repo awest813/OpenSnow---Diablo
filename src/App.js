@@ -22,6 +22,7 @@ import ErrorOverlay from './ui/ErrorOverlay';
 import LoadingScreen from './ui/LoadingScreen';
 import StartScreen from './ui/StartScreen';
 import SaveManager from './ui/SaveManager';
+import MultiplayerStatusBanner from './ui/MultiplayerStatusBanner';
 import CompressMpq from './mpqcmp';
 
 import Peer from 'peerjs';
@@ -41,7 +42,22 @@ try {
 
 class App extends React.Component {
   files = new Map();
-  state = {started: false, loading: false, dropping: 0, has_spawn: false, has_saves: false, savesVersion: 0, updateAvailable: false, storageError: null};
+  state = {
+    started: false,
+    loading: false,
+    dropping: 0,
+    has_spawn: false,
+    has_saves: false,
+    savesVersion: 0,
+    updateAvailable: false,
+    storageError: null,
+    multiplayerStatus: 'idle',
+    multiplayerErrorCategory: null,
+    multiplayerMessage: '',
+    multiplayerSessionId: null,
+    multiplayerShareUrl: null,
+    multiplayerNoticeDismissed: false,
+  };
   cursorPos = {x: 0, y: 0};
 
   touchControls = false;
@@ -157,13 +173,91 @@ class App extends React.Component {
 
   // ─── Session delegates ──────────────────────────────────────────────────────
 
-  start = file => startGame(this, file);
+  start = file => {
+    this.setState({
+      multiplayerStatus: 'idle',
+      multiplayerErrorCategory: null,
+      multiplayerMessage: '',
+      multiplayerSessionId: null,
+      multiplayerShareUrl: null,
+      multiplayerNoticeDismissed: false,
+    });
+    startGame(this, file);
+  };
   onError = (message, stack) => handleGameError(this, message, stack);
   onExit() { handleGameExit(this); }
   onProgress(progress) { handleProgress(this, progress); }
   setCurrentSave(name) { setCurrentSave(this, name); }
   setCursorPos(x, y) { setCursorPos(this, x, y); }
   openKeyboard(rect) { openKeyboard(this, keyboardRule, rect); }
+  onMultiplayerEvent = event => {
+    this.multiplayerEvents = [...(this.multiplayerEvents || []), event];
+    if (this.multiplayerEvents.length > 200) {
+      this.multiplayerEvents = this.multiplayerEvents.slice(this.multiplayerEvents.length - 200);
+    }
+  }
+  onMultiplayerStatus = status => {
+    this.setState({
+      multiplayerStatus: status.status || 'idle',
+      multiplayerErrorCategory: status.category || null,
+      multiplayerMessage: status.message || '',
+      multiplayerSessionId: status.sessionId || null,
+      multiplayerShareUrl: status.shareUrl || null,
+      multiplayerNoticeDismissed: false,
+    });
+  }
+
+  retryMultiplayer = () => {
+    if (this.game && this.game.retryMultiplayer) {
+      this.game.retryMultiplayer();
+    }
+  }
+
+  reconnectMultiplayer = () => {
+    if (this.game && this.game.reconnectMultiplayer) {
+      this.game.reconnectMultiplayer();
+    }
+  }
+
+  copyText = async text => {
+    if (!text) {
+      return false;
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (e) {
+    }
+    const input = document.createElement('textarea');
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    const copied = document.execCommand ? document.execCommand('copy') : false;
+    document.body.removeChild(input);
+    return copied;
+  }
+
+  copySessionId = async () => {
+    const {multiplayerSessionId} = this.state;
+    const copied = await this.copyText(multiplayerSessionId);
+    if (copied) {
+      this.setState({multiplayerMessage: 'Session ID copied to clipboard.'});
+    }
+  }
+
+  copyShareLink = async () => {
+    const {multiplayerShareUrl} = this.state;
+    const copied = await this.copyText(multiplayerShareUrl);
+    if (copied) {
+      this.setState({multiplayerMessage: 'Share link copied to clipboard.'});
+    }
+  }
+
+  dismissMultiplayerNotice = () => {
+    this.setState({multiplayerNoticeDismissed: true});
+  }
 
   onSaveUploaded() {
     this.setState(s => ({savesVersion: s.savesVersion + 1, has_saves: true}));
@@ -175,7 +269,24 @@ class App extends React.Component {
   closeCompressor = () => this.setState({compress: false});
 
   getSessionContextValue() {
-    const {started, loading, progress, error, retail, has_spawn, has_saves, savesVersion, show_saves, compress} = this.state;
+    const {
+      started,
+      loading,
+      progress,
+      error,
+      retail,
+      has_spawn,
+      has_saves,
+      savesVersion,
+      show_saves,
+      compress,
+      multiplayerStatus,
+      multiplayerErrorCategory,
+      multiplayerMessage,
+      multiplayerSessionId,
+      multiplayerShareUrl,
+      multiplayerNoticeDismissed,
+    } = this.state;
     return {
       started,
       loading,
@@ -194,6 +305,17 @@ class App extends React.Component {
       closeSaveManager: this.closeSaveManager,
       openCompressor: this.openCompressor,
       closeCompressor: this.closeCompressor,
+      multiplayerStatus,
+      multiplayerErrorCategory,
+      multiplayerMessage,
+      multiplayerSessionId,
+      multiplayerShareUrl,
+      multiplayerNoticeDismissed,
+      retryMultiplayer: this.retryMultiplayer,
+      reconnectMultiplayer: this.reconnectMultiplayer,
+      copySessionId: this.copySessionId,
+      copyShareLink: this.copyShareLink,
+      dismissMultiplayerNotice: this.dismissMultiplayerNotice,
     };
   }
 
@@ -382,6 +504,7 @@ class App extends React.Component {
               <small>({this.state.storageError})</small>
             </div>
           )}
+          <MultiplayerStatusBanner/>
           <div className="touch-ui touch-mods">
             <div className={classNames('touch-button', 'touch-button-0', {active: this.touchMods[0]})} ref={this.setTouch0}/>
             <div className={classNames('touch-button', 'touch-button-1', {active: this.touchMods[1]})} ref={this.setTouch1}/>

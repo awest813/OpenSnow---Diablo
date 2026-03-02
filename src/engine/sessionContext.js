@@ -20,6 +20,17 @@ export const defaultSessionValue = {
   closeSaveManager: noop,
   openCompressor: noop,
   closeCompressor: noop,
+  multiplayerStatus: 'idle',
+  multiplayerErrorCategory: null,
+  multiplayerMessage: '',
+  multiplayerSessionId: null,
+  multiplayerShareUrl: null,
+  multiplayerNoticeDismissed: false,
+  retryMultiplayer: noop,
+  reconnectMultiplayer: noop,
+  copySessionId: noop,
+  copyShareLink: noop,
+  dismissMultiplayerNotice: noop,
 };
 
 const SessionContext = React.createContext(defaultSessionValue);
