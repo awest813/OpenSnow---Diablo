@@ -1,11 +1,13 @@
 function no_sound() {
   return {
-    create_sound: () => 0,
-    duplicate_sound: () => 0,
+    create_sound_raw: () => undefined,
+    create_sound: () => undefined,
+    duplicate_sound: () => undefined,
     play_sound: () => undefined,
     set_volume: () => undefined,
     stop_sound: () => undefined,
     delete_sound: () => undefined,
+    stop_all: () => undefined,
   };
 }
 
@@ -123,7 +125,10 @@ export default function init_sound() {
         }
       }
       sounds.clear();
-      context = null;
+      if (context) {
+        context.close();
+        context = null;
+      }
     }
   };
 }

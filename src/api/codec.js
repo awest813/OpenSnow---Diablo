@@ -68,12 +68,11 @@ class SHA1 {
   }
 
   constructor() {
-	  this.digest[0] = 0x67452301;
-	  this.digest[1] = 0xEFCDAB89;
-	  this.digest[2] = 0x98BADCFE;
-	  this.digest[3] = 0x10325476;
+    this.digest[0] = 0x67452301;
+    this.digest[1] = 0xEFCDAB89;
+    this.digest[2] = 0x98BADCFE;
+    this.digest[3] = 0x10325476;
     this.digest[4] = 0xC3D2E1F0;
-    
     this.digest8 = new Uint8Array(this.digest.buffer);
   }
 }
@@ -88,7 +87,7 @@ class Random {
   }
 }
 
-function codec_init_key(password) {
+export function codec_init_key(password) {
   const rand = new Random(0x7058);
   const key = new Uint8Array(136);
   const k32 = new Uint32Array(key.buffer);
