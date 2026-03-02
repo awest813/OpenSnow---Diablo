@@ -1,4 +1,4 @@
-import IdbKvStore from  'idb-kv-store';
+import IdbKvStore from 'idb-kv-store';
 
 async function downloadFile(store, name) {
   const file = await store.get(name.toLowerCase());
@@ -24,12 +24,26 @@ const readFile = file => new Promise((resolve, reject) => {
   reader.onabort = () => reject();
   reader.readAsArrayBuffer(file);
 });
+
 async function uploadFile(store, files, file) {
   const data = new Uint8Array(await readFile(file));
   files.set(file.name.toLowerCase(), data);
   return store.set(file.name.toLowerCase(), data);
 }
 
+/**
+ * Creates the storage service backed by IndexedDB.
+ *
+ * On success the returned object has `initError: null` and all operations are
+ * live. On failure the returned object has `initError` set to the caught Error
+ * and all mutating operations are no-ops — callers should surface `initError`
+ * to the user so they are not silently left with a session where saves will
+ * not persist.
+ *
+ * Added in Phase 3: `list()` returns the names of all stored files as a
+ * sorted array, providing an explicit enumeration API that works consistently
+ * across both the live and fallback implementations.
+ */
 export default async function create_fs() {
   try {
     const store = new IdbKvStore('diablo_fs');
@@ -39,7 +53,9 @@ export default async function create_fs() {
       files.set(name, data);
     }
     return {
+      initError: null,
       files,
+      list: () => Array.from(files.keys()).sort(),
       update: (name, data) => store.set(name, data),
       delete: name => store.remove(name),
       clear: () => store.clear(),
@@ -55,7 +71,9 @@ export default async function create_fs() {
     };
   } catch (e) {
     return {
+      initError: e,
       files: new Map(),
+      list: () => [],
       update: () => Promise.resolve(),
       delete: () => Promise.resolve(),
       clear: () => Promise.resolve(),
@@ -63,5 +81,5 @@ export default async function create_fs() {
       upload: () => Promise.resolve(),
       fileUrl: () => Promise.resolve(),
     };
-  }  
+  }
 }

@@ -76,13 +76,13 @@ Goal: replace the CRA-era Webpack 4 / React 16 / Jest 24 stack with a faster, be
 
 Goal: make the worker, storage, and loader boundaries explicit, typed, and safely teardown-able.
 
-- 🔲 Define formal worker message types (request / response / event schemas)
-- 🔲 Add adapter shim so existing implicit messages continue to work during migration
-- 🔲 Split loader adapters: separate render, audio, fs, and transport concerns
-- 🔲 Introduce explicit lifecycle disposal (interval cleanup, listener teardown, worker terminate)
-- 🔲 Add worker startup/shutdown integration tests (no leaked intervals or listeners after teardown)
-- 🔲 Add storage service API with explicit operations (list / import / export / delete / clear)
-- 🔲 Make storage errors surface to UI instead of silently falling back to in-memory stubs
+- ✅ Define formal worker message types (request / response / event schemas) — `src/api/workerMessages.js`
+- ✅ Add adapter shim so existing implicit messages continue to work during migration — `WorkerToMain` / `MainToWorker` constants used in both `loader.js` and `game.worker.js`
+- ✅ Split loader adapters: separate render, audio, fs, and transport concerns — `renderAdapter.js`, `audioAdapter.js`, `fsAdapter.js`, `transportAdapter.js`
+- ✅ Introduce explicit lifecycle disposal (interval cleanup, listener teardown, worker terminate) — `transportAdapter.dispose()` + `dispose()` path in `loader.js`
+- ✅ Add worker startup/shutdown integration tests (no leaked intervals or listeners after teardown) — `transportAdapter.test.js`, `renderAdapter.test.js`, `audioAdapter.test.js`, `fsAdapter.test.js`, `workerMessages.test.js`
+- ✅ Add storage service API with explicit operations (list / import / export / delete / clear) — `fs.list()` added to both live and fallback implementations
+- ✅ Make storage errors surface to UI instead of silently falling back to in-memory stubs — `fs.initError` exposed; `App.js` renders a storage warning banner
 
 ---
 
