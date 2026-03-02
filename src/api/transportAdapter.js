@@ -18,6 +18,10 @@ import { MainToWorker } from './workerMessages';
  * @param {object}  transport  The transport object (must have a .send() method).
  *                             May be set later via setTransport() if not available at
  *                          construction time.
+ * @param {{
+ *   onInboundPacket?: function,
+ *   onOutboundPacket?: function,
+ * }} hooks
  * @returns {{
  *   enqueue: function,
  *   setTransport: function,
@@ -27,7 +31,9 @@ import { MainToWorker } from './workerMessages';
  *   dispose: function,
  * }}
  */
-export function createTransportAdapter(worker, transport) {
+export function createTransportAdapter(worker, transport, hooks = {}) {
+  const onInboundPacket = hooks.onInboundPacket || (() => {});
+  const onOutboundPacket = hooks.onOutboundPacket || (() => {});
   let queue = [];
   let flushIntervalId = setInterval(() => {
     if (queue.length) {
@@ -41,6 +47,7 @@ export function createTransportAdapter(worker, transport) {
     /** Enqueue a packet received from a remote peer to be forwarded to the worker. */
     enqueue(data) {
       queue.push(data);
+      onInboundPacket(data);
     },
 
     /** Inject or replace the transport session after construction. */
@@ -55,6 +62,7 @@ export function createTransportAdapter(worker, transport) {
 
     /** Forward a single outbound packet from the worker to the WebRTC peer. */
     send(buffer) {
+      onOutboundPacket(buffer, {batched: false});
       if (transport) {
         transport.send(buffer);
       }
@@ -63,9 +71,10 @@ export function createTransportAdapter(worker, transport) {
     /** Forward a batch of outbound packets from the worker to the WebRTC peer. */
     sendBatch(batch) {
       if (transport) {
-        for (const packet of batch) {
+        batch.forEach((packet, index) => {
+          onOutboundPacket(packet, {batched: true, index, size: batch.length});
           transport.send(packet);
-        }
+        });
       }
     },
 

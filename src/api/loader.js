@@ -7,6 +7,7 @@ import { createAudioAdapter } from './audioAdapter';
 import { createFsAdapter } from './fsAdapter';
 import { createTransportAdapter } from './transportAdapter';
 import { createTransport } from './transports';
+import { createMultiplayerDiagnostics } from './multiplayerDiagnostics';
 
 async function do_load_game(api, audio, mpq, spawn) {
   const fs = await api.fs;
@@ -21,19 +22,59 @@ async function do_load_game(api, audio, mpq, spawn) {
   return await new Promise((resolve, reject) => {
     try {
       const worker = new GameWorker();
+      const diagnostics = createMultiplayerDiagnostics({
+        onEvent: event => {
+          if (api.onMultiplayerEvent) {
+            api.onMultiplayerEvent(event);
+          }
+        },
+        onStatusChange: status => {
+          if (api.onMultiplayerStatus) {
+            api.onMultiplayerStatus(status);
+          }
+        },
+      });
 
       // Transport adapter owns the inbound packet queue and its flush interval.
       // WebRTC is wired in immediately after creation so the lambda below can
       // reference the adapter by closure.
-      const transport = createTransportAdapter(worker, null);
-      const multiplayerTransport = createTransport({}, data => transport.enqueue(data));
-      transport.setTransport(multiplayerTransport);
+      const transport = createTransportAdapter(worker, null, {
+        onInboundPacket: packet => diagnostics.observeInboundPacket(packet),
+        onOutboundPacket: packet => diagnostics.observeOutboundPacket(packet),
+      });
+      const multiplayerOptions = api.multiplayerOptions || {};
+      let multiplayerTransport = null;
+
+      const createMultiplayerTransport = () => createTransport(multiplayerOptions, {
+        onPacket: data => transport.enqueue(data),
+        onLifecycle: event => diagnostics.observeTransportLifecycle(event),
+        onError: error => diagnostics.observeTransportError(error),
+      });
+
+      const replaceMultiplayerTransport = (actionType = null) => {
+        if (actionType) {
+          diagnostics.recordAppAction(actionType);
+        }
+        if (multiplayerTransport) {
+          multiplayerTransport.dispose();
+        }
+        multiplayerTransport = createMultiplayerTransport();
+        transport.setTransport(multiplayerTransport);
+      };
+
+      replaceMultiplayerTransport();
+      if (api.onMultiplayerStatus) {
+        api.onMultiplayerStatus(diagnostics.getStatus());
+      }
 
       let workerTerminated = false;
 
       const dispose = () => {
         transport.dispose();
-        multiplayerTransport.dispose();
+        if (multiplayerTransport) {
+          multiplayerTransport.dispose();
+          multiplayerTransport = null;
+        }
         if (!workerTerminated) {
           workerTerminated = true;
           worker.terminate();
@@ -43,7 +84,23 @@ async function do_load_game(api, audio, mpq, spawn) {
       worker.addEventListener('message', ({data}) => {
         switch (data.action) {
         case WorkerToMain.LOADED:
-          resolve((func, ...params) => worker.postMessage({action: MainToWorker.EVENT, func, params}));
+          {
+            const gameApi = (func, ...params) => worker.postMessage({action: MainToWorker.EVENT, func, params});
+            gameApi.retryMultiplayer = () => {
+              diagnostics.recordAppAction('retry_requested');
+              if (multiplayerTransport && multiplayerTransport.reconnect) {
+                multiplayerTransport.reconnect();
+              } else {
+                replaceMultiplayerTransport();
+              }
+            };
+            gameApi.reconnectMultiplayer = () => {
+              replaceMultiplayerTransport('reconnect_requested');
+            };
+            gameApi.getMultiplayerDiagnostics = () => diagnostics.getEvents();
+            gameApi.getMultiplayerStatus = () => diagnostics.getStatus();
+            resolve(gameApi);
+          }
           break;
         case WorkerToMain.RENDER:
           renderAdapter.handleRender(data.batch);

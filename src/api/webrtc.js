@@ -6,28 +6,34 @@ const Options = {port: 443, secure: true};
 const MAX_PLRS = 4;
 
 class webrtc_server {
-  constructor(version, {cookie, name, password, difficulty}, onMessage, onClose) {
+  constructor(version, {cookie, name, password, difficulty}, onMessage, onClose, hooks = {}) {
     this.version = version;
     this.name = name;
     this.password = password;
     this.difficulty = difficulty;
     this.onMessage = onMessage;
     this.onClose = onClose;
+    this.onLifecycle = hooks.onLifecycle || (() => {});
+    this.onError = hooks.onError || (() => {});
 
     this.peer = new Peer(PeerID(name), Options);
+    this.onLifecycle({type: 'opening', role: 'host'});
     this.peer.on('connection', conn => this.onConnect(conn));
     this.players = [];
     this.myplr = 0;
 
     this.seed = window.crypto.getRandomValues(new Uint32Array(1))[0];
 
-    const onError = () => {
+    const onError = err => {
+      this.onError(err || new Error('PeerJS host connection error'));
+      this.onLifecycle({type: 'error', role: 'host'});
       onMessage(write_packet(server_packet.join_reject, {cookie, reason: RejectionReason.CREATE_GAME_EXISTS}));
       onClose();
       this.peer.off('error', onError);
       this.peer.off('open', onOpen);
     };
     const onOpen = () => {
+      this.onLifecycle({type: 'open', role: 'host'});
       setTimeout(() => {
         onMessage(write_packet(server_packet.join_accept, {cookie, index: 0, seed: this.seed, difficulty}));
         onMessage(write_packet(server_packet.connect, {id: 0}));
@@ -67,6 +73,7 @@ class webrtc_server {
             peer.id = i;
             conn.send(write_packet(server_packet.join_accept, {cookie: pkt.cookie, index: i, seed: this.seed, difficulty: this.difficulty}));
             this.send(0xFF, write_packet(server_packet.connect, {id: i}));
+            this.onLifecycle({type: 'connected', role: 'host', id: i});
           }
         }
         break;
@@ -109,6 +116,7 @@ class webrtc_server {
       }
       this.onMessage(write_packet(server_packet.disconnect, {id, reason}));
       this.peer.destroy();
+      this.onLifecycle({type: 'closed', role: 'host', reason});
       this.onClose();
     } else if (this.players[id]) {
       this.send(0xFF, write_packet(server_packet.disconnect, {id, reason}));
@@ -116,6 +124,7 @@ class webrtc_server {
       if (this.players[id].conn) {
         this.players[id].conn.close();
       }
+      this.onLifecycle({type: 'disconnected', role: 'host', id, reason});
       this.players[id] = null;
     }
   }
@@ -138,14 +147,21 @@ class webrtc_server {
       throw Error(`invalid packet ${code}`);
     }
   }
+
+  destroy() {
+    this.drop(0, 0x40000006);
+  }
 }
 
 class webrtc_client {
   pending = [];
 
-  constructor(version, {cookie, name, password}, onMessage, onClose) {
+  constructor(version, {cookie, name, password}, onMessage, onClose, hooks = {}) {
+    this.onLifecycle = hooks.onLifecycle || (() => {});
+    this.onError = hooks.onError || (() => {});
     this.peer = new Peer(Options);
     this.conn = this.peer.connect(PeerID(name));
+    this.onLifecycle({type: 'opening', role: 'client'});
 
     let needUnreg = true;
     const unreg = () => {
@@ -158,12 +174,15 @@ class webrtc_client {
       this.conn.off('open', onOpen);
       clearTimeout(timeout);
     };
-    const onError = () => {
+    const onError = err => {
+      this.onError(err || new Error('PeerJS join failed'));
+      this.onLifecycle({type: 'error', role: 'client'});
       onMessage(write_packet(server_packet.join_reject, {cookie, reason: RejectionReason.JOIN_GAME_NOT_FOUND}));
       onClose();
       unreg();
     };
     const onOpen = () => {
+      this.onLifecycle({type: 'open', role: 'client'});
       this.conn.send(write_packet(client_packet.info, {version}));
       this.conn.send(write_packet(client_packet.join_game, {cookie, name, password}));
       for (let pkt of this.pending) {
@@ -184,12 +203,15 @@ class webrtc_client {
       switch (type.code) {
       case server_packet.join_accept.code:
         this.myplr = pkt.index;
+        this.onLifecycle({type: 'connected', role: 'client', id: this.myplr});
         break;
       case server_packet.join_reject.code:
+        this.onLifecycle({type: 'error', role: 'client', reason: pkt.reason});
         onClose();
         break;
       case server_packet.disconnect.code:
         if (pkt.id === this.myplr) {
+          this.onLifecycle({type: 'disconnected', role: 'client', reason: pkt.reason});
           onClose();
         }
         break;
@@ -198,6 +220,7 @@ class webrtc_client {
       onMessage(data);
     });
     this.conn.on('close', data => {
+      this.onLifecycle({type: 'closed', role: 'client'});
       onClose();
     });
   }
@@ -209,9 +232,20 @@ class webrtc_client {
       this.conn.send(packet);
     }
   }
+
+  destroy() {
+    if (this.conn) {
+      this.conn.close();
+    }
+    if (this.peer) {
+      this.peer.destroy();
+    }
+  }
 }
 
-export default function webrtc_open(onMessage) {
+export default function webrtc_open(onMessage, hooks = {}) {
+  const onLifecycle = hooks.onLifecycle || (() => {});
+  const onError = hooks.onError || (() => {});
   let server = null, client = null;
 
   let version = 0;
@@ -228,14 +262,14 @@ export default function webrtc_open(onMessage) {
         if (server || client) {
           onMessage(write_packet(server_packet.join_reject, {cookie: pkt.cookie, reason: RejectionReason.JOIN_ALREADY_IN_GAME}));
         } else {
-          server = new webrtc_server(version, pkt, onMessage, () => server = null);
+          server = new webrtc_server(version, pkt, onMessage, () => server = null, {onLifecycle, onError});
         }
         break;
       case client_packet.join_game.code:
         if (server || client) {
           onMessage(write_packet(server_packet.join_reject, {cookie: pkt.cookie, reason: RejectionReason.JOIN_ALREADY_IN_GAME}));
         } else {
-          client = new webrtc_client(version, pkt, onMessage, () => client = null);
+          client = new webrtc_client(version, pkt, onMessage, () => client = null, {onLifecycle, onError});
         }
         break;
       default:
@@ -257,6 +291,24 @@ export default function webrtc_open(onMessage) {
       if (!reader.done()) {
         throw Error('packet too large');
       }
+    },
+    dispose: function() {
+      if (server) {
+        server.destroy();
+        server = null;
+      }
+      if (client) {
+        client.destroy();
+        client = null;
+      }
+      onLifecycle({type: 'closed'});
+    },
+    reconnect: function() {
+      if (client) {
+        client.destroy();
+        client = null;
+      }
+      onLifecycle({type: 'retrying'});
     },
   };
 }

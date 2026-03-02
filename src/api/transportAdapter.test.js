@@ -141,3 +141,31 @@ describe('createTransportAdapter — setTransport', () => {
     adapter.dispose();
   });
 });
+
+describe('createTransportAdapter — lifecycle hooks', () => {
+  it('calls onInboundPacket when enqueue() receives packets', () => {
+    const onInboundPacket = jest.fn();
+    const adapter = createTransportAdapter(makeWorker(), makeWebRtc(), {onInboundPacket});
+
+    const packet = new Uint8Array([1, 2, 3]);
+    adapter.enqueue(packet);
+
+    expect(onInboundPacket).toHaveBeenCalledWith(packet);
+    adapter.dispose();
+  });
+
+  it('calls onOutboundPacket for send() and sendBatch()', () => {
+    const onOutboundPacket = jest.fn();
+    const adapter = createTransportAdapter(makeWorker(), makeWebRtc(), {onOutboundPacket});
+
+    const packet = new Uint8Array([1]);
+    const batch = [new Uint8Array([2]), new Uint8Array([3])];
+    adapter.send(packet);
+    adapter.sendBatch(batch);
+
+    expect(onOutboundPacket).toHaveBeenNthCalledWith(1, packet, {batched: false});
+    expect(onOutboundPacket).toHaveBeenNthCalledWith(2, batch[0], {batched: true, index: 0, size: 2});
+    expect(onOutboundPacket).toHaveBeenNthCalledWith(3, batch[1], {batched: true, index: 1, size: 2});
+    adapter.dispose();
+  });
+});
