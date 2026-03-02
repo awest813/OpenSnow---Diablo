@@ -193,9 +193,14 @@ body, #root, .App {
     .body {
       font-family: monospace;
     }
-    .footer {
+    .errorIssueLink {
+      display: inline-block;
       margin-top: 0.5em;
       font-size: 0.8em;
+      color: #f88;
+      &:hover {
+        color: #fff;
+      }
     }
   }
 
