@@ -50,15 +50,16 @@ function isInMercurialRepository() {
   }
 }
 
-// Watch unless on CI or explicitly running all tests
+// Watch unless on CI, explicitly running all tests, or a non-interactive shell.
+const isInteractive = process.stdout.isTTY && process.stdin.isTTY;
 if (
   !process.env.CI &&
+  isInteractive &&
   argv.indexOf('--watchAll') === -1
 ) {
   // https://github.com/facebook/create-react-app/issues/5210
   const hasSourceControl = isInGitRepository() || isInMercurialRepository();
   argv.push(hasSourceControl ? '--watch' : '--watchAll');
 }
-
 
 jest.run(argv);
