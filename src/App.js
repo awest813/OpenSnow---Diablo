@@ -49,6 +49,7 @@ let keyboardRule = null;
 try {
   keyboardRule = findKeyboardRule();
 } catch (e) {
+  // Keyboard rule detection is optional; ignore failures
 }
 const CompressMpq = React.lazy(() => import('./mpqcmp'));
 

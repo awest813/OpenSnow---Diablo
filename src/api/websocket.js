@@ -9,7 +9,7 @@ async function do_websocket_open(url, handler) {
     handler(data);
   });
   await new Promise((resolve, reject) => {
-    const onError = err => reject(1);
+    const onError = _err => reject(1);
     socket.addEventListener("error", onError);
     socket.addEventListener("open", () => {
       socket.removeEventListener("error", onError);
