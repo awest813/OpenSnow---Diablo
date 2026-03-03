@@ -219,7 +219,7 @@ class webrtc_client {
       }
       onMessage(data);
     });
-    this.conn.on('close', data => {
+    this.conn.on('close', _data => {
       this.onLifecycle({type: 'closed', role: 'client'});
       onClose();
     });

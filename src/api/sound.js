@@ -34,6 +34,7 @@ export default function init_sound() {
     context = new AudioContext();
     context.resume();
   } catch (e) {
+    // AudioContext creation is best-effort; proceed without audio
   }
   const sounds = new Map();
 
@@ -135,8 +136,8 @@ export default function init_sound() {
           src.source = null;
         }
         // Disconnect the persistent chain so the nodes can be GC'd.
-        try { if (src.panner) src.panner.disconnect(); } catch (e) {}
-        try { src.gain.disconnect(); } catch (e) {}
+        try { if (src.panner) src.panner.disconnect(); } catch (e) { /* already disconnected */ }
+        try { src.gain.disconnect(); } catch (e) { /* already disconnected */ }
       }
       sounds.delete(id);
     },
@@ -147,8 +148,8 @@ export default function init_sound() {
           sound.source.then(safeStop);
           sound.source = null;
         }
-        try { if (sound.panner) sound.panner.disconnect(); } catch (e) {}
-        try { sound.gain.disconnect(); } catch (e) {}
+        try { if (sound.panner) sound.panner.disconnect(); } catch (e) { /* already disconnected */ }
+        try { sound.gain.disconnect(); } catch (e) { /* already disconnected */ }
       }
       sounds.clear();
       if (context) {

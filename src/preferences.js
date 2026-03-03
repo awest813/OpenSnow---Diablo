@@ -75,6 +75,7 @@ export function savePreferences(updates = {}) {
   try {
     storage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch (e) {
+    // Storage write failures are non-fatal; preferences will revert on reload
   }
   return next;
 }

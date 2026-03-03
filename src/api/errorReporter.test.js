@@ -4,7 +4,7 @@ const ORIGINAL_NAV_USER_AGENT = navigator.userAgent;
 
 describe('buildIssueUrl', () => {
   const retail = true;
-  const shareware = false;
+  // shareware = false is the implicit alternative; only retail is needed here
 
   it('returns a valid GitHub new-issue URL', () => {
     const url = buildIssueUrl({message: 'Test error'}, retail);
