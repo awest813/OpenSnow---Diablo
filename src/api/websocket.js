@@ -48,7 +48,7 @@ async function do_websocket_open(url, handler) {
 }
 
 export default function websocket_open(url, handler, finisher) {
-  let ws = null, batch = [], batchSize = 0, intr = null;
+  let ws = null, batch = [], batchSize = 0, intr = null, batchBuffer = new Uint8Array(1024);
   const proxy = {
     get readyState() {
       return ws ? ws.readyState : 0;
@@ -77,7 +77,11 @@ export default function websocket_open(url, handler, finisher) {
         if (!batch.length) {
           return;
         }
-        const buffer = new Uint8Array(batchSize + 3);
+        // ⚡ Bolt: Reuse a single Uint8Array for batching to eliminate continuous GC allocations.
+        if (batchSize + 3 > batchBuffer.length) {
+          batchBuffer = new Uint8Array(Math.max(batchBuffer.length * 2, batchSize + 3));
+        }
+        const buffer = batchBuffer;
         buffer[0] = 0;
         buffer[1] = (batch.length & 0xFF);
         buffer[2] = batch.length >> 8;
@@ -87,7 +91,7 @@ export default function websocket_open(url, handler, finisher) {
           buffer.set(msg, pos);
           pos += msg.byteLength;
         }
-        ws.send(buffer);
+        ws.send(buffer.subarray(0, batchSize + 3));
         batch.length = 0;
         batchSize = 0;
       }, 100);
