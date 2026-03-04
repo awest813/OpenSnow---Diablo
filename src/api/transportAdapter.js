@@ -75,12 +75,12 @@ export function createTransportAdapter(worker, transport, hooks = {}) {
 
     /** Forward a batch of outbound packets from the worker to the WebRTC peer. */
     sendBatch(batch) {
-      if (transport) {
-        batch.forEach((packet, index) => {
-          onOutboundPacket(packet, {batched: true, index, size: batch.length});
+      batch.forEach((packet, index) => {
+        onOutboundPacket(packet, {batched: true, index, size: batch.length});
+        if (transport) {
           transport.send(packet);
-        });
-      }
+        }
+      });
     },
 
     /**

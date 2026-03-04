@@ -185,4 +185,16 @@ describe('createTransportAdapter — lifecycle hooks', () => {
     expect(onOutboundPacket).toHaveBeenNthCalledWith(3, batch[1], {batched: true, index: 1, size: 2});
     adapter.dispose();
   });
+
+  it('calls onOutboundPacket for sendBatch() when transport is null', () => {
+    const onOutboundPacket = jest.fn();
+    const adapter = createTransportAdapter(makeWorker(), null, {onOutboundPacket});
+
+    const batch = [new Uint8Array([2]), new Uint8Array([3])];
+    adapter.sendBatch(batch);
+
+    expect(onOutboundPacket).toHaveBeenNthCalledWith(1, batch[0], {batched: true, index: 0, size: 2});
+    expect(onOutboundPacket).toHaveBeenNthCalledWith(2, batch[1], {batched: true, index: 1, size: 2});
+    adapter.dispose();
+  });
 });
