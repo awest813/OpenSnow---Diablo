@@ -62,6 +62,27 @@ describe('StartScreen', () => {
     expect(startGame).toHaveBeenCalledWith(file);
   });
 
+  it('does not start game when no MPQ file is selected', async () => {
+    const startGame = jest.fn();
+    await renderWithSession({startGame});
+
+    const input = container.querySelector('input[type="file"]');
+    Object.defineProperty(input, 'files', {value: null, configurable: true});
+
+    act(() => {
+      input.dispatchEvent(new Event('change', {bubbles: true}));
+    });
+
+    expect(startGame).not.toHaveBeenCalled();
+  });
+
+  it('adds an accessible label to hidden MPQ file input', async () => {
+    await renderWithSession({});
+
+    const input = container.querySelector('input[type="file"]');
+    expect(input.getAttribute('aria-label')).toBe('Select MPQ file');
+  });
+
   it('updates touch settings from selector controls', async () => {
     const setTouchLayoutPreset = jest.fn();
     const setTouchPanSensitivity = jest.fn();
