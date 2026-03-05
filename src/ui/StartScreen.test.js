@@ -157,4 +157,17 @@ describe('StartScreen', () => {
     const checkbox = container.querySelector('.displaySettings input[type="checkbox"]');
     expect(checkbox.checked).toBe(true);
   });
+
+  it('shows multiplayer invite notice when pendingMultiplayerSessionId is set', async () => {
+    await renderWithSession({pendingMultiplayerSessionId: 'my-session'});
+    const invite = container.querySelector('.multiplayerInvite');
+    expect(invite).not.toBeNull();
+    expect(invite.textContent).toContain('my-session');
+    expect(invite.textContent).toContain('Join Game');
+  });
+
+  it('does not show multiplayer invite notice when pendingMultiplayerSessionId is null', async () => {
+    await renderWithSession({pendingMultiplayerSessionId: null});
+    expect(container.querySelector('.multiplayerInvite')).toBeNull();
+  });
 });

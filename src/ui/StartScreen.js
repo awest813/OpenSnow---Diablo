@@ -32,6 +32,9 @@ export default function StartScreen(props) {
   const onDismissMobileOnboarding = props.onDismissMobileOnboarding || session.dismissMobileOnboarding;
   const highContrastMode = props.highContrastMode != null ? props.highContrastMode : session.highContrastMode;
   const onHighContrastModeChange = props.onHighContrastModeChange || session.setHighContrastMode;
+  const pendingMultiplayerSessionId = props.pendingMultiplayerSessionId != null
+    ? props.pendingMultiplayerSessionId
+    : session.pendingMultiplayerSessionId;
   const mpqInputRef = React.useRef(null);
 
   const openMpqPicker = () => {
@@ -60,6 +63,15 @@ export default function StartScreen(props) {
           Click here to compress the MPQ, greatly reducing its size.
         </button>
       </p>
+      {pendingMultiplayerSessionId && (
+        <div className="multiplayerInvite" role="note" aria-live="polite">
+          <div className="multiplayerInviteTitle">Multiplayer Invitation</div>
+          <p>
+            You have been invited to join session <strong>&ldquo;{pendingMultiplayerSessionId}&rdquo;</strong>.
+            Start the game and select <strong>Join Game</strong> to connect.
+          </p>
+        </div>
+      )}
       {showMobileOnboarding && (
         <div className="mobileOnboarding" role="note" aria-live="polite">
           <div className="mobileOnboardingTitle">Mobile Quick Start</div>

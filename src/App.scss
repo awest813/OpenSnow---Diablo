@@ -258,6 +258,24 @@ body, #root, .App {
         margin-bottom: 4px;
       }
     }
+    .multiplayerInvite {
+      margin: 14px 0;
+      padding: 10px 12px;
+      border: 1px solid #3d7a3d;
+      background: rgba(20, 50, 20, 0.6);
+      text-align: left;
+      font-size: 14px;
+      .multiplayerInviteTitle {
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #8ecf8e;
+      }
+      p {
+        margin: 0;
+        color: #c4dfc4;
+      }
+    }
     .touchSettings {
       margin: 14px 0 4px;
       padding: 10px 12px;
@@ -372,6 +390,17 @@ body, #root, .App {
         color: #fff;
       }
     }
+    .multiplayerInvite {
+      background: #111;
+      border-color: #fff;
+      color: #fff;
+      .multiplayerInviteTitle {
+        color: #fff;
+      }
+      p {
+        color: #fff;
+      }
+    }
     .touchSettings, .displaySettings {
       background: #111;
       border-color: #fff;
@@ -413,6 +442,10 @@ body, #root, .App {
     .multiplayerBanner-category,
     .multiplayerBanner-message {
       color: #fff;
+    }
+    .multiplayerBanner-spinner {
+      border-color: rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
     }
     button {
       background: #222;
@@ -898,6 +931,17 @@ body, #root, .App {
     color: #f0e0b8;
   }
 
+  .multiplayerBanner-spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(200, 168, 74, 0.3);
+    border-top-color: #c8a84a;
+    border-radius: 50%;
+    animation: multiplayerSpinner 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
   .multiplayerBanner-actions {
     display: flex;
     gap: 8px;
@@ -912,6 +956,7 @@ body, #root, .App {
     padding: 4px 10px;
     cursor: pointer;
     font-size: 12px;
+    transition: background 0.15s ease;
     &:hover {
       background: #8a6130;
     }
@@ -920,6 +965,17 @@ body, #root, .App {
       outline-offset: 2px;
     }
   }
+}
+
+@keyframes multiplayerSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.multiplayerBanner-connecting,
+.multiplayerBanner-retrying {
+  border-color: #8a6130;
 }
 
 .multiplayerBanner-connected {

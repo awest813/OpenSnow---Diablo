@@ -104,6 +104,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.multiplayerOptions = this.resolveMultiplayerOptions();
+    this.pendingMultiplayerSessionId = new URLSearchParams(window.location.search).get('session') || null;
 
     this.fileDropTarget = createFileDropTarget({
       target: document,
@@ -456,6 +457,7 @@ class App extends React.Component {
       dismissMobileOnboarding: this.dismissMobileOnboarding,
       highContrastMode,
       setHighContrastMode: this.setHighContrastMode,
+      pendingMultiplayerSessionId: this.pendingMultiplayerSessionId,
     };
   }
 

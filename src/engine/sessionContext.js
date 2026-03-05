@@ -41,6 +41,7 @@ export const defaultSessionValue = {
   dismissMobileOnboarding: noop,
   highContrastMode: false,
   setHighContrastMode: noop,
+  pendingMultiplayerSessionId: null,
 };
 
 const SessionContext = React.createContext(defaultSessionValue);

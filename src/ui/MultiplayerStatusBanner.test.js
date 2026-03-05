@@ -27,9 +27,11 @@ describe('MultiplayerStatusBanner', () => {
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
+    jest.useFakeTimers();
   });
 
   afterEach(async () => {
+    jest.useRealTimers();
     await act(async () => {
       root.unmount();
     });
@@ -94,5 +96,92 @@ describe('MultiplayerStatusBanner', () => {
     expect(copySessionId).toHaveBeenCalledTimes(1);
     expect(copyShareLink).toHaveBeenCalledTimes(1);
     expect(dismissMultiplayerNotice).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows user-friendly category label instead of raw category key', async () => {
+    await renderWithSession({
+      multiplayerStatus: 'failed',
+      multiplayerErrorCategory: 'game_not_found',
+    });
+    expect(container.textContent).toContain('Game not found');
+    expect(container.textContent).not.toContain('game_not_found');
+  });
+
+  it('shows spinner for connecting state', async () => {
+    await renderWithSession({multiplayerStatus: 'connecting'});
+    expect(container.querySelector('.multiplayerBanner-spinner')).not.toBeNull();
+  });
+
+  it('shows spinner for retrying state', async () => {
+    await renderWithSession({multiplayerStatus: 'retrying'});
+    expect(container.querySelector('.multiplayerBanner-spinner')).not.toBeNull();
+  });
+
+  it('does not show spinner for connected or failed state', async () => {
+    await renderWithSession({multiplayerStatus: 'connected'});
+    expect(container.querySelector('.multiplayerBanner-spinner')).toBeNull();
+
+    await renderWithSession({multiplayerStatus: 'failed'});
+    expect(container.querySelector('.multiplayerBanner-spinner')).toBeNull();
+  });
+
+  it('shows copy feedback on Copy Session ID button and resets after timeout', async () => {
+    const copySessionId = jest.fn();
+    await renderWithSession({
+      multiplayerStatus: 'connected',
+      multiplayerSessionId: 'xyz',
+      copySessionId,
+    });
+
+    const buttons = Array.from(container.querySelectorAll('button'));
+    const copyBtn = buttons.find(node => node.textContent === 'Copy Session ID');
+    expect(copyBtn).toBeTruthy();
+
+    act(() => {
+      copyBtn.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+    });
+
+    expect(copySessionId).toHaveBeenCalledTimes(1);
+    const feedbackBtn = Array.from(container.querySelectorAll('button'))
+      .find(node => node.textContent.includes('Copied'));
+    expect(feedbackBtn).toBeTruthy();
+
+    act(() => {
+      jest.advanceTimersByTime(2001);
+    });
+
+    const resetBtn = Array.from(container.querySelectorAll('button'))
+      .find(node => node.textContent === 'Copy Session ID');
+    expect(resetBtn).toBeTruthy();
+  });
+
+  it('shows copy feedback on Copy Share Link button and resets after timeout', async () => {
+    const copyShareLink = jest.fn();
+    await renderWithSession({
+      multiplayerStatus: 'connected',
+      multiplayerShareUrl: 'https://example.test/?session=xyz',
+      copyShareLink,
+    });
+
+    const buttons = Array.from(container.querySelectorAll('button'));
+    const copyBtn = buttons.find(node => node.textContent === 'Copy Share Link');
+    expect(copyBtn).toBeTruthy();
+
+    act(() => {
+      copyBtn.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+    });
+
+    expect(copyShareLink).toHaveBeenCalledTimes(1);
+    const feedbackBtn = Array.from(container.querySelectorAll('button'))
+      .find(node => node.textContent.includes('Copied'));
+    expect(feedbackBtn).toBeTruthy();
+
+    act(() => {
+      jest.advanceTimersByTime(2001);
+    });
+
+    const resetBtn = Array.from(container.querySelectorAll('button'))
+      .find(node => node.textContent === 'Copy Share Link');
+    expect(resetBtn).toBeTruthy();
   });
 });
