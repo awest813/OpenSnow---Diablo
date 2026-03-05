@@ -84,4 +84,25 @@ describe('multiplayerDiagnostics', () => {
     expect(diagnostics.getStatus().category).toBe('timeout');
     expect(diagnostics.getStatus().status).toBe('failed');
   });
+
+  it('increments retryCount on retry/reconnect and resets on connected', () => {
+    const diagnostics = createMultiplayerDiagnostics();
+
+    expect(diagnostics.getStatus().retryCount).toBe(0);
+
+    diagnostics.recordAppAction('retry_requested');
+    expect(diagnostics.getStatus().retryCount).toBe(1);
+
+    diagnostics.recordAppAction('reconnect_requested');
+    expect(diagnostics.getStatus().retryCount).toBe(2);
+
+    diagnostics.observeInboundPacket(write_packet(server_packet.join_accept, {
+      cookie: 1,
+      index: 0,
+      seed: 42,
+      difficulty: 0,
+    }));
+    expect(diagnostics.getStatus().status).toBe('connected');
+    expect(diagnostics.getStatus().retryCount).toBe(0);
+  });
 });

@@ -27,6 +27,7 @@ export const defaultSessionValue = {
   multiplayerSessionId: null,
   multiplayerShareUrl: null,
   multiplayerNoticeDismissed: false,
+  multiplayerRetryCount: 0,
   retryMultiplayer: noop,
   reconnectMultiplayer: noop,
   copySessionId: noop,

@@ -95,4 +95,71 @@ describe('MultiplayerStatusBanner', () => {
     expect(copyShareLink).toHaveBeenCalledTimes(1);
     expect(dismissMultiplayerNotice).toHaveBeenCalledTimes(1);
   });
+
+  it('shows session ID as visible text when connecting', async () => {
+    await renderWithSession({
+      multiplayerStatus: 'connecting',
+      multiplayerSessionId: 'my-session',
+    });
+    const sessionIdEl = container.querySelector('.multiplayerBanner-session-id');
+    expect(sessionIdEl).toBeTruthy();
+    expect(sessionIdEl.textContent).toBe('my-session');
+  });
+
+  it('shows session ID as visible text when connected', async () => {
+    await renderWithSession({
+      multiplayerStatus: 'connected',
+      multiplayerSessionId: 'my-session',
+    });
+    const sessionIdEl = container.querySelector('.multiplayerBanner-session-id');
+    expect(sessionIdEl).toBeTruthy();
+    expect(sessionIdEl.textContent).toBe('my-session');
+  });
+
+  it('shows a spinner when connecting', async () => {
+    await renderWithSession({multiplayerStatus: 'connecting'});
+    expect(container.querySelector('.multiplayerBanner-spinner')).toBeTruthy();
+  });
+
+  it('shows a spinner when retrying', async () => {
+    await renderWithSession({multiplayerStatus: 'retrying'});
+    expect(container.querySelector('.multiplayerBanner-spinner')).toBeTruthy();
+  });
+
+  it('does not show a spinner when failed', async () => {
+    await renderWithSession({multiplayerStatus: 'failed'});
+    expect(container.querySelector('.multiplayerBanner-spinner')).toBeNull();
+  });
+
+  it('shows retry count when retrying with retryCount > 0', async () => {
+    await renderWithSession({
+      multiplayerStatus: 'retrying',
+      multiplayerRetryCount: 3,
+    });
+    const retryCountEl = container.querySelector('.multiplayerBanner-retry-count');
+    expect(retryCountEl).toBeTruthy();
+    expect(retryCountEl.textContent).toContain('3');
+    expect(retryCountEl.getAttribute('aria-label')).toBe('Attempt 3');
+  });
+
+  it('does not show retry count when retryCount is 0', async () => {
+    await renderWithSession({
+      multiplayerStatus: 'retrying',
+      multiplayerRetryCount: 0,
+    });
+    expect(container.querySelector('.multiplayerBanner-retry-count')).toBeNull();
+  });
+
+  it('copy buttons have accessible aria-labels', async () => {
+    await renderWithSession({
+      multiplayerStatus: 'connecting',
+      multiplayerSessionId: 'abc123',
+      multiplayerShareUrl: 'https://example.test/?session=abc123',
+    });
+    const buttons = Array.from(container.querySelectorAll('button'));
+    const copySessionButton = buttons.find(node => node.textContent === 'Copy Session ID');
+    const copyShareButton = buttons.find(node => node.textContent === 'Copy Share Link');
+    expect(copySessionButton.getAttribute('aria-label')).toBe('Copy session ID to clipboard');
+    expect(copyShareButton.getAttribute('aria-label')).toBe('Copy share link to clipboard');
+  });
 });

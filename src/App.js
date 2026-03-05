@@ -89,6 +89,7 @@ class App extends React.Component {
     multiplayerSessionId: null,
     multiplayerShareUrl: null,
     multiplayerNoticeDismissed: false,
+    multiplayerRetryCount: 0,
   };
   cursorPos = {x: 0, y: 0};
 
@@ -244,6 +245,7 @@ class App extends React.Component {
       multiplayerSessionId: null,
       multiplayerShareUrl: null,
       multiplayerNoticeDismissed: false,
+      multiplayerRetryCount: 0,
     });
     startGame(this, file);
   };
@@ -267,6 +269,7 @@ class App extends React.Component {
       multiplayerSessionId: status.sessionId || null,
       multiplayerShareUrl: status.shareUrl || null,
       multiplayerNoticeDismissed: false,
+      multiplayerRetryCount: status.retryCount || 0,
     });
   }
 
@@ -412,6 +415,7 @@ class App extends React.Component {
       multiplayerSessionId,
       multiplayerShareUrl,
       multiplayerNoticeDismissed,
+      multiplayerRetryCount,
       touchLayoutPreset,
       touchPanSensitivity,
       isTouchDevice,
@@ -442,6 +446,7 @@ class App extends React.Component {
       multiplayerSessionId,
       multiplayerShareUrl,
       multiplayerNoticeDismissed,
+      multiplayerRetryCount,
       retryMultiplayer: this.retryMultiplayer,
       reconnectMultiplayer: this.reconnectMultiplayer,
       copySessionId: this.copySessionId,

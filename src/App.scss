@@ -410,8 +410,18 @@ body, #root, .App {
     background: #000;
     color: #fff;
     border-color: #fff;
+    .multiplayerBanner-spinner {
+      border-color: rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+    }
     .multiplayerBanner-category,
-    .multiplayerBanner-message {
+    .multiplayerBanner-message,
+    .multiplayerBanner-retry-count {
+      color: #fff;
+    }
+    .multiplayerBanner-session-id {
+      background: #222;
+      border-color: #fff;
       color: #fff;
     }
     button {
@@ -856,6 +866,10 @@ body, #root, .App {
   pointer-events: all;
 }
 
+@keyframes multiplayerSpinner {
+  to { transform: rotate(360deg); }
+}
+
 .multiplayerBanner {
   position: fixed;
   top: 12px;
@@ -881,10 +895,27 @@ body, #root, .App {
     flex-wrap: wrap;
   }
 
+  .multiplayerBanner-spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(232, 213, 163, 0.3);
+    border-top-color: #e8d5a3;
+    border-radius: 50%;
+    animation: multiplayerSpinner 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
   .multiplayerBanner-title {
     text-transform: uppercase;
     letter-spacing: 0.03em;
     font-size: 12px;
+  }
+
+  .multiplayerBanner-retry-count {
+    font-size: 11px;
+    color: #b9a078;
+    font-variant-numeric: tabular-nums;
   }
 
   .multiplayerBanner-category {
@@ -896,6 +927,17 @@ body, #root, .App {
   .multiplayerBanner-message {
     font-size: 13px;
     color: #f0e0b8;
+  }
+
+  .multiplayerBanner-session-id {
+    font-size: 12px;
+    font-family: monospace;
+    background: rgba(107, 76, 30, 0.4);
+    border: 1px solid #6b4c1e;
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: #f0e0b8;
+    user-select: all;
   }
 
   .multiplayerBanner-actions {

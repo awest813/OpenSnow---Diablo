@@ -92,6 +92,7 @@ export function createMultiplayerDiagnostics(options = {}) {
   let shareUrl = null;
   let handshakeState = 'idle';
   let clientVersion = null;
+  let retryCount = 0;
 
   const snapshot = () => ({
     status,
@@ -100,10 +101,14 @@ export function createMultiplayerDiagnostics(options = {}) {
     sessionId,
     shareUrl,
     handshakeState,
+    retryCount,
   });
 
   function setStatus(nextStatus, nextCategory, nextMessage) {
     const hasChanged = status !== nextStatus || category !== nextCategory || message !== nextMessage;
+    if (nextStatus === 'connected' || nextStatus === 'idle') {
+      retryCount = 0;
+    }
     status = nextStatus;
     category = nextCategory;
     message = nextMessage;
@@ -368,6 +373,7 @@ export function createMultiplayerDiagnostics(options = {}) {
 
   function recordAppAction(type, details = {}) {
     if (type === 'retry_requested' || type === 'reconnect_requested') {
+      retryCount += 1;
       handshakeState = 'awaiting_join_result';
       record({
         source: 'app',
