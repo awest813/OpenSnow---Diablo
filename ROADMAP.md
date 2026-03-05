@@ -132,6 +132,30 @@ Status legend:
 - 🔲 Reliable offline shareware mode with deterministic precache
 - 🔲 Better timing for install prompt surfacing
 
+### Safe High/Medium-Impact Fix Backlog
+
+The items below are scoped for safe, incremental delivery (small PRs, measurable outcomes, and low gameplay risk).
+
+#### Performance (safe, high/medium impact)
+
+| Priority | Impact | Item | Why it's safe | Validation |
+| --- | --- | --- | --- | --- |
+| P0 | High | Profile and reduce hot-path message churn between `loader.js` and `game.worker.js` (batch/coalesce non-critical events). | Message schema is already formalized; can preserve protocol compatibility with adapter tests. | Add/extend worker message throughput tests + compare frame-time variance before/after. |
+| P0 | High | Add viewport-aware render throttling for hidden/inactive tabs and paused overlays. | Browser visibility APIs are additive and do not alter deterministic simulation when active. | Unit tests around visibility transitions + manual idle CPU measurement. |
+| P1 | Medium | Defer non-critical UI overlay work until after session start (diagnostics/history panels). | UI-only scheduling; does not touch game state updates. | Start-time measurements and React profiler capture on cold load. |
+| P1 | Medium | Expand bundle budget enforcement to include worker chunks and source-map deltas. | CI-only guardrail change; no runtime behavior changes. | `npm run check:bundle-budget` with thresholds documented and tracked in PRs. |
+| P2 | Medium | Replace repeated object allocations in high-frequency input handlers with pooled/reused structs. | Localized input-path optimization with existing input tests to prevent behavior drift. | Keyboard/mouse/touch unit tests + perf comparison in devtools allocation timeline. |
+
+#### Other fixes (safe, high/medium impact)
+
+| Priority | Impact | Item | Why it's safe | Validation |
+| --- | --- | --- | --- | --- |
+| P0 | High | Add explicit stale-session recovery when worker boot fails (single-click restart + diagnostics copy). | Reuses existing diagnostics and session reset paths; no engine logic changes. | Session lifecycle tests + manual failure injection in dev mode. |
+| P0 | High | Improve IndexedDB failure handling with clear "read-only fallback" UX and retry. | Error-path only; keeps current storage contract and avoids silent failures. | `fs` adapter tests for init/read/write failures + UI banner assertions. |
+| P1 | Medium | Harden multiplayer reconnect backoff limits and jitter to reduce synchronized retry storms. | Transport-layer policy update behind existing abstraction. | Transport adapter tests for retry timing + diagnostics assertions. |
+| P1 | Medium | Add deterministic service-worker update prompt flow (`update available` → `reload`) with user control. | UX-only around update lifecycle; avoids implicit auto-reload behavior. | Manual PWA update pass + integration checks for prompt visibility state. |
+| P2 | Medium | Add scoped coverage thresholds for core reliability modules (`engine/session`, `api/transports`, `fs`). | CI policy change with phased thresholds; no runtime risk. | CI passes with threshold report attached to PR. |
+
 ---
 
 ## Phase 6 — Community and Ecosystem Growth
