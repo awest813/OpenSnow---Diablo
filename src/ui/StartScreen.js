@@ -123,9 +123,10 @@ export default function StartScreen(props) {
           type="file"
           ref={mpqInputRef}
           style={{display: 'none'}}
+          aria-label="Select MPQ file"
           onChange={e => {
             const {files} = e.target;
-            if (files.length > 0) onStart(files[0]);
+            if (files && files.length > 0) onStart(files[0]);
           }}
         />
         <button type="button" className="startButton" onClick={() => onStart(null)}>Play Shareware</button>
