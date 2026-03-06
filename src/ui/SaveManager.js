@@ -102,6 +102,7 @@ export default class SaveManager extends React.Component {
                   className="saveIconButton btnDownload"
                   onClick={() => this.downloadSave(name)}
                   aria-label={`Download ${name}`}
+                  title={`Download ${name}`}
                 >
                   <FontAwesomeIcon icon={faDownload}/>
                 </button>
@@ -110,6 +111,7 @@ export default class SaveManager extends React.Component {
                   className="saveIconButton btnRemove"
                   onClick={() => this.removeSave(name)}
                   aria-label={`Delete ${name}`}
+                  title={`Delete ${name}`}
                 >
                   <FontAwesomeIcon icon={faTimes}/>
                 </button>
