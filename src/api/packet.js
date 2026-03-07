@@ -110,9 +110,24 @@ export const RejectionReason = {
   CREATE_GAME_EXISTS: 0x06,
 };
 
+// ⚡ Bolt: Cache packet code lookups to eliminate O(n) array allocation
+// and search (Object.values(types).find()) on every packet read.
+// Array lookup by index is faster than find(), reducing processing time.
+const readPacketCache = new WeakMap();
+
 export function read_packet(reader, types) {
   const code = reader.read8();
-  const cls = Object.values(types).find(cls => cls.code === code);
+
+  let typeLookup = readPacketCache.get(types);
+  if (!typeLookup) {
+    typeLookup = [];
+    for (const key of Object.keys(types)) {
+      typeLookup[types[key].code] = types[key];
+    }
+    readPacketCache.set(types, typeLookup);
+  }
+
+  const cls = typeLookup[code];
   if (!cls) {
     throw Error('invalid packet code');
   }

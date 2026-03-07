@@ -4,3 +4,7 @@
 ## 2026-03-04 - Pre-allocate Uint8Array for WebSocket batching
 **Learning:** Repeatedly creating `new Uint8Array(batchSize + 3)` within a high-frequency `setInterval` for WebSocket batching causes unnecessary garbage collection (GC) and memory allocation overhead. In Node and browser environments, pre-allocating a single, resizable buffer and using `.subarray()` is more efficient.
 **Action:** When repeatedly sending batched binary data over WebSockets, pre-allocate a single `Uint8Array`, dynamically resize it only when needed, and copy chunks using `buffer.set()`. Send the data using `buffer.subarray()` to avoid allocating new arrays on every tick.
+
+## 2025-03-06 - Optimized buffer_reader property lookups
+**Learning:** Found that `read_packet` allocates an array to call `Object.values(types).find()` for every single multiplayer message parsed, which is a major overhead loop when handling constant multiplayer traffic streams.
+**Action:** Used `WeakMap` mapped to lookup objects matching dictionaries in `src/api/packet.js` to O(1) time complexity. Ensure tight loops avoid re-allocating dynamically generated lookup collections.
