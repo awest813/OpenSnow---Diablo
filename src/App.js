@@ -702,22 +702,22 @@ class App extends React.Component {
           )}
           <MultiplayerStatusBanner/>
           <div className="touch-ui touch-mods">
-            <div className={classNames('touch-button', 'touch-button-0', {active: this.touchMods[0]})} ref={this.setTouch0}/>
-            <div className={classNames('touch-button', 'touch-button-1', {active: this.touchMods[1]})} ref={this.setTouch1}/>
-            <div className={classNames('touch-button', 'touch-button-2', {active: this.touchMods[2]})} ref={this.setTouch2}/>
+            <div className={classNames('touch-button', 'touch-button-0', {active: this.touchMods[0]})} ref={this.setTouch0} role="button" tabIndex={0} aria-label="Touch Mod 1"/>
+            <div className={classNames('touch-button', 'touch-button-1', {active: this.touchMods[1]})} ref={this.setTouch1} role="button" tabIndex={0} aria-label="Touch Mod 2"/>
+            <div className={classNames('touch-button', 'touch-button-2', {active: this.touchMods[2]})} ref={this.setTouch2} role="button" tabIndex={0} aria-label="Touch Mod 3"/>
           </div>
           <div className="touch-ui touch-belt">
-            <div className={classNames('touch-button', 'touch-button-0')} ref={this.setTouch3}/>
-            <div className={classNames('touch-button', 'touch-button-1')} ref={this.setTouch4}/>
-            <div className={classNames('touch-button', 'touch-button-2')} ref={this.setTouch5}/>
+            <div className={classNames('touch-button', 'touch-button-0')} ref={this.setTouch3} role="button" tabIndex={0} aria-label="Belt Slot 1"/>
+            <div className={classNames('touch-button', 'touch-button-1')} ref={this.setTouch4} role="button" tabIndex={0} aria-label="Belt Slot 2"/>
+            <div className={classNames('touch-button', 'touch-button-2')} ref={this.setTouch5} role="button" tabIndex={0} aria-label="Belt Slot 3"/>
           </div>
           <div className="touch-ui fkeys-left">
-            <div className={classNames('touch-button', 'touch-button-3')} ref={this.setTouch6}/>
-            <div className={classNames('touch-button', 'touch-button-4')} ref={this.setTouch7}/>
+            <div className={classNames('touch-button', 'touch-button-3')} ref={this.setTouch6} role="button" tabIndex={0} aria-label="F-Key Left 1"/>
+            <div className={classNames('touch-button', 'touch-button-4')} ref={this.setTouch7} role="button" tabIndex={0} aria-label="F-Key Left 2"/>
           </div>
           <div className="touch-ui fkeys-right">
-            <div className={classNames('touch-button', 'touch-button-5')} ref={this.setTouch8}/>
-            <div className={classNames('touch-button', 'touch-button-6')} ref={this.setTouch9}/>
+            <div className={classNames('touch-button', 'touch-button-5')} ref={this.setTouch8} role="button" tabIndex={0} aria-label="F-Key Right 1"/>
+            <div className={classNames('touch-button', 'touch-button-6')} ref={this.setTouch9} role="button" tabIndex={0} aria-label="F-Key Right 2"/>
           </div>
           <div className="Body">
             <div className="inner">
