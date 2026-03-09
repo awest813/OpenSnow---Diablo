@@ -55,6 +55,7 @@ function getKeyboardRule() {
       keyboardRule = findKeyboardRule();
     } catch (e) {
       // Keyboard rule detection is optional; ignore failures
+      console.warn('Keyboard rule detection failed:', e);
     }
   }
   return keyboardRule;
@@ -303,6 +304,7 @@ class App extends React.Component {
       }
     } catch (e) {
       // Clipboard API unavailable or permission denied — fall through to execCommand
+      console.warn('Clipboard API failed:', e);
     }
     const input = document.createElement('textarea');
     input.value = text;
