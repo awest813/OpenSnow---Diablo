@@ -54,6 +54,7 @@ export default function websocket_open(url, handler, finisher) {
       return ws ? ws.readyState : 0;
     },
     send(msg) {
+      if (!batch) return;
       batch.push(msg.slice());
       batchSize += msg.byteLength;
     },
@@ -98,7 +99,7 @@ export default function websocket_open(url, handler, finisher) {
     } else {
       ws.close();
     }
-    finisher(0);
+    finisher(batch ? 0 : 1);
   }, err => {
     finisher(err);
   });

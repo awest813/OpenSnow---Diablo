@@ -28,7 +28,7 @@ export function setTouchMod(app, index, value, use) {
     if (app.touchButtons[index]) {
       app.touchButtons[index].classList.toggle("active", value);
     }
-  } else if (use && app.touchBelt[index] >= 0) {
+  } else if (index <= 5 && use && app.touchBelt[index] >= 0) {
     const now = performance.now();
     if (!app.beltTime || now - app.beltTime > 750) {
       app.game("DApi_Char", 49 + app.touchBelt[index]);

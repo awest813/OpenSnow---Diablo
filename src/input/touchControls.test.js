@@ -154,4 +154,42 @@ describe('touchControls', () => {
     expect(cancelled.id).toBe(4);
     expect(app.touchGesture).toBeUndefined();
   });
+
+  it('setTouchMod fires belt action for valid belt indices 3-5 when use is true and slot is filled', () => {
+    const app = createApp();
+    app.touchBelt[3] = 1; // slot 3 maps to belt position 1
+    jest.spyOn(performance, 'now').mockReturnValue(10000);
+
+    setTouchMod(app, 3, true, true);
+
+    expect(app.calls).toEqual([['DApi_Char', 49 + 1]]);
+  });
+
+  it('setTouchMod does not fire belt action for indices 6-9 (F-key range)', () => {
+    const app = createApp();
+    // Even if touchBelt happened to have a value at index 6 (out of range), no call is made
+    setTouchMod(app, 6, true, true);
+    setTouchMod(app, 7, true, true);
+    setTouchMod(app, 9, true, true);
+
+    expect(app.calls).toHaveLength(0);
+  });
+
+  it('setTouchMod does not fire belt action when use is false', () => {
+    const app = createApp();
+    app.touchBelt[4] = 2;
+
+    setTouchMod(app, 4, true, false);
+
+    expect(app.calls).toHaveLength(0);
+  });
+
+  it('setTouchMod does not fire belt action when belt slot is empty (-1)', () => {
+    const app = createApp();
+    // touchBelt[3] is -1 by default
+
+    setTouchMod(app, 3, true, true);
+
+    expect(app.calls).toHaveLength(0);
+  });
 });
