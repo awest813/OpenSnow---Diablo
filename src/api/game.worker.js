@@ -187,7 +187,13 @@ const DApi_renderLegacy = {
     renderBatch.text.push({x, y, text, color});
   },
   draw_end() {
-    const transfer = renderBatch.images.map(({data}) => data.buffer);
+    // Bolt: Pre-allocate array and use a for loop instead of .map() to avoid anonymous closure
+    // allocation per frame, reducing garbage collection pressure in this hot loop (~20fps).
+    const len = renderBatch.images.length;
+    const transfer = new Array(len);
+    for (let i = 0; i < len; i++) {
+      transfer[i] = renderBatch.images[i].data.buffer;
+    }
     if (renderBatch.belt) {
       transfer.push(renderBatch.belt.buffer);
     }
