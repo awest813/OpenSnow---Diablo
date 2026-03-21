@@ -7,3 +7,6 @@
 ## 2026-03-19 - Replacing 'Click here' anti-patterns in links and buttons
 **Learning:** The "Click here" anti-pattern reduces both scannability for sighted users and usability for screen reader users, who often navigate by reading out a list of links or buttons without surrounding context. Long explanatory phrases inside interactive elements also clutter the UI.
 **Action:** Always ensure that link and button texts use concise, action-oriented phrases (e.g., 'Compress the MPQ'). Move any lengthy, non-actionable explanatory text outside the interactive element to improve scannability and screen reader compatibility.
+## 2026-03-21 - Removing Sensory Characteristics in Instructions
+**Learning:** Instructions that rely on visual layout (e.g. "click the button below") violate WCAG 1.3.3 Sensory Characteristics. They reduce accessibility for screen reader users or users with different layouts where the button might not be "below".
+**Action:** Always rewrite instructions to describe the action directly (e.g. "select an MPQ file") rather than referencing the visual location or shape of the interactive element.
