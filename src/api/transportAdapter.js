@@ -75,12 +75,15 @@ export function createTransportAdapter(worker, transport, hooks = {}) {
 
     /** Forward a batch of outbound packets from the worker to the WebRTC peer. */
     sendBatch(batch) {
-      batch.forEach((packet, index) => {
+      // ⚡ Bolt: Replace Array.prototype.forEach() with a standard for loop to avoid
+      // anonymous closure allocation, reducing GC overhead during high-frequency packet sending.
+      for (let index = 0; index < batch.length; index++) {
+        const packet = batch[index];
         onOutboundPacket(packet, {batched: true, index, size: batch.length});
         if (transport) {
           transport.send(packet);
         }
-      });
+      }
     },
 
     /**
