@@ -15,3 +15,7 @@
 ## 2025-03-12 - Remove intermediate array allocations in WebSocket batching
 **Learning:** In high-frequency operations like WebSocket batching (`src/api/websocket.js`), using `batch.push(msg.slice())` allocates new arrays for every message, increasing garbage collection overhead.
 **Action:** When batching messages, track `batchCount` and `batchSize`, and dynamically resize a pre-allocated `batchBuffer` and write data directly into it using `.set()`. This avoids creating intermediate array copies before assembling the final buffer.
+
+## 2025-03-27 - Remove Array.prototype.forEach overhead in hot paths
+**Learning:** Using `Array.prototype.forEach` inside hot loop network packet handlers (like `sendBatch` in `src/api/transportAdapter.js`) causes unnecessary anonymous function allocation, contributing to garbage collection overhead.
+**Action:** Replace `Array.prototype.forEach` with standard `for` loops in performance-critical execution paths.
