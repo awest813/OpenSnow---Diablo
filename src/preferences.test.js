@@ -21,6 +21,7 @@ describe('preferences', () => {
       touchLayoutPreset: 'default',
       touchPanSensitivity: 'normal',
       mobileOnboardingDismissed: true,
+      testerWelcomeDismissed: false,
       highContrastMode: false,
     });
   });
@@ -37,6 +38,7 @@ describe('preferences', () => {
       touchLayoutPreset: 'thumb',
       touchPanSensitivity: 'high',
       mobileOnboardingDismissed: true,
+      testerWelcomeDismissed: false,
       highContrastMode: false,
     });
   });
@@ -59,5 +61,18 @@ describe('preferences', () => {
     expect(normalizePreferences({highContrastMode: 0}).highContrastMode).toBe(false);
     expect(normalizePreferences({highContrastMode: 'true'}).highContrastMode).toBe(true);
     expect(normalizePreferences({}).highContrastMode).toBe(false);
+  });
+
+  it('normalizes testerWelcomeDismissed to boolean', () => {
+    expect(normalizePreferences({testerWelcomeDismissed: 1}).testerWelcomeDismissed).toBe(true);
+    expect(normalizePreferences({testerWelcomeDismissed: 0}).testerWelcomeDismissed).toBe(false);
+    expect(normalizePreferences({}).testerWelcomeDismissed).toBe(false);
+  });
+
+  it('persists and restores testerWelcomeDismissed', () => {
+    savePreferences({testerWelcomeDismissed: true});
+    expect(loadPreferences().testerWelcomeDismissed).toBe(true);
+    savePreferences({testerWelcomeDismissed: false});
+    expect(loadPreferences().testerWelcomeDismissed).toBe(false);
   });
 });

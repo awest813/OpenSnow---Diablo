@@ -90,6 +90,8 @@ class App extends React.Component {
     isTouchDevice: false,
     showMobileOnboarding: false,
     mobileOnboardingDismissed: false,
+    showTesterWelcome: false,
+    testerWelcomeDismissed: false,
     highContrastMode: false,
     multiplayerStatus: 'idle',
     multiplayerErrorCategory: null,
@@ -178,9 +180,11 @@ class App extends React.Component {
           touchLayoutPreset: preferences.touchLayoutPreset,
           touchPanSensitivity: preferences.touchPanSensitivity,
           mobileOnboardingDismissed: preferences.mobileOnboardingDismissed,
+          testerWelcomeDismissed: preferences.testerWelcomeDismissed,
           highContrastMode: preferences.highContrastMode,
           isTouchDevice,
           showMobileOnboarding: isTouchDevice && !preferences.mobileOnboardingDismissed,
+          showTesterWelcome: !isTouchDevice && !preferences.testerWelcomeDismissed,
         });
       });
     });
@@ -367,6 +371,14 @@ class App extends React.Component {
     });
   }
 
+  dismissTesterWelcome = () => {
+    savePreferences({testerWelcomeDismissed: true});
+    this.setState({
+      testerWelcomeDismissed: true,
+      showTesterWelcome: false,
+    });
+  }
+
   setHighContrastMode = enabled => {
     const highContrastMode = Boolean(enabled);
     savePreferences({highContrastMode});
@@ -422,6 +434,7 @@ class App extends React.Component {
       touchPanSensitivity,
       isTouchDevice,
       showMobileOnboarding,
+      showTesterWelcome,
       highContrastMode,
     } = this.state;
     return {
@@ -461,6 +474,8 @@ class App extends React.Component {
       isTouchDevice,
       showMobileOnboarding,
       dismissMobileOnboarding: this.dismissMobileOnboarding,
+      showTesterWelcome,
+      dismissTesterWelcome: this.dismissTesterWelcome,
       highContrastMode,
       setHighContrastMode: this.setHighContrastMode,
     };

@@ -40,6 +40,8 @@ export const defaultSessionValue = {
   isTouchDevice: false,
   showMobileOnboarding: false,
   dismissMobileOnboarding: noop,
+  showTesterWelcome: false,
+  dismissTesterWelcome: noop,
   highContrastMode: false,
   setHighContrastMode: noop,
 };

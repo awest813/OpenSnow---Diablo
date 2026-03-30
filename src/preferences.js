@@ -8,6 +8,7 @@ export const DEFAULT_PREFERENCES = {
   touchLayoutPreset: DEFAULT_TOUCH_LAYOUT_PRESET,
   touchPanSensitivity: DEFAULT_TOUCH_PAN_SENSITIVITY,
   mobileOnboardingDismissed: false,
+  testerWelcomeDismissed: false,
   highContrastMode: false,
 };
 
@@ -36,6 +37,10 @@ function sanitizeMobileOnboardingDismissed(value) {
   return Boolean(value);
 }
 
+function sanitizeTesterWelcomeDismissed(value) {
+  return Boolean(value);
+}
+
 function sanitizeHighContrastMode(value) {
   return Boolean(value);
 }
@@ -45,6 +50,7 @@ export function normalizePreferences(raw = {}) {
     touchLayoutPreset: sanitizeTouchLayoutPreset(raw.touchLayoutPreset),
     touchPanSensitivity: sanitizeTouchPanSensitivity(raw.touchPanSensitivity),
     mobileOnboardingDismissed: sanitizeMobileOnboardingDismissed(raw.mobileOnboardingDismissed),
+    testerWelcomeDismissed: sanitizeTesterWelcomeDismissed(raw.testerWelcomeDismissed),
     highContrastMode: sanitizeHighContrastMode(raw.highContrastMode),
   };
 }
