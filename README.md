@@ -1,146 +1,142 @@
-# OpenSnow — Diablo (DiabloWeb)
+# OpenTristam
 
 > Play Diablo 1 in a modern browser using WebAssembly, with local save persistence, touch controls, and multiplayer support.
 
-[![CI](https://github.com/d07RiV/diabloweb/actions/workflows/ci.yml/badge.svg)](https://github.com/d07RiV/diabloweb/actions/workflows/ci.yml)
+[![CI](https://github.com/awest813/OpenTristam/actions/workflows/ci.yml/badge.svg)](https://github.com/awest813/OpenTristam/actions/workflows/ci.yml)
 [![Version](https://img.shields.io/badge/version-1.0.39-blue.svg)](package.json)
-[![Live Demo](https://img.shields.io/badge/play-live%20demo-darkred.svg)](https://d07RiV.github.io/diabloweb/)
-
-**Live demo:** [https://d07RiV.github.io/diabloweb/](https://d07RiV.github.io/diabloweb/)
 
 ---
 
-## What this project is
+## What is OpenTristam?
 
-This repository packages the reverse-engineered Diablo 1 engine (via [devilution](https://github.com/diasurgical/devilution)) for browser execution.
+OpenTristam is a browser-based runtime for Diablo 1, built on the reverse-engineered [devilution](https://github.com/diasurgical/devilution) engine. It compiles the original game engine to **WebAssembly** and wraps it in a modern React app shell — no installation required.
 
 At runtime:
 - The game engine runs in a **Web Worker** via **WebAssembly**.
 - The app shell (React) handles UI, input, storage, and session orchestration.
-- Save data and imported MPQ files are persisted locally in **IndexedDB**.
-- Multiplayer uses **WebRTC** first, with a **WebSocket relay** fallback.
-
-No game data is uploaded by default: imported retail MPQ files stay in browser storage.
+- Save data and imported MPQ files are persisted locally in **IndexedDB** — nothing is uploaded.
+- Multiplayer uses **WebRTC** peer-to-peer first, with a **WebSocket relay** fallback.
 
 ---
 
 ## Quick start
 
-### Play immediately (shareware)
-1. Open the live demo.
-2. Start playing (shareware `spawn.mpq` is loaded automatically).
+### Play the shareware version (free)
+1. Clone or download the repo and run it locally (see [Local development](#local-development)).
+2. `spawn.mpq` (shareware data) is loaded automatically — no extra files needed.
 
-### Play retail Diablo 1
-1. Get `DIABDAT.MPQ` from a legitimate installation (e.g., GOG).
-2. Open the app.
-3. Drag-and-drop `DIABDAT.MPQ` into the game, or use the upload flow.
-4. The file is stored locally and reused on next launch.
+### Play the full retail version
+1. Obtain `DIABDAT.MPQ` from a legitimate Diablo 1 installation (e.g., GOG).
+2. Launch the app and drag-and-drop `DIABDAT.MPQ` into the browser window, or use the upload prompt.
+3. The file is stored in your browser's local storage and reused on future visits.
 
-> Tip: If your MPQ is large, use the in-app MPQ compression tool for faster loads.
+> **Tip:** If your MPQ is large, use the built-in MPQ compression tool (accessible from the start screen) for faster load times.
 
 ---
 
-## Feature overview
+## Features
 
-- **Engine parity:** Diablo 1 core engine running in the browser.
-- **Modes:** Shareware (`spawn.mpq`) and full retail (`DIABDAT.MPQ`).
-- **Multiplayer:** Peer-to-peer with fallback relay transport.
-- **Cross-device input:** Keyboard/mouse and touch controls.
-- **Persistent saves:** Import/export/delete saves without leaving the browser.
-- **PWA support:** Installable and offline-capable foundation.
+| Feature | Details |
+|---|---|
+| **Engine parity** | Diablo 1 core engine running in-browser via WASM |
+| **Shareware + retail** | Works with `spawn.mpq` (free) and `DIABDAT.MPQ` (retail) |
+| **Multiplayer** | Peer-to-peer via WebRTC with WebSocket relay fallback |
+| **Cross-device input** | Keyboard/mouse and touch controls with layout presets |
+| **Persistent saves** | Import, export, and delete saves entirely within the browser |
+| **Accessibility** | Keyboard-navigable overlays, ARIA labels, high-contrast UI mode |
+| **PWA-ready** | Installable and offline-capable foundation |
 
 ---
 
 ## Local development
 
 ### Prerequisites
-- Node.js 20.x
+- Node.js 20+
 - npm
 
-### Run in development
+### Setup and run
 ```bash
-git clone https://github.com/d07RiV/diabloweb.git
-cd diabloweb
+git clone https://github.com/awest813/OpenTristam.git
+cd OpenTristam
 npm ci --legacy-peer-deps
 npm start
 ```
 
-The dev server runs at `http://localhost:5173`.
+The dev server starts at `http://localhost:5173`.
 
-To test from another device on your local network (phone/tablet), run:
-
+To test on another device on your local network (e.g., phone or tablet):
 ```bash
 npm start -- --host 0.0.0.0
 ```
-
-Then open `http://<your-machine-ip>:5173` on the second device.
+Then navigate to `http://<your-machine-ip>:5173` on the second device.
 
 For shareware testing, place `spawn.mpq` in `public/`.
 
 ### Build and test
 ```bash
-npm test
-npm run build
-npm run smoke:retail -- --mpq /path/to/DIABDAT.MPQ
+npm test                                          # run unit tests
+npm run build                                     # production build
+npm run smoke:retail -- --mpq /path/to/DIABDAT.MPQ  # retail smoke test
+npm run lint                                      # lint source files
+npm run check:bundle-budget                       # verify bundle size thresholds
 ```
 
 For full setup and troubleshooting, see [docs/build-guide.md](docs/build-guide.md).
 
 ---
 
-## Architecture map
+## Architecture
 
-High-level flow:
+High-level data flow:
 
-1. `src/App.js` coordinates session lifecycle, overlays, and input wiring.
-2. `src/api/loader.js` boots the worker and adapts audio/render/storage/network boundaries.
-3. `src/api/game.worker.js` hosts the WASM engine loop and game-side APIs.
-4. `src/fs.js` persists files/saves through IndexedDB.
-5. `src/api/webrtc.js` / `src/api/websocket.js` manage multiplayer transport.
+1. **`src/App.js`** — coordinates session lifecycle, overlays, and input wiring.
+2. **`src/api/loader.js`** — boots the worker and adapts audio/render/storage/network boundaries.
+3. **`src/api/game.worker.js`** — hosts the WASM engine loop and game-side APIs.
+4. **`src/fs.js`** — persists files/saves through IndexedDB.
+5. **`src/api/transports/`** — multiplayer transport abstraction (PeerJS + WebSocket adapters).
 
-Helpful docs:
+Further reading:
 - [docs/architecture-overview.md](docs/architecture-overview.md)
 - [docs/system-diagrams.md](docs/system-diagrams.md)
-- [docs/modernization-roadmap.md](docs/modernization-roadmap.md)
 - [docs/self-host-relay.md](docs/self-host-relay.md)
 
 ---
 
 ## Project status
 
-This project is active and currently in **Phase 5** (UX, Accessibility, and Performance).
+OpenTristam is actively maintained and currently in **Phase 5** (UX, Accessibility, and Performance).
 
-Completed milestones:
-- **Phase 0–2:** foundations, app shell decomposition, and toolchain modernization (Vite 6, React 18, Jest 29).
-- **Phase 3:** runtime boundary hardening — formal worker message types, adapter splits, lifecycle disposal.
-- **Phase 4:** multiplayer reliability — transport abstraction, structured diagnostics, connection status UX, guided recovery, and self-host relay docs.
+| Phase | Status | Summary |
+|---|---|---|
+| Phase 0–2 | ✅ Done | Foundations, app shell decomposition, Vite 6 + React 18 + Jest 29 migration |
+| Phase 3 | ✅ Done | Runtime boundary hardening — formal worker message types, adapter splits, lifecycle disposal |
+| Phase 4 | ✅ Done | Multiplayer reliability — transport abstraction, diagnostics, connection status UX, relay docs |
+| Phase 5 | 🚧 Active | UI polish, accessibility, mobile UX, performance profiling |
+| Phase 6 | 🔲 Planned | Developer experience, documentation, E2E testing, community growth |
 
-Current focus (Phase 5): UI polish, accessibility improvements, mobile UX, and performance profiling.
-
-Up next (Phase 6): developer experience, documentation coverage, E2E testing, and community growth.
-
-See [ROADMAP.md](ROADMAP.md) for milestone-level planning.
+See [ROADMAP.md](ROADMAP.md) for detailed milestone tracking.
 
 ---
 
 ## Contributing
 
-Contributions are welcome.
+Contributions are welcome! Here's how to get involved:
 
-Current focus (Phase 5): UI polish, accessibility improvements, mobile UX, and performance.
-
-See [ROADMAP.md](ROADMAP.md) for planned work items. Pick a 🔲 item, open a scoped issue, and land changes with tests where feasible.
+1. Check [ROADMAP.md](ROADMAP.md) for planned work items (look for 🔲).
+2. Open a scoped issue describing the change and any risks before coding.
+3. Submit a PR with tests where feasible. The test suite should grow, not shrink.
+4. Update relevant docs when workflows, setup, or user-visible behavior changes.
 
 ---
 
-## Legal note
+## Legal
 
-Diablo is a Blizzard Entertainment property. This project does not distribute commercial game assets. You must provide your own legally obtained retail data file (`DIABDAT.MPQ`) for full-version play.
+Diablo is a trademark of Blizzard Entertainment. **This project does not distribute any commercial game assets.** You must supply your own legally obtained `DIABDAT.MPQ` for full-version play. The shareware data (`spawn.mpq`) is freely available.
 
 ---
 
 ## Credits
 
-- [d07RiV/diabloweb](https://github.com/d07RiV/diabloweb) original project
-- [diasurgical/devilution](https://github.com/diasurgical/devilution) reverse-engineered Diablo engine
-- Contributors maintaining browser compatibility, tooling, and UX improvements
+- [d07RiV/diabloweb](https://github.com/d07RiV/diabloweb) — original browser-based Diablo runtime
+- [diasurgical/devilution](https://github.com/diasurgical/devilution) — reverse-engineered Diablo 1 engine
+- All contributors who have improved browser compatibility, tooling, accessibility, and UX
