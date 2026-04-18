@@ -118,6 +118,42 @@ npm test -- --watchAll=false --coverage
 
 Coverage is collected from all files matching `src/**/*.{js,jsx,ts,tsx}`.
 
+### Automated retail smoke test
+
+For a browser-level retail validation pass with your own legally obtained `DIABDAT.MPQ`, run:
+
+```bash
+npm run smoke:retail -- --mpq /path/to/DIABDAT.MPQ
+```
+
+What it does:
+
+- starts the local Vite dev server on `http://127.0.0.1:5174/diabloweb/`
+- opens a local Chromium/Chrome-family browser via `playwright-core`
+- uploads your MPQ through the in-app file input
+- verifies the multiplayer banner does not appear during single-player startup
+- advances the menu flow until the New Single Player Hero class-selection screen is reached
+- saves screenshots and logs to `output/playwright/retail-smoke/`
+
+Optional variants:
+
+```bash
+npm run smoke:retail -- --mpq /path/to/DIABDAT.MPQ --headed
+npm run smoke:retail -- --mpq /path/to/DIABDAT.MPQ --browser-path /path/to/chrome
+```
+
+You can also provide the asset path through an environment variable:
+
+```bash
+DIABDAT_MPQ=/path/to/DIABDAT.MPQ npm run smoke:retail
+```
+
+Notes:
+
+- The script requires a local Chromium/Chrome-family browser already installed.
+- It uploads the MPQ directly from the path you provide; it does not copy the commercial asset into the repo.
+- This is designed for local verification, not CI, because retail game data is not distributed with the project.
+
 ### What is tested
 
 | Module | Test file |

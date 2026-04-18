@@ -85,6 +85,14 @@ export default defineConfig({
     },
   },
 
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+      },
+    },
+  },
+
   // Allow serving large WASM binaries from src/
   assetsInclude: ['**/*.wasm'],
 

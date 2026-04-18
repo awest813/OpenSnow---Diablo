@@ -72,6 +72,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node scripts/test.js",
+    "smoke:retail": "node scripts/retail-smoke.mjs",
     "lint": "eslint src --ext .js,.jsx",
     "check:bundle-budget": "node scripts/check-bundle-budget.mjs",
     "deploy": "gh-pages -d build"
@@ -154,6 +155,8 @@
     "exports-loader": "^0.7.0",
     "gh-pages": "^2.0.1",
     "jest-environment-jsdom": "^30.2.0",
+    "playwright-core": "^1.59.1",
+    "pngjs": "^7.0.0",
     "sass": "^1.77.0",
     "vite": "^6.4.1",
     "worker-loader": "^2.0.0"

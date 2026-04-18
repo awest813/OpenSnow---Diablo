@@ -20,6 +20,34 @@ Status legend:
 
 ---
 
+## Immediate Improvement Roadmap (Post Retail Smoke Test)
+
+Validated on April 18, 2026:
+- Retail `DIABDAT.MPQ` import succeeds.
+- The app boots to the Diablo title screen and reaches New Single Player Hero class selection.
+- Unit tests and production builds pass locally.
+- Dev-mode parity needed one config fix so Vite prebundling treats CRA-style `.js` files as JSX.
+
+### Next 30 Days
+
+| Priority | Area | Improvement | Why now | Validation |
+| --- | --- | --- | --- | --- |
+| P0 | E2E coverage | Add an automated browser smoke test for retail MPQ import and menu progression. | Manual validation proved the path works; now it should become repeatable CI/dev coverage. | Scripted run reaches title screen and class select using a test harness or fixture workflow. |
+| P0 | Session UX | Clarify the transient `Connecting...` banner during single-player startup, or suppress it when no real network wait exists. | The retail boot worked, but the status message was confusing during successful startup. | Manual retail boot shows either accurate status text or no misleading banner. |
+| P0 | Tooling parity | Keep dev/build parity explicit in Vite config for CRA-style JSX-in-`.js` sources. | This was the only issue that blocked real smoke testing. | `npm start`, `npm test`, and `npm run build` all pass on a fresh clone. |
+| P1 | Input verification | Add a lightweight menu-input smoke path that confirms keyboard and pointer both advance from the title menu. | We verified click-through manually; it should be guarded against regressions. | Browser smoke test reaches class select via click and via keyboard path. |
+| P1 | Contributor DX | Document a reproducible retail smoke-test workflow using a local user-supplied MPQ. | The project now has a proven manual validation path worth preserving. | `docs/build-guide.md` or a test doc includes step-by-step retail validation guidance. |
+
+### Next 60-90 Days
+
+| Priority | Area | Improvement | Why now | Validation |
+| --- | --- | --- | --- | --- |
+| P1 | Regression safety | Add visual regression coverage for start screen, title menu, and class select. | These are stable, high-value checkpoints that caught meaningful state transitions in manual testing. | Snapshot artifacts compare cleanly across CI runs. |
+| P1 | Diagnostics | Surface startup-phase diagnostics in a user-copyable format when worker/session boot stalls. | Useful for the class of issues that look like hangs but are really recoverable startup problems. | Manual failure injection exposes actionable diagnostics and restart affordance. |
+| P2 | Asset workflow | Evaluate a sanctioned local-fixture path for browser E2E runs without checking commercial assets into the repo. | Retail coverage is valuable, but asset handling must stay legally and operationally clean. | Local-only smoke harness works with documented user-provided assets. |
+
+---
+
 ## Phase 0 — Completed Foundations
 
 - ✅ Worker extraction and loader boundary setup (`src/api/loader.js`, `src/api/game.worker.js`)
@@ -61,6 +89,7 @@ Status legend:
 
 - ✅ Evaluate Vite + React 18 migration track (preferred) vs Webpack 5 fallback — Vite 6 chosen
 - ✅ Migrate bundler — Webpack 4 → Vite 6; workers use `?worker`, WASM uses `?url`, `.jscc` files wrapped via custom Vite plugin; build: 149 modules in ~1.6s
+- ✅ Align Vite dev prebundling with CRA-style JSX-in-`.js` sources so local `npm start` matches build behavior
 - ✅ Upgrade React from 16 to 18 (createRoot, IS_REACT_ACT_ENVIRONMENT, updated tests)
 - ✅ Upgrade Jest to 29 + jsdom 20+ (moduleNameMapper for binary assets, transform API, window.location fix)
 - ✅ Replace legacy ESLint plugin set (eslint@5 + babel-eslint) with eslint@8 + @babel/eslint-parser + react/react-hooks/jsx-a11y plugins; lint step added to CI

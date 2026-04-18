@@ -8,6 +8,7 @@ import { createFsAdapter } from './fsAdapter';
 import { createTransportAdapter } from './transportAdapter';
 import { createTransport } from './transports';
 import { createMultiplayerDiagnostics } from './multiplayerDiagnostics';
+import { createLazyMultiplayerTransport } from './lazyMultiplayerTransport';
 
 async function do_load_game(api, audio, mpq, spawn) {
   const fs = await api.fs;
@@ -51,26 +52,16 @@ async function do_load_game(api, audio, mpq, spawn) {
         onOutboundPacket: packet => diagnostics.observeOutboundPacket(packet),
       });
       const multiplayerOptions = api.multiplayerOptions || {};
-      let multiplayerTransport = null;
 
       const createMultiplayerTransport = () => createTransport(multiplayerOptions, {
         onPacket: data => transport.enqueue(data),
         onLifecycle: event => diagnostics.observeTransportLifecycle(event),
         onError: error => diagnostics.observeTransportError(error),
       });
-
-      const replaceMultiplayerTransport = (actionType = null) => {
-        if (actionType) {
-          diagnostics.recordAppAction(actionType);
-        }
-        if (multiplayerTransport) {
-          multiplayerTransport.dispose();
-        }
-        multiplayerTransport = createMultiplayerTransport();
-        transport.setTransport(multiplayerTransport);
-      };
-
-      replaceMultiplayerTransport();
+      const multiplayerTransport = createLazyMultiplayerTransport({
+        createTransport: createMultiplayerTransport,
+      });
+      transport.setTransport(multiplayerTransport);
       if (api.onMultiplayerStatus) {
         api.onMultiplayerStatus(diagnostics.getStatus());
       }
@@ -80,10 +71,7 @@ async function do_load_game(api, audio, mpq, spawn) {
       const dispose = () => {
         document.removeEventListener('visibilitychange', onVisibilityChange);
         transport.dispose();
-        if (multiplayerTransport) {
-          multiplayerTransport.dispose();
-          multiplayerTransport = null;
-        }
+        multiplayerTransport.dispose();
         if (!workerTerminated) {
           workerTerminated = true;
           worker.terminate();
@@ -97,14 +85,11 @@ async function do_load_game(api, audio, mpq, spawn) {
             const gameApi = (func, ...params) => worker.postMessage({action: MainToWorker.EVENT, func, params});
             gameApi.retryMultiplayer = () => {
               diagnostics.recordAppAction('retry_requested');
-              if (multiplayerTransport && multiplayerTransport.reconnect) {
-                multiplayerTransport.reconnect();
-              } else {
-                replaceMultiplayerTransport();
-              }
+              multiplayerTransport.reconnect();
             };
             gameApi.reconnectMultiplayer = () => {
-              replaceMultiplayerTransport('reconnect_requested');
+              diagnostics.recordAppAction('reconnect_requested');
+              multiplayerTransport.replace();
             };
             gameApi.getMultiplayerDiagnostics = () => diagnostics.getEvents();
             gameApi.getMultiplayerStatus = () => diagnostics.getStatus();

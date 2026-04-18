@@ -81,6 +81,7 @@ For shareware testing, place `spawn.mpq` in `public/`.
 ```bash
 npm test
 npm run build
+npm run smoke:retail -- --mpq /path/to/DIABDAT.MPQ
 ```
 
 For full setup and troubleshooting, see [docs/build-guide.md](docs/build-guide.md).
