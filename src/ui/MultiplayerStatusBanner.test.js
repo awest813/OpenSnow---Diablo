@@ -81,7 +81,6 @@ describe('MultiplayerStatusBanner', () => {
 
     act(() => {
       retryButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-      reconnectButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
       copySessionButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
       copyShareButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
       dismissButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
