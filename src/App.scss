@@ -20,6 +20,10 @@ body, #root, .App {
     }
   }
 }
+
+@keyframes loadingSpinner {
+  to { transform: rotate(360deg); }
+}
 .Body, .BodyV {
   position: absolute;
   top: 0;
@@ -243,6 +247,11 @@ body, #root, .App {
       color: #c8b89a;
       line-height: 1.5;
     }
+    .saveManagerIntro {
+      margin: 0 0 14px;
+      font-size: 14px;
+      text-align: left;
+    }
     .startActions {
       display: flex;
       flex-direction: column;
@@ -306,39 +315,66 @@ body, #root, .App {
       background: rgba(0, 0, 0, 0.3);
       text-align: left;
       li {
-        padding: 4px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
         color: #c8b89a;
         transition: background-color 0.1s ease;
+        .saveListMeta {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          min-width: 0;
+        }
+        .saveName {
+          font-weight: 700;
+          overflow-wrap: anywhere;
+        }
+        .saveListActions {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+          gap: 8px;
+          flex-shrink: 0;
+        }
         .saveIconButton {
-          float: right;
           cursor: pointer;
-          margin: 0 4px;
-          padding: 0;
-          border: none;
-          background: none;
+          margin: 0;
+          padding: 5px 9px;
+          border: 1px solid currentColor;
+          border-radius: 3px;
+          background: rgba(0, 0, 0, 0.25);
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          transition: color 0.15s ease;
+          gap: 6px;
+          transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
           &:focus-visible {
             outline: 2px solid #e8d5a3;
             outline-offset: 2px;
           }
         }
+        .saveIconButtonLabel {
+          font-size: 12px;
+          line-height: 1;
+        }
         .info {
-          color: #7a6a54;
-          margin-left: 6px;
+          color: #b7a16f;
         }
         .btnRemove {
-          color: #800;
+          color: #d36d6d;
           &:hover {
-            color: #f00;
+            color: #ffd1d1;
+            background: rgba(92, 34, 34, 0.35);
           }
         }
         .btnDownload {
-          color: #999;
+          color: #d4bf88;
           &:hover {
-            color: #c8a84a;
+            color: #f4e7bf;
+            background: rgba(58, 40, 16, 0.35);
           }
         }
         &:hover {
@@ -347,9 +383,19 @@ body, #root, .App {
       }
     }
     .savesEmpty {
-      margin: 10px 0;
-      color: #7a6a54;
-      font-style: italic;
+      margin: 18px 0;
+      text-align: center;
+      color: #b8a88a;
+      .savesEmptyTitle {
+        margin: 0;
+        font-weight: 700;
+        color: #e8d5a3;
+      }
+      .savesEmptyBody {
+        margin: 8px 0 0;
+        font-size: 14px;
+        color: #c8b89a;
+      }
     }
     .mobileOnboarding {
       margin: 14px 0;
@@ -542,11 +588,18 @@ body, #root, .App {
     background: rgba(0, 0, 0, 0.95);
     color: #fff;
     border: 1px solid #fff;
+    .loadingPercent {
+      color: #fff;
+    }
     .progressBar > span {
       background: #444;
       > span {
         background: #fff;
       }
+    }
+    .loadingSpinner {
+      border-color: rgba(255, 255, 255, 0.25);
+      border-top-color: #fff;
     }
   }
   .updateBanner, .storageBanner {
@@ -580,6 +633,15 @@ body, #root, .App {
       }
     }
   }
+  .dropHint {
+    background: #000;
+    border-color: #fff;
+    color: #fff;
+    .dropHintTitle,
+    .dropHintBody {
+      color: #fff;
+    }
+  }
 }
 
 .App {
@@ -599,42 +661,74 @@ body, #root, .App {
     .header {
       font-weight: bold;
       font-size: 1.1em;
-      margin-bottom: 0.4em;
+      margin-bottom: 0.3em;
       color: #f44;
       letter-spacing: 0.04em;
     }
-    .body {
-      font-family: monospace;
-      color: #c88;
+    .errorLead {
+      margin: 0 0 10px;
+      color: #f0c4c4;
+      font-size: 0.9em;
     }
-    .errorIssueLink {
-      display: inline-block;
-      margin-top: 0.6em;
+    .body {
+      color: #c88;
+      margin-bottom: 12px;
+      overflow-wrap: anywhere;
+    }
+    .errorActions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .errorIssueLink,
+    .errorSaveLink {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      padding: 0 12px;
+      border: 1px solid #7a2020;
+      border-radius: 3px;
+      background: rgba(122, 32, 32, 0.18);
       font-size: 0.85em;
       color: #f99;
       &:hover {
         color: #fff;
+        background: rgba(122, 32, 32, 0.35);
       }
     }
     .startButton {
-      margin-top: 12px;
+      margin-top: 14px;
     }
   }
 
   .loading {
     color: #7a6a54;
-    font-size: 28px;
+    font-size: 20px;
     text-align: center;
     width: 75%;
     letter-spacing: 0.08em;
+    .loadingText {
+      margin-bottom: 14px;
+    }
+    .progressBarWrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .loadingPercent {
+      font-size: 12px;
+      color: #c8b89a;
+      letter-spacing: 0.12em;
+    }
     .progressBar {
       display: block;
-      position: absolute;
-      margin-top: 16px;
       width: 100%;
       height: 36px;
       border: 1px solid #3a2810;
       background: rgba(0, 0, 0, 0.5);
+      position: relative;
       span {
         position: absolute;
         left: 3px;
@@ -650,6 +744,15 @@ body, #root, .App {
         background: linear-gradient(90deg, #6b4c1e 0%, #a0722a 60%, #c8952a 100%);
         transition: width 0.2s ease;
       }
+    }
+    .loadingSpinner {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 3px solid rgba(200, 168, 74, 0.25);
+      border-top-color: #c8a84a;
+      animation: loadingSpinner 0.8s linear infinite;
     }
   }
   a, .link, .linkButton {
@@ -1017,6 +1120,32 @@ body, #root, .App {
   pointer-events: all;
 }
 
+.dropHint {
+  position: fixed;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10002;
+  width: min(90vw, 420px);
+  padding: 18px 20px;
+  border: 1px solid #a0722a;
+  background: rgba(13, 10, 7, 0.96);
+  color: #e8d5a3;
+  text-align: center;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+  .dropHintTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f0d78c;
+  }
+  .dropHintBody {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: #c8b89a;
+  }
+}
+
 @keyframes multiplayerSpinner {
   to { transform: rotate(360deg); }
 }
@@ -1102,9 +1231,10 @@ body, #root, .App {
     color: #e8d5a3;
     border: none;
     border-radius: 3px;
-    padding: 4px 10px;
+    min-height: 34px;
+    padding: 6px 12px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
     &:hover {
       background: #8a6130;
     }
@@ -1117,6 +1247,7 @@ body, #root, .App {
 
 .multiplayerBanner-connected {
   border-color: #3d7a3d;
+  background: rgba(20, 42, 20, 0.92);
 }
 
 .multiplayerBanner-failed {

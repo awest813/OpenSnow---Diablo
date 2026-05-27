@@ -30,6 +30,7 @@ export default function MultiplayerStatusBanner(props) {
 
   const isFailure = status === 'failed';
   const isConnecting = status === 'connecting' || status === 'retrying';
+  const primaryActionLabel = status === 'retrying' ? 'Retry now' : 'Try again';
 
   return (
     <div
@@ -58,16 +59,16 @@ export default function MultiplayerStatusBanner(props) {
       </div>
       <div className="multiplayerBanner-actions">
         {(status === 'retrying' || status === 'failed') && (
-          <button type="button" onClick={onRetry}>Retry</button>
+          <button type="button" onClick={onRetry}>{primaryActionLabel}</button>
         )}
-        {(status === 'failed' || status === 'connected') && (
+        {status === 'connected' && (
           <button type="button" onClick={onReconnect}>Reconnect</button>
         )}
         {sessionId && (
-          <button type="button" onClick={onCopySessionId} aria-label="Copy session ID to clipboard">Copy Session ID</button>
+          <button type="button" onClick={onCopySessionId} aria-label="Copy session ID to clipboard">Copy ID</button>
         )}
         {shareUrl && (
-          <button type="button" onClick={onCopyShareLink} aria-label="Copy share link to clipboard">Copy Share Link</button>
+          <button type="button" onClick={onCopyShareLink} aria-label="Copy share link to clipboard">Copy Invite Link</button>
         )}
         <button type="button" onClick={onDismiss}>Dismiss</button>
       </div>

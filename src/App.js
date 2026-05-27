@@ -699,9 +699,12 @@ class App extends React.Component {
   }
 
   render() {
-    const {started, error, dropping, updateAvailable, touchLayoutPreset, highContrastMode} = this.state;
+    const {started, error, dropping, updateAvailable, touchLayoutPreset, highContrastMode, compress} = this.state;
     const sessionContextValue = this.getSessionContextValue();
     const touchPresetClass = `touch-preset-${touchLayoutPreset || DEFAULT_TOUCH_LAYOUT_PRESET}`;
+    const dropHint = compress
+      ? 'Drop an MPQ file here to compress it.'
+      : 'Drop DIABDAT.MPQ or a .sv save file here.';
     return (
       <SessionContext.Provider value={sessionContextValue}>
         <div className={classNames('App', touchPresetClass, {'high-contrast': highContrastMode, touch: this.touchControls, started, dropping, keyboard: !!this.showKeyboard})} ref={this.setElement}>
@@ -718,6 +721,12 @@ class App extends React.Component {
             </div>
           )}
           <MultiplayerStatusBanner/>
+          {dropping > 0 && (
+            <div className="dropHint" role="status" aria-live="polite" aria-atomic="true">
+              <div className="dropHintTitle">Drop file to import</div>
+              <div className="dropHintBody">{dropHint}</div>
+            </div>
+          )}
           <div className="touch-ui touch-mods">
             <div className={classNames('touch-button', 'touch-button-0', {active: this.touchMods[0]})} ref={this.setTouch0} role="button" tabIndex={0} aria-label="Touch Mod 1"/>
             <div className={classNames('touch-button', 'touch-button-1', {active: this.touchMods[1]})} ref={this.setTouch1} role="button" tabIndex={0} aria-label="Touch Mod 2"/>

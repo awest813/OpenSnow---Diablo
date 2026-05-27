@@ -61,7 +61,7 @@ describe('ErrorOverlay', () => {
     });
 
     const reloadButton = Array.from(container.querySelectorAll('button'))
-      .find(btn => btn.textContent.trim() === 'Reload');
+      .find(btn => btn.textContent.trim() === 'Reload game');
     expect(reloadButton).toBeTruthy();
 
     act(() => {
