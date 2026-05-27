@@ -1,4 +1,4 @@
-# OpenSnow — Diablo Roadmap
+# OpenTristam — Diablo Roadmap
 
 This roadmap tracks modernization and reliability work for the browser-based Diablo runtime.
 

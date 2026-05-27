@@ -1,4 +1,4 @@
-# DiabloWeb Architecture Overview (Phase 0)
+# OpenTristam Architecture Overview (Phase 0)
 
 This document defines the Phase 0 architecture baseline for the current runtime.
 

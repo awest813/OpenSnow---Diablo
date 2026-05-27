@@ -1,4 +1,4 @@
-# DiabloWeb System Diagrams (Phase 0)
+# OpenTristam System Diagrams (Phase 0)
 
 These diagrams expand the Phase 0 baseline with concrete flows for boot, worker lifecycle, and multiplayer handshake.
 

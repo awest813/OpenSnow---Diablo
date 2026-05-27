@@ -8,7 +8,7 @@ describe('buildIssueUrl', () => {
 
   it('returns a valid GitHub new-issue URL', () => {
     const url = buildIssueUrl({message: 'Test error'}, retail);
-    expect(url).toMatch(/^https:\/\/github\.com\/d07RiV\/diabloweb\/issues\/new\?/);
+    expect(url).toMatch(/^https:\/\/github\.com\/awest813\/OpenTristam\/issues\/new\?/);
   });
 
   it('includes the error message in the issue body', () => {
