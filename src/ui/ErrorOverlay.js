@@ -16,14 +16,17 @@ export default function ErrorOverlay(props) {
 
   return (
     <DialogFrame className="error" role="alertdialog" ariaLabel="Game error details">
-      <p className="header">The following error has occurred:</p>
+      <p className="header">Something went wrong</p>
+      <p className="errorLead">The game hit an unexpected error and had to stop.</p>
       <p className="body">{error.message}</p>
-      <ExternalLink className="errorIssueLink" href={buildIssueUrl(error, retail)}>
-        Create an issue on GitHub
-      </ExternalLink>
-      {error.save != null && <a href={error.save} download={saveName}>Download save file</a>}
+      <div className="errorActions">
+        <ExternalLink className="errorIssueLink" href={buildIssueUrl(error, retail)}>
+          Report on GitHub
+        </ExternalLink>
+        {error.save != null && <a className="errorSaveLink" href={error.save} download={saveName}>Download save</a>}
+      </div>
       <button type="button" className="startButton" onClick={onReload}>
-        Reload
+        Reload game
       </button>
     </DialogFrame>
   );

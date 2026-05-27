@@ -193,11 +193,11 @@ export default function StartScreen(props) {
         </label>
       </div>
 
-      <div className="startActions">
-        <button type="button" className="startButton startButton--primary" onClick={openMpqPicker}>Select MPQ</button>
-        <button type="button" className="startButton" onClick={() => onStart(null)}>Play Shareware</button>
-        {hasSaves && <button type="button" className="startButton startButton--secondary" onClick={onShowSaves}>Manage Saves</button>}
-      </div>
+      {hasSaves && (
+        <div className="startActions">
+          <button type="button" className="startButton startButton--secondary" onClick={onShowSaves}>Manage Saves</button>
+        </div>
+      )}
     </DialogFrame>
   );
 }

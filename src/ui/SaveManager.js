@@ -89,37 +89,44 @@ export default class SaveManager extends React.Component {
     const saveEntries = Object.entries(saves);
     return (
       <DialogFrame className="start" ariaLabel="Manage saves">
+        <p className="saveManagerIntro">
+          Keep a backup of your browser saves or import an existing <strong>.sv</strong> file.
+        </p>
         {saveEntries.length === 0 ? (
-          <div className="savesEmpty" style={{ textAlign: 'center', margin: '20px 0' }}>
-            <p style={{ margin: 0, fontWeight: 'bold' }}>No save files found.</p>
-            <p style={{ fontSize: '0.85em', opacity: 0.8, marginTop: '8px' }}>
-              Upload an existing .sv file below, or start a new game to create one.
-            </p>
+          <div className="savesEmpty">
+            <p className="savesEmptyTitle">No save files found.</p>
+            <p className="savesEmptyBody">Start a new game to create one, or upload an existing .sv file below.</p>
           </div>
         ) : (
           <ul className="saveList">
             {saveEntries.map(([name, info]) => (
               <li key={name}>
-                {name}
-                {info && <span className="info">{info.name} (lv. {info.level} {PLAYER_CLASSES[info.cls] ?? 'Unknown'})</span>}
-                <button
-                  type="button"
-                  className="saveIconButton btnDownload"
-                  onClick={() => this.downloadSave(name)}
-                  aria-label={`Download ${name}`}
-                  title={`Download ${name}`}
-                >
-                  <FontAwesomeIcon icon={faDownload}/>
-                </button>
-                <button
-                  type="button"
-                  className="saveIconButton btnRemove"
-                  onClick={() => this.removeSave(name)}
-                  aria-label={`Delete ${name}`}
-                  title={`Delete ${name}`}
-                >
-                  <FontAwesomeIcon icon={faTimes}/>
-                </button>
+                <div className="saveListMeta">
+                  <span className="saveName">{name}</span>
+                  {info && <span className="info">{info.name} (lv. {info.level} {PLAYER_CLASSES[info.cls] ?? 'Unknown'})</span>}
+                </div>
+                <div className="saveListActions">
+                  <button
+                    type="button"
+                    className="saveIconButton btnDownload"
+                    onClick={() => this.downloadSave(name)}
+                    aria-label={`Download ${name}`}
+                    title={`Download ${name}`}
+                  >
+                    <FontAwesomeIcon icon={faDownload}/>
+                    <span className="saveIconButtonLabel">Download</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="saveIconButton btnRemove"
+                    onClick={() => this.removeSave(name)}
+                    aria-label={`Delete ${name}`}
+                    title={`Delete ${name}`}
+                  >
+                    <FontAwesomeIcon icon={faTimes}/>
+                    <span className="saveIconButtonLabel">Delete</span>
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

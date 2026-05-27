@@ -45,7 +45,6 @@ describe('MultiplayerStatusBanner', () => {
 
   it('renders failure state and invokes action callbacks', async () => {
     const retryMultiplayer = jest.fn();
-    const reconnectMultiplayer = jest.fn();
     const copySessionId = jest.fn();
     const copyShareLink = jest.fn();
     const dismissMultiplayerNotice = jest.fn();
@@ -56,7 +55,6 @@ describe('MultiplayerStatusBanner', () => {
       multiplayerSessionId: 'abc123',
       multiplayerShareUrl: 'https://example.test/?session=abc123',
       retryMultiplayer,
-      reconnectMultiplayer,
       copySessionId,
       copyShareLink,
       dismissMultiplayerNotice,
@@ -69,14 +67,14 @@ describe('MultiplayerStatusBanner', () => {
     expect(banner.getAttribute('aria-live')).toBe('assertive');
 
     const buttons = Array.from(container.querySelectorAll('button'));
-    const retryButton = buttons.find(node => node.textContent === 'Retry');
+    const retryButton = buttons.find(node => node.textContent === 'Try again');
     const reconnectButton = buttons.find(node => node.textContent === 'Reconnect');
-    const copySessionButton = buttons.find(node => node.textContent === 'Copy Session ID');
-    const copyShareButton = buttons.find(node => node.textContent === 'Copy Share Link');
+    const copySessionButton = buttons.find(node => node.textContent === 'Copy ID');
+    const copyShareButton = buttons.find(node => node.textContent === 'Copy Invite Link');
     const dismissButton = buttons.find(node => node.textContent === 'Dismiss');
 
     expect(retryButton).toBeTruthy();
-    expect(reconnectButton).toBeTruthy();
+    expect(reconnectButton).toBeFalsy();
     expect(copySessionButton).toBeTruthy();
     expect(copyShareButton).toBeTruthy();
     expect(dismissButton).toBeTruthy();
@@ -90,10 +88,27 @@ describe('MultiplayerStatusBanner', () => {
     });
 
     expect(retryMultiplayer).toHaveBeenCalledTimes(1);
-    expect(reconnectMultiplayer).toHaveBeenCalledTimes(1);
     expect(copySessionId).toHaveBeenCalledTimes(1);
     expect(copyShareLink).toHaveBeenCalledTimes(1);
     expect(dismissMultiplayerNotice).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders reconnect action only when connected', async () => {
+    const reconnectMultiplayer = jest.fn();
+    await renderWithSession({
+      multiplayerStatus: 'connected',
+      reconnectMultiplayer,
+    });
+
+    const reconnectButton = Array.from(container.querySelectorAll('button'))
+      .find(node => node.textContent === 'Reconnect');
+    expect(reconnectButton).toBeTruthy();
+
+    act(() => {
+      reconnectButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+    });
+
+    expect(reconnectMultiplayer).toHaveBeenCalledTimes(1);
   });
 
   it('shows session ID as visible text when connecting', async () => {
@@ -157,8 +172,8 @@ describe('MultiplayerStatusBanner', () => {
       multiplayerShareUrl: 'https://example.test/?session=abc123',
     });
     const buttons = Array.from(container.querySelectorAll('button'));
-    const copySessionButton = buttons.find(node => node.textContent === 'Copy Session ID');
-    const copyShareButton = buttons.find(node => node.textContent === 'Copy Share Link');
+    const copySessionButton = buttons.find(node => node.textContent === 'Copy ID');
+    const copyShareButton = buttons.find(node => node.textContent === 'Copy Invite Link');
     expect(copySessionButton.getAttribute('aria-label')).toBe('Copy session ID to clipboard');
     expect(copyShareButton.getAttribute('aria-label')).toBe('Copy share link to clipboard');
   });
