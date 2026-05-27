@@ -1,6 +1,6 @@
-# DiabloWeb Build Guide
+# OpenTristam Build Guide
 
-This guide covers everything you need to develop, test, and build DiabloWeb locally — from a first-time clone through production deployment.
+This guide covers everything you need to develop, test, and build OpenTristam locally — from a first-time clone through production deployment.
 
 ---
 
@@ -43,8 +43,8 @@ No other system tools are required. The WASM binaries are pre-built and checked 
 ## Cloning the Repository
 
 ```bash
-git clone https://github.com/d07RiV/diabloweb.git
-cd diabloweb
+git clone https://github.com/awest813/OpenTristam.git
+cd OpenTristam
 ```
 
 ---
@@ -128,7 +128,7 @@ npm run smoke:retail -- --mpq /path/to/DIABDAT.MPQ
 
 What it does:
 
-- starts the local Vite dev server on `http://127.0.0.1:5174/diabloweb/`
+- starts the local Vite dev server on `http://127.0.0.1:5174/OpenTristam/`
 - opens a local Chromium/Chrome-family browser via `playwright-core`
 - uploads your MPQ through the in-app file input
 - verifies the multiplayer banner does not appear during single-player startup
@@ -252,9 +252,9 @@ npm run build
 npm run deploy
 ```
 
-This requires push access to the repository. The live site at [https://d07RiV.github.io/diabloweb/](https://d07RiV.github.io/diabloweb/) is served from that branch.
+This requires push access to the repository. The live site at [https://awest813.github.io/OpenTristam/](https://awest813.github.io/OpenTristam/) is served from that branch.
 
-The Vite build sets `base: '/diabloweb/'` so all asset paths are rooted correctly under the GitHub Pages sub-path.
+The Vite build sets `base: '/OpenTristam/'` so all asset paths are rooted correctly under the GitHub Pages sub-path.
 
 ---
 

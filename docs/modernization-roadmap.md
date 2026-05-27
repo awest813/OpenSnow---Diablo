@@ -1,4 +1,4 @@
-# DiabloWeb Modernization Roadmap
+# OpenTristam Modernization Roadmap
 
 This roadmap focuses on practical, low-risk modernization while preserving game behavior and multiplayer compatibility.
 

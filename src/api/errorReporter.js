@@ -6,13 +6,13 @@ export const ExternalLink = ({children, ...props}) => (
 
 export function buildIssueUrl(error, retail) {
   const message = (error.message || 'Unknown error') + (error.stack ? '\n' + error.stack : '');
-  const url = new URL('https://github.com/d07RiV/diabloweb/issues/new');
+  const url = new URL('https://github.com/awest813/OpenTristam/issues/new');
   url.searchParams.set('body',
 `**Description:**
 [Please describe what you were doing before the error occurred]
 
 **App version:**
-DiabloWeb ${process.env.VERSION || 'unknown'} (${retail ? 'Retail' : 'Shareware'})
+OpenTristam ${process.env.VERSION || 'unknown'} (${retail ? 'Retail' : 'Shareware'})
 
 **Error message:**
     

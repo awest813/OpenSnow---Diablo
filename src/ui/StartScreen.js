@@ -77,7 +77,7 @@ export default function StartScreen(props) {
 
       <p className="startMeta">
         Web port based on reconstructed source (
-        <ExternalLink href="https://github.com/d07RiV/diabloweb">project on GitHub</ExternalLink>
+        <ExternalLink href="https://github.com/awest813/OpenTristam">project on GitHub</ExternalLink>
         ). Not affiliated with Blizzard.
       </p>
 

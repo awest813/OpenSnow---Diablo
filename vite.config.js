@@ -50,8 +50,8 @@ function jsccPlugin() {
 }
 
 export default defineConfig({
-  // GitHub Pages serves from /diabloweb/
-  base: '/diabloweb/',
+  // GitHub Pages serves from /OpenTristam/
+  base: '/OpenTristam/',
 
   plugins: [
     jsInJsxPlugin(),
@@ -67,7 +67,7 @@ export default defineConfig({
     // but some worker code uses it as a string prefix. We define it here for
     // the production build; for dev it will be an empty string.
     'process.env.PUBLIC_URL': JSON.stringify(
-      process.env.NODE_ENV === 'production' ? '/diabloweb' : ''
+      process.env.NODE_ENV === 'production' ? '/OpenTristam' : ''
     ),
   },
 

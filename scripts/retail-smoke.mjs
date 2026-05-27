@@ -286,7 +286,7 @@ async function main() {
   const browserExecutable = findBrowserExecutable(options.browserPath);
   const artifactDir = options.artifactDir;
   const port = await findAvailablePort(options.host, options.port);
-  const appUrl = `http://${options.host}:${port}/diabloweb/`;
+  const appUrl = `http://${options.host}:${port}/OpenTristam/`;
 
   await ensureArtifactDir(artifactDir, options.keepArtifacts);
 

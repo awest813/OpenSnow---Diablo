@@ -2,7 +2,7 @@
 
 This guide explains how to run a custom WebSocket relay endpoint and point the browser client to it.
 
-> Note: DiabloWeb still defaults to PeerJS transport. WebSocket transport is intended as an operational fallback path when PeerJS signaling/connectivity is blocked.
+> Note: OpenTristam still defaults to PeerJS transport. WebSocket transport is intended as an operational fallback path when PeerJS signaling/connectivity is blocked.
 
 ---
 
@@ -39,7 +39,7 @@ If you use autoscaling, ensure peer/session affinity or shared session state so 
 
 ## 3) Client configuration
 
-DiabloWeb can be pointed at a self-hosted relay via runtime options.
+OpenTristam can be pointed at a self-hosted relay via runtime options.
 
 ### Option A: URL query params (quick testing)
 
@@ -51,7 +51,7 @@ Use:
 Example:
 
 ```
-https://your-hosted-diabloweb.example/?transport=websocket&websocketUrl=wss%3A%2F%2Frelay.example.com%2Fws
+https://your-hosted-opentristam.example/?transport=websocket&websocketUrl=wss%3A%2F%2Frelay.example.com%2Fws
 ```
 
 ### Option B: Global runtime config (embedded deployment)
@@ -74,7 +74,7 @@ You can also set `kind: 'peerjs'` to force default behavior.
 ## 4) Operational checklist
 
 - Verify websocket endpoint supports binary frames.
-- Verify CORS/origin policy allows your DiabloWeb host.
+- Verify CORS/origin policy allows your OpenTristam host.
 - Validate reconnect flow by restarting a relay instance during a multiplayer session.
 - Monitor:
   - active sessions

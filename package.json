@@ -1,5 +1,5 @@
 {
-  "name": "diabloweb",
+  "name": "open-tristam",
   "version": "1.0.39",
   "private": true,
   "dependencies": {
@@ -146,7 +146,7 @@
       "@babel/preset-react"
     ]
   },
-  "homepage": "https://d07riv.github.io/diabloweb",
+  "homepage": "https://awest813.github.io/OpenTristam",
   "devDependencies": {
     "@babel/core": "^7.14.6",
     "@babel/preset-env": "^7.14.7",
