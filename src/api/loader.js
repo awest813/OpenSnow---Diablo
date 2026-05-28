@@ -155,6 +155,14 @@ async function do_load_game(api, audio, mpq, spawn) {
   });
 }
 
+/**
+ * Initialize and boot the game worker using either a retail MPQ or shareware assets.
+ *
+ * @param {object} api Runtime surface exposed by App for rendering, input, and callbacks.
+ * @param {File|undefined|null} mpq Uploaded MPQ file when launching retail mode.
+ * @param {boolean} spawn Whether to launch in shareware (spawn) mode.
+ * @returns {Promise<Function>} Promise resolving to a callable game API bridge.
+ */
 export default function load_game(api, mpq, spawn) {
   const audio = init_sound();
   return do_load_game(api, audio, mpq, spawn);

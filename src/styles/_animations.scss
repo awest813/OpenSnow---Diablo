@@ -1,0 +1,36 @@
+@keyframes dialogFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -47%) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.App .start,
+.App .error,
+.App .loading {
+  animation: dialogFadeIn var(--transition-slow);
+}
+
+.App .loading .loadingText:empty::after {
+  content: '';
+  display: inline-block;
+  width: 220px;
+  height: 14px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08));
+  background-size: 200% 100%;
+  animation: shimmer 1.1s linear infinite;
+}

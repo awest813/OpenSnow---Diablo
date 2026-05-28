@@ -1,0 +1,10 @@
+@media (prefers-reduced-motion: reduce) {
+  .App .start,
+  .App .error,
+  .App .loading,
+  .App button {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

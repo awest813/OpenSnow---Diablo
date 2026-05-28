@@ -88,7 +88,12 @@ export default class SaveManager extends React.Component {
     const { saves } = this.state;
     const saveEntries = Object.entries(saves);
     return (
-      <DialogFrame className="start" ariaLabel="Manage saves">
+      <DialogFrame className="start saveManager" ariaLabel="Manage saves" onEscape={onClose || (() => {})}>
+        <div className="startTitle" aria-hidden="true">
+          <span className="startTitleDeco">⚔</span>
+          <span className="startTitleText">SAVES</span>
+          <span className="startTitleDeco">⚔</span>
+        </div>
         <p className="saveManagerIntro">
           Keep a backup of your browser saves or import an existing <strong>.sv</strong> file.
         </p>

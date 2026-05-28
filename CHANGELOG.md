@@ -1,0 +1,32 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+
+### Added
+- Repository governance files, contribution and security policy.
+- Community issue and pull request templates.
+
+### Changed
+- Professional polish pass across metadata, styling tokens, CI coverage, and quality tooling.
+
+## [1.0.39] - Existing baseline
+
+### Phase 0
+- Project bootstrap and initial browser runtime plumbing.
+
+### Phase 1
+- Core game runtime integration and asset loading foundation.
+
+### Phase 2
+- Input and interaction improvements for keyboard/mouse/touch behavior.
+
+### Phase 3
+- Save handling and browser persistence improvements.
+
+### Phase 4
+- Multiplayer transport and diagnostics additions.
+
+### Phase 5
+- Accessibility and UI workflow improvements across start, loading, and error surfaces.

@@ -23,7 +23,7 @@ module.exports = {
     ecmaVersion: 2020,
     sourceType: 'module',
   },
-  plugins: ['react', 'react-hooks', 'jsx-a11y'],
+  plugins: ['react', 'react-hooks', 'jsx-a11y', 'security'],
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
@@ -37,13 +37,14 @@ module.exports = {
   },
   rules: {
     'react/prop-types': 'off',
-    'no-unused-vars': ['warn', {argsIgnorePattern: '^_', varsIgnorePattern: '^_'}],
+    'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     'no-console': 'off',
     // Downgrade to warn: empty catch blocks exist in legacy audio/WebRTC code
     'no-empty': 'warn',
-    // a11y: downgrade interactive-element rules until Phase 5 accessibility pass
-    'jsx-a11y/click-events-have-key-events': 'warn',
-    'jsx-a11y/no-static-element-interactions': 'warn',
+    'jsx-a11y/click-events-have-key-events': 'error',
+    'jsx-a11y/no-static-element-interactions': 'error',
+    'security/detect-object-injection': 'off',
+    'security/detect-non-literal-fs-filename': 'off',
   },
   overrides: [
     {
@@ -51,6 +52,14 @@ module.exports = {
       env: {
         jest: true,
         node: true,
+      },
+      plugins: ['jest'],
+      extends: ['plugin:jest/recommended'],
+      rules: {
+        'jest/no-focused-tests': 'error',
+        'jest/no-disabled-tests': 'warn',
+        'jest/expect-expect': 'warn',
+        'jest/no-conditional-expect': 'warn',
       },
     },
     {
