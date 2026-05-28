@@ -46,6 +46,8 @@
     "preview": "vite preview",
     "smoke:retail": "node scripts/retail-smoke.mjs",
     "start": "vite",
+    "test:e2e": "playwright test",
+    "test:visual": "playwright test e2e/visual",
     "test": "node scripts/test.js"
   },
   "browserslist": {

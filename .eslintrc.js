@@ -37,7 +37,7 @@ module.exports = {
   },
   rules: {
     'react/prop-types': 'off',
-    'no-unused-vars': ['warn', {argsIgnorePattern: '^_', varsIgnorePattern: '^_'}],
+    'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     'no-console': 'off',
     // Downgrade to warn: empty catch blocks exist in legacy audio/WebRTC code
     'no-empty': 'warn',
@@ -59,6 +59,7 @@ module.exports = {
         'jest/no-focused-tests': 'error',
         'jest/no-disabled-tests': 'warn',
         'jest/expect-expect': 'warn',
+        'jest/no-conditional-expect': 'warn',
       },
     },
     {
