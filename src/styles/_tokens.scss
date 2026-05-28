@@ -1,0 +1,36 @@
+:root {
+  --color-bg-app: #000;
+  --color-bg-app-alt: #111;
+  --color-bg-panel: #0d0a07;
+  --color-bg-panel-alt: #0a0808;
+  --color-gold-primary: #c8952a;
+  --color-gold-soft: #e8d5a3;
+  --color-gold-border: #6b4c1e;
+  --color-gold-accent: #a0722a;
+  --color-text-primary: #e8d5a3;
+  --color-text-muted: #c8b89a;
+  --color-text-strong: #f0d78c;
+  --color-danger-primary: #b03030;
+  --color-danger-soft: #f99;
+  --color-focus-ring: #e8d5a3;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.35s ease;
+}
+
+.App :is(button, [href], input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.App button:active {
+  transform: scale(0.98);
+}

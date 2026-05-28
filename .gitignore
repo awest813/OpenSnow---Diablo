@@ -15,6 +15,10 @@ public/spawn.mpq
 
 # misc
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.eslintcache
 .env.local
 .env.development.local
 .env.test.local

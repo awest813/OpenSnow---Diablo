@@ -35,6 +35,13 @@ export function startGame(app, file) {
   }, e => handleGameError(app, e.message, e.stack));
 }
 
+/**
+ * Build and surface a recoverable game error state.
+ *
+ * @param {object} app App instance containing state setters and save context.
+ * @param {string} message User-facing error message.
+ * @param {string|undefined} stack Optional stack trace from worker/runtime.
+ */
 export function handleGameError(app, message, stack) {
   (async () => {
     const errorObject = {message};
@@ -53,20 +60,45 @@ export function handleGameError(app, message, stack) {
   });
 }
 
+/**
+ * Reload the app when the game exits without an active error overlay.
+ *
+ * @param {object} app App instance containing current UI state.
+ * @param {Function} reloadFn Optional reload implementation for tests.
+ */
 export function handleGameExit(app, reloadFn = () => window.location.reload()) {
   if (!app.state.error) {
     reloadFn();
   }
 }
 
+/**
+ * Update loading progress state used by the loading UI.
+ *
+ * @param {object} app App instance.
+ * @param {{text?: string, loaded?: number, total?: number}} progress Loading progress payload.
+ */
 export function handleProgress(app, progress) {
   app.setState({progress});
 }
 
+/**
+ * Persist current save name for later error-recovery download links.
+ *
+ * @param {object} app App instance.
+ * @param {string} name Save file name.
+ */
 export function setCurrentSave(app, name) {
   app.saveName = name;
 }
 
+/**
+ * Translate in-game cursor coordinates to viewport coordinates for touch overlays.
+ *
+ * @param {object} app App instance containing canvas and game bridge.
+ * @param {number} x In-game X coordinate.
+ * @param {number} y In-game Y coordinate.
+ */
 export function setCursorPos(app, x, y) {
   const rect = app.canvas.getBoundingClientRect();
   app.cursorPos = {

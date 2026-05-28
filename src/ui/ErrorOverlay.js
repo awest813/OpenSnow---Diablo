@@ -15,7 +15,12 @@ export default function ErrorOverlay(props) {
   }
 
   return (
-    <DialogFrame className="error" role="alertdialog" ariaLabel="Game error details">
+    <DialogFrame
+      className="error"
+      role="alertdialog"
+      ariaLabel="Game error details"
+      onEscape={onReload}
+    >
       <p className="header">Something went wrong</p>
       <p className="errorLead">The game hit an unexpected error and had to stop.</p>
       <p className="body">{error.message}</p>
@@ -25,8 +30,8 @@ export default function ErrorOverlay(props) {
         </ExternalLink>
         {error.save != null && <a className="errorSaveLink" href={error.save} download={saveName}>Download save</a>}
       </div>
-      <button type="button" className="startButton" onClick={onReload}>
-        Reload game
+      <button type="button" className="startButton startButton--primary" onClick={onReload}>
+        Restart game
       </button>
     </DialogFrame>
   );
