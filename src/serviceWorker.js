@@ -7,9 +7,6 @@
 // existing tabs open on the page have been closed, since previously cached
 // resources are updated in the background.
 
-// To learn more about the benefits of this model and instructions on how to
-// opt-in, read https://bit.ly/CRA-PWA
-
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
     // [::1] is the IPv6 localhost address.
@@ -20,11 +17,32 @@ const isLocalhost = Boolean(
     )
 );
 
-const invokeCallback = (callback, registration) => {
+const invokeCallback = (callback, arg) => {
   if (typeof callback === 'function') {
-    callback(registration);
+    callback(arg);
   }
 };
+
+/**
+ * Sends a SKIP_WAITING message to the waiting service worker so it activates
+ * immediately, then reloads the page once the new SW takes control.
+ *
+ * @param {ServiceWorkerRegistration} registration
+ * @returns {Promise<void>}
+ */
+export async function applyUpdate(registration) {
+  const waiting = registration && registration.waiting;
+  if (!waiting) {
+    window.location.reload();
+    return;
+  }
+  // Listen for the new SW to become the controller, then reload.
+  await new Promise(resolve => {
+    navigator.serviceWorker.addEventListener('controllerchange', resolve, {once: true});
+    waiting.postMessage('SKIP_WAITING');
+  });
+  window.location.reload();
+}
 
 export function register(config) {
   if (process.env.NODE_ENV !== 'production' || !('serviceWorker' in navigator)) {
@@ -79,20 +97,14 @@ function registerValidSW(swUrl, config) {
           }
 
           if (navigator.serviceWorker.controller) {
-            // At this point, the updated precached content has been fetched,
-            // but the previous service worker will still serve the older
-            // content until all client tabs are closed.
-            console.log(
-              'New content is available and will be used when all ' +
-                'tabs for this page are closed. See https://bit.ly/CRA-PWA.'
-            );
+            // A new version has been downloaded and is waiting to activate.
+            // Notify the app — it will prompt the user before applying.
+            console.log('New content available; waiting for user confirmation to apply update.');
             invokeCallback(config?.onUpdate, registration);
             return;
           }
 
-          // At this point, everything has been precached.
-          // It's the perfect time to display a
-          // "Content is cached for offline use." message.
+          // First install: content is now cached for offline use.
           console.log('Content is cached for offline use.');
           invokeCallback(config?.onSuccess, registration);
         };

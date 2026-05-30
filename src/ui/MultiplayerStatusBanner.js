@@ -24,7 +24,12 @@ export default function MultiplayerStatusBanner(props) {
   const onCopyShareLink = props.onCopyShareLink || session.copyShareLink;
   const onDismiss = props.onDismiss || session.dismissMultiplayerNotice;
 
+  // Suppress the banner during single-player startup: the PeerJS transport
+  // fires 'connecting' events even when no multiplayer session was requested.
   if (!status || status === 'idle' || dismissed) {
+    return null;
+  }
+  if (status === 'connecting' && !sessionId) {
     return null;
   }
 

@@ -77,6 +77,7 @@ class App extends React.Component {
     has_saves: false,
     savesVersion: 0,
     updateAvailable: false,
+    updateRegistration: null,
     storageError: null,
     // Game session state (set by engine/session helpers)
     progress: null,
@@ -100,6 +101,10 @@ class App extends React.Component {
     multiplayerShareUrl: null,
     multiplayerNoticeDismissed: false,
     multiplayerRetryCount: 0,
+    // PWA state
+    installPromptAvailable: false,
+    installPromptDismissed: false,
+    offlineReady: false,
   };
   cursorPos = {x: 0, y: 0};
 
@@ -166,11 +171,23 @@ class App extends React.Component {
     return config;
   }
 
-  onSwUpdate = () => this.setState({updateAvailable: true});
+  onSwUpdate = e => {
+    const registration = e?.detail ?? window.__swRegistration ?? null;
+    this.setState({updateAvailable: true, updateRegistration: registration});
+  };
+
+  onSwOfflineReady = () => this.setState({offlineReady: true});
+
+  onPwaInstallReady = () => this.setState({installPromptAvailable: true});
+
+  onPwaInstalled = () => this.setState({installPromptAvailable: false});
 
   componentDidMount() {
     this.fileDropTarget.attach();
     window.addEventListener('swUpdate', this.onSwUpdate);
+    window.addEventListener('swOfflineReady', this.onSwOfflineReady);
+    window.addEventListener('pwaInstallReady', this.onPwaInstallReady);
+    window.addEventListener('pwaInstalled', this.onPwaInstalled);
 
     scheduleIdle(() => {
       const preferences = loadPreferences();
@@ -182,6 +199,7 @@ class App extends React.Component {
           mobileOnboardingDismissed: preferences.mobileOnboardingDismissed,
           testerWelcomeDismissed: preferences.testerWelcomeDismissed,
           highContrastMode: preferences.highContrastMode,
+          installPromptDismissed: preferences.installPromptDismissed,
           isTouchDevice,
           showMobileOnboarding: isTouchDevice && !preferences.mobileOnboardingDismissed,
           showTesterWelcome: !isTouchDevice && !preferences.testerWelcomeDismissed,
@@ -210,6 +228,9 @@ class App extends React.Component {
     this.fileDropTarget.detach();
     this.runtimeListeners.detach();
     window.removeEventListener('swUpdate', this.onSwUpdate);
+    window.removeEventListener('swOfflineReady', this.onSwOfflineReady);
+    window.removeEventListener('pwaInstallReady', this.onPwaInstallReady);
+    window.removeEventListener('pwaInstalled', this.onPwaInstalled);
   }
 
   // ─── Drag-and-drop ──────────────────────────────────────────────────────────
@@ -385,6 +406,35 @@ class App extends React.Component {
     this.setState({highContrastMode});
   }
 
+  dismissInstallPrompt = () => {
+    savePreferences({installPromptDismissed: true});
+    this.setState({installPromptDismissed: true, installPromptAvailable: false});
+  }
+
+  triggerInstallPrompt = async () => {
+    const deferred = window.__pwaInstallPrompt;
+    if (!deferred) return;
+    try {
+      await deferred.prompt();
+      const {outcome} = await deferred.userChoice;
+      if (outcome === 'accepted') {
+        window.__pwaInstallPrompt = null;
+        this.setState({installPromptAvailable: false});
+      }
+    } catch (e) {
+      // Prompt may have already been used; ignore.
+    }
+  }
+
+  dismissOfflineReady = () => this.setState({offlineReady: false});
+
+  applySwUpdate = () => {
+    const {updateRegistration} = this.state;
+    import('./serviceWorker').then(({applyUpdate}) => {
+      applyUpdate(updateRegistration);
+    });
+  }
+
   flushPendingCompressedFile = () => {
     if (!this.pendingCompressedFile || !this.compressMpq || !this.state.compress) {
       return;
@@ -436,6 +486,9 @@ class App extends React.Component {
       showMobileOnboarding,
       showTesterWelcome,
       highContrastMode,
+      installPromptAvailable,
+      installPromptDismissed,
+      offlineReady,
     } = this.state;
     return {
       started,
@@ -478,6 +531,12 @@ class App extends React.Component {
       dismissTesterWelcome: this.dismissTesterWelcome,
       highContrastMode,
       setHighContrastMode: this.setHighContrastMode,
+      // PWA
+      showInstallPrompt: installPromptAvailable && !installPromptDismissed,
+      dismissInstallPrompt: this.dismissInstallPrompt,
+      triggerInstallPrompt: this.triggerInstallPrompt,
+      offlineReady,
+      dismissOfflineReady: this.dismissOfflineReady,
     };
   }
 
@@ -699,7 +758,7 @@ class App extends React.Component {
   }
 
   render() {
-    const {started, error, dropping, updateAvailable, touchLayoutPreset, highContrastMode, compress} = this.state;
+    const {started, error, dropping, updateAvailable, touchLayoutPreset, highContrastMode, compress, offlineReady} = this.state;
     const sessionContextValue = this.getSessionContextValue();
     const touchPresetClass = `touch-preset-${touchLayoutPreset || DEFAULT_TOUCH_LAYOUT_PRESET}`;
     const dropHint = compress
@@ -708,10 +767,16 @@ class App extends React.Component {
     return (
       <SessionContext.Provider value={sessionContextValue}>
         <div className={classNames('App', touchPresetClass, {'high-contrast': highContrastMode, touch: this.touchControls, started, dropping, keyboard: !!this.showKeyboard})} ref={this.setElement}>
-          {updateAvailable && (
+          {updateAvailable && !started && (
             <div className="updateBanner" role="status" aria-live="polite" aria-atomic="true">
               A new version is available.{' '}
-              <button type="button" onClick={() => window.location.reload()}>Reload</button>
+              <button type="button" onClick={this.applySwUpdate}>Reload</button>
+            </div>
+          )}
+          {offlineReady && (
+            <div className="offlineReadyToast" role="status" aria-live="polite" aria-atomic="true">
+              App is ready to work offline.{' '}
+              <button type="button" onClick={this.dismissOfflineReady} aria-label="Dismiss">✕</button>
             </div>
           )}
           {this.state.storageError && (

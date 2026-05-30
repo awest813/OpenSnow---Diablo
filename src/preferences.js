@@ -10,6 +10,7 @@ export const DEFAULT_PREFERENCES = {
   mobileOnboardingDismissed: false,
   testerWelcomeDismissed: false,
   highContrastMode: false,
+  installPromptDismissed: false,
 };
 
 const STORAGE_KEY = 'diabloweb.preferences.v1';
@@ -45,6 +46,10 @@ function sanitizeHighContrastMode(value) {
   return Boolean(value);
 }
 
+function sanitizeInstallPromptDismissed(value) {
+  return Boolean(value);
+}
+
 export function normalizePreferences(raw = {}) {
   return {
     touchLayoutPreset: sanitizeTouchLayoutPreset(raw.touchLayoutPreset),
@@ -52,6 +57,7 @@ export function normalizePreferences(raw = {}) {
     mobileOnboardingDismissed: sanitizeMobileOnboardingDismissed(raw.mobileOnboardingDismissed),
     testerWelcomeDismissed: sanitizeTesterWelcomeDismissed(raw.testerWelcomeDismissed),
     highContrastMode: sanitizeHighContrastMode(raw.highContrastMode),
+    installPromptDismissed: sanitizeInstallPromptDismissed(raw.installPromptDismissed),
   };
 }
 

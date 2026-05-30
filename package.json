@@ -36,7 +36,7 @@
     "sourcemapped-stacktrace": "^1.1.9"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && node scripts/generate-sw.mjs",
     "check:bundle-budget": "node scripts/check-bundle-budget.mjs",
     "deploy": "gh-pages -d build",
     "format": "prettier --write .",

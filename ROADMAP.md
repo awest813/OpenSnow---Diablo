@@ -160,9 +160,9 @@ Validated on April 18, 2026:
 - ✅ Replace repeated object allocations in high-frequency mouse input handler with pooled struct
 
 ### PWA & Offline
-- 🔲 Clear service-worker update UX
-- 🔲 Reliable offline shareware mode with deterministic precache
-- 🔲 Better timing for install prompt surfacing
+- ✅ Clear service-worker update UX
+- ✅ Reliable offline shareware mode with deterministic precache
+- ✅ Better timing for install prompt surfacing
 
 ### Safe High/Medium-Impact Fix Backlog
 

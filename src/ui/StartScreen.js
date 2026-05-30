@@ -34,7 +34,9 @@ export default function StartScreen(props) {
   const onDismissTesterWelcome = props.onDismissTesterWelcome || session.dismissTesterWelcome;
   const highContrastMode = props.highContrastMode != null ? props.highContrastMode : session.highContrastMode;
   const onHighContrastModeChange = props.onHighContrastModeChange || session.setHighContrastMode;
-  const mpqInputRef = React.useRef(null);
+  const showInstallPrompt = props.showInstallPrompt != null ? props.showInstallPrompt : session.showInstallPrompt;
+  const onInstallPrompt = props.onInstallPrompt || session.triggerInstallPrompt;
+  const onDismissInstallPrompt = props.onDismissInstallPrompt || session.dismissInstallPrompt;
 
   const openMpqPicker = () => {
     if (mpqInputRef.current) {
@@ -196,6 +198,17 @@ export default function StartScreen(props) {
       {hasSaves && (
         <div className="startActions">
           <button type="button" className="startButton startButton--secondary" onClick={onShowSaves}>Manage Saves</button>
+        </div>
+      )}
+
+      {showInstallPrompt && (
+        <div className="installPromptSection" role="complementary" aria-label="Install app">
+          <button type="button" className="startButton startButton--install" onClick={onInstallPrompt}>
+            📲 Install App
+          </button>
+          <button type="button" className="installPromptDismiss" onClick={onDismissInstallPrompt} aria-label="Dismiss install prompt">
+            Not now
+          </button>
         </div>
       )}
     </DialogFrame>
