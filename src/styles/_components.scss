@@ -750,6 +750,19 @@ body,
       color: #fff;
     }
   }
+  .touch-ui .touch-button {
+    background-color: #ccc;
+    filter: none;
+    &.active {
+      background-color: #fff;
+      filter: none;
+    }
+  }
+  .touch-ui.touch-belt .touch-button {
+    background-color: #000;
+    border-color: #fff;
+    box-shadow: none;
+  }
 }
 
 .App {
@@ -913,11 +926,17 @@ body,
     .touch-button {
       position: absolute;
       left: 50%;
-      background-color: #444;
+      background-color: rgba(232, 213, 163, 0.5);
       transform: translate(-50%, -50%);
       pointer-events: auto;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+      transition:
+        background-color var(--transition-fast),
+        filter var(--transition-fast);
       &.active {
-        background-color: #fff;
+        background-color: var(--color-gold-soft);
+        filter: drop-shadow(0 0 7px rgba(200, 149, 42, 0.75))
+          drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
       }
       mask-size: 100% 100%;
     }
@@ -978,10 +997,13 @@ body,
       width: 12vh;
       height: 12vh;
       font-size: 1vh;
-      border-radius: 20%;
+      border-radius: 24%;
       overflow: hidden;
       background-color: var(--color-bg-app);
-      border: 2px solid #444;
+      border: 2px solid rgba(160, 114, 42, 0.55);
+      box-shadow:
+        var(--shadow-raised),
+        inset 0 1px 0 rgba(232, 213, 163, 0.12);
       canvas {
         position: absolute;
         left: 5%;
@@ -996,7 +1018,7 @@ body,
         top: 0;
         right: 0;
         bottom: 0;
-        border-radius: 20%;
+        border-radius: 24%;
         box-shadow: inset 0 0 1em 1.5em #000;
       }
     }
@@ -1011,11 +1033,17 @@ body,
       height: 15vh;
       position: absolute;
       left: 50%;
-      background-color: #444;
+      background-color: rgba(232, 213, 163, 0.5);
       transform: translate(-50%, -50%);
       pointer-events: auto;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+      transition:
+        background-color var(--transition-fast),
+        filter var(--transition-fast);
       &.active {
-        background-color: #fff;
+        background-color: var(--color-gold-soft);
+        filter: drop-shadow(0 0 7px rgba(200, 149, 42, 0.75))
+          drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
       }
       mask-size: 100% 100%;
     }
@@ -1041,11 +1069,17 @@ body,
       height: 15vh;
       position: absolute;
       left: 50%;
-      background-color: #444;
+      background-color: rgba(232, 213, 163, 0.5);
       transform: translate(-50%, -50%);
       pointer-events: auto;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+      transition:
+        background-color var(--transition-fast),
+        filter var(--transition-fast);
       &.active {
-        background-color: #fff;
+        background-color: var(--color-gold-soft);
+        filter: drop-shadow(0 0 7px rgba(200, 149, 42, 0.75))
+          drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
       }
       mask-size: 100% 100%;
     }
@@ -1201,26 +1235,35 @@ body,
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
-  background: rgba(30, 30, 30, 0.95);
+  background: linear-gradient(180deg, rgba(26, 18, 8, 0.96) 0%, rgba(13, 10, 5, 0.96) 100%);
   color: var(--color-text-primary);
   border: 1px solid var(--color-gold-border);
-  border-radius: 4px;
-  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
   font-size: 13px;
   pointer-events: all;
   display: flex;
   align-items: center;
   gap: 12px;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  animation: bannerInBottomCenter var(--transition-slow);
   button {
-    background: #6b4c1e;
+    background: linear-gradient(180deg, #8a6130 0%, #6b4c1e 100%);
     color: var(--color-text-primary);
-    border: none;
-    border-radius: 3px;
-    padding: 4px 10px;
+    border: 1px solid var(--color-gold-accent);
+    border-radius: var(--radius-sm);
+    padding: 5px 12px;
     cursor: pointer;
     font-size: 12px;
+    transition:
+      background var(--transition-fast),
+      box-shadow var(--transition-fast),
+      transform var(--transition-fast);
     &:hover {
-      background: #8a6130;
+      background: linear-gradient(180deg, #a0722a 0%, #7a5622 100%);
+      box-shadow: var(--shadow-gold-glow);
+      transform: translateY(-1px);
     }
     &:focus-visible {
       outline: 2px solid #e8d5a3;
@@ -1235,13 +1278,16 @@ body,
   left: max(12px, env(safe-area-inset-left));
   z-index: 9999;
   max-width: min(90vw, 520px);
-  background: rgba(92, 34, 34, 0.95);
+  background: linear-gradient(180deg, rgba(92, 34, 34, 0.96) 0%, rgba(58, 18, 18, 0.96) 100%);
   color: #f2d7d7;
   border: 1px solid #b35c5c;
-  border-radius: 4px;
-  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
   font-size: 12px;
   pointer-events: all;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  animation: toastInTop var(--transition-slow);
 }
 
 .offlineReadyToast {
@@ -1249,16 +1295,19 @@ body,
   bottom: max(12px, env(safe-area-inset-bottom));
   right: max(16px, env(safe-area-inset-right));
   z-index: 9999;
-  background: rgba(20, 60, 20, 0.95);
+  background: linear-gradient(180deg, rgba(20, 60, 20, 0.96) 0%, rgba(12, 38, 12, 0.96) 100%);
   color: #c8f0c8;
   border: 1px solid #4a8c4a;
-  border-radius: 4px;
-  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
   font-size: 13px;
   pointer-events: all;
   display: flex;
   align-items: center;
   gap: 10px;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  animation: toastInBottom var(--transition-slow);
   button {
     background: transparent;
     color: #c8f0c8;
@@ -1267,6 +1316,7 @@ body,
     font-size: 14px;
     line-height: 1;
     padding: 0 2px;
+    transition: color var(--transition-fast);
     &:hover {
       color: #fff;
     }
@@ -1283,12 +1333,15 @@ body,
   transform: translate(-50%, -50%);
   z-index: 10002;
   width: min(90vw, 420px);
-  padding: 18px 20px;
-  border: 1px solid #a0722a;
-  background: rgba(13, 10, 7, 0.96);
+  padding: 20px 22px;
+  border: 1px solid var(--color-gold-accent);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(20, 14, 8, 0.97) 0%, rgba(10, 8, 6, 0.97) 100%);
   color: var(--color-text-primary);
   text-align: center;
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.65);
+  box-shadow: var(--shadow-panel), var(--shadow-gold-glow);
+  backdrop-filter: blur(10px);
+  animation: dropHintIn var(--transition-normal);
   pointer-events: none;
   .dropHintTitle {
     font-size: 18px;
@@ -1320,12 +1373,14 @@ body,
   flex-direction: column;
   gap: 8px;
   min-width: min(90vw, 560px);
-  background: rgba(24, 24, 24, 0.95);
+  background: linear-gradient(180deg, rgba(26, 22, 16, 0.96) 0%, rgba(15, 12, 9, 0.96) 100%);
   color: var(--color-text-primary);
   border: 1px solid var(--color-gold-border);
-  border-radius: 6px;
-  padding: 10px 12px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  animation: bannerInTopCenter var(--transition-slow);
 
   .multiplayerBanner-main {
     display: flex;
@@ -1386,16 +1441,22 @@ body,
   }
 
   button {
-    background: #6b4c1e;
+    background: linear-gradient(180deg, #8a6130 0%, #6b4c1e 100%);
     color: var(--color-text-primary);
-    border: none;
-    border-radius: 3px;
+    border: 1px solid var(--color-gold-accent);
+    border-radius: var(--radius-sm);
     min-height: 34px;
     padding: 6px 12px;
     cursor: pointer;
     font-size: 13px;
+    transition:
+      background var(--transition-fast),
+      box-shadow var(--transition-fast),
+      transform var(--transition-fast);
     &:hover {
-      background: #8a6130;
+      background: linear-gradient(180deg, #a0722a 0%, #7a5622 100%);
+      box-shadow: var(--shadow-gold-glow);
+      transform: translateY(-1px);
     }
     &:focus-visible {
       outline: 2px solid #e8d5a3;

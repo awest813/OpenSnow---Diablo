@@ -7,10 +7,16 @@
     transform: none !important;
   }
 
-  /* Keep the centering transform on overlay panels; only drop the entrance
-     animation and transitions so reduced-motion users still see them anchored. */
+  /* Keep the centering transform on overlay panels and fixed banners; only
+     drop the entrance animation and transitions so reduced-motion users still
+     see them anchored in place. */
   .App .start,
-  .App .error {
+  .App .error,
+  .updateBanner,
+  .storageBanner,
+  .offlineReadyToast,
+  .dropHint,
+  .multiplayerBanner {
     animation: none !important;
     transition: none !important;
   }
