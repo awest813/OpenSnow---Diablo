@@ -23,12 +23,16 @@ export default function ErrorOverlay(props) {
     >
       <p className="header">Something went wrong</p>
       <p className="errorLead">The game hit an unexpected error and had to stop.</p>
-      <p className="body">{error.message}</p>
+      <p className="body">{error.message || 'An unexpected error occurred.'}</p>
       <div className="errorActions">
         <ExternalLink className="errorIssueLink" href={buildIssueUrl(error, retail)}>
           Report on GitHub
         </ExternalLink>
-        {error.save != null && <a className="errorSaveLink" href={error.save} download={saveName}>Download save</a>}
+        {error.save != null && (
+          <a className="errorSaveLink" href={error.save} download={saveName}>
+            Download save
+          </a>
+        )}
       </div>
       <button type="button" className="startButton startButton--primary" onClick={onReload}>
         Restart game

@@ -74,6 +74,12 @@ describe('ErrorOverlay', () => {
     expect(reloadMock).toHaveBeenCalledTimes(1);
   });
 
+  it('falls back to a generic message when the error has no message', async () => {
+    await renderWithSession({ error: { message: '' } });
+
+    expect(container.querySelector('.body').textContent).toBe('An unexpected error occurred.');
+  });
+
   it('shows a save file download link when error.save is provided', async () => {
     const error = { message: 'Oops', save: 'blob:https://example.com/abc' };
     await renderWithSession({ error, saveName: 'hero.sv' });

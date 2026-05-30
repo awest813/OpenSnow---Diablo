@@ -1,4 +1,6 @@
-body, #root, .App {
+body,
+#root,
+.App {
   overflow: hidden;
   position: absolute;
   left: 0;
@@ -22,9 +24,12 @@ body, #root, .App {
 }
 
 @keyframes loadingSpinner {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
-.Body, .BodyV {
+.Body,
+.BodyV {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -91,20 +96,23 @@ body, #root, .App {
     &::selection {
       background: rgba(0, 0, 0, 0);
       color: rgba(0, 0, 0, 0);
-      }
+    }
   }
   &.keyboard .keyboard {
     display: block;
   }
 
-  .start, .error, .loading {
+  .start,
+  .error,
+  .loading {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
   }
 
-  .start, .error {
+  .start,
+  .error {
     max-width: 90%;
     max-height: 90%;
     overflow-y: auto;
@@ -119,7 +127,9 @@ body, #root, .App {
     font-size: 16px;
     text-align: center;
     background: linear-gradient(180deg, #0d0a07 0%, #0a0808 100%);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(160, 114, 42, 0.15);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.8),
+      inset 0 1px 0 rgba(160, 114, 42, 0.15);
 
     .startTitle {
       display: flex;
@@ -135,7 +145,9 @@ body, #root, .App {
       font-weight: 900;
       letter-spacing: 0.18em;
       color: var(--color-gold-primary);
-      text-shadow: 0 0 20px rgba(200, 149, 42, 0.4), 0 2px 4px rgba(0, 0, 0, 0.8);
+      text-shadow:
+        0 0 20px rgba(200, 149, 42, 0.4),
+        0 2px 4px rgba(0, 0, 0, 0.8);
     }
     .startTitleDeco {
       font-size: 1.2em;
@@ -274,7 +286,11 @@ body, #root, .App {
       margin-top: 6px;
       width: 9em;
       text-align: center;
-      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+      transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        box-shadow var(--transition-fast);
       &:hover {
         background: linear-gradient(180deg, #2a1c0a 0%, #1a1108 100%);
         border-color: #a0722a;
@@ -385,7 +401,10 @@ body, #root, .App {
           align-items: center;
           justify-content: center;
           gap: 6px;
-          transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+          transition:
+            color var(--transition-fast),
+            border-color var(--transition-fast),
+            background var(--transition-fast);
           &:focus-visible {
             outline: 2px solid #e8d5a3;
             outline-offset: 2px;
@@ -505,7 +524,7 @@ body, #root, .App {
         gap: 8px;
         margin-bottom: 0;
         cursor: pointer;
-        input[type="checkbox"] {
+        input[type='checkbox'] {
           accent-color: #c8a84a;
           width: 16px;
           height: 16px;
@@ -529,7 +548,8 @@ body, #root, .App {
       color: #fff;
       opacity: 1;
     }
-    p, li {
+    p,
+    li {
       color: #fff;
     }
     .startButton {
@@ -601,10 +621,12 @@ body, #root, .App {
         color: #fff;
       }
     }
-    .touchSettings, .displaySettings {
+    .touchSettings,
+    .displaySettings {
       background: #111;
       border-color: #fff;
-      .touchSettingsTitle, .displaySettingsTitle {
+      .touchSettingsTitle,
+      .displaySettingsTitle {
         color: #fff;
       }
       select {
@@ -623,7 +645,8 @@ body, #root, .App {
     background: rgba(0, 0, 0, 0.95);
     color: #fff;
     border: 1px solid #fff;
-    .loadingPercent {
+    .loadingPercent,
+    .loadingBytes {
       color: #fff;
     }
     .progressBar > span {
@@ -637,7 +660,8 @@ body, #root, .App {
       border-top-color: #fff;
     }
   }
-  .updateBanner, .storageBanner {
+  .updateBanner,
+  .storageBanner {
     background: #000;
     color: #fff;
     border-color: #fff;
@@ -685,7 +709,9 @@ body, #root, .App {
     border: 1px solid #7a2020;
     border-top: 2px solid #b03030;
     background: linear-gradient(180deg, #1a0505 0%, #110303 100%);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(176, 48, 48, 0.1);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.8),
+      inset 0 1px 0 rgba(176, 48, 48, 0.1);
     padding: 16px;
     color: #e88;
     font-size: 16px;
@@ -752,10 +778,22 @@ body, #root, .App {
       flex-direction: column;
       gap: 8px;
     }
+    .loadingMeta {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
     .loadingPercent {
       font-size: 12px;
       color: var(--color-text-muted);
       letter-spacing: 0.12em;
+    }
+    .loadingBytes {
+      font-size: 12px;
+      color: #7a6a54;
+      letter-spacing: 0.06em;
+      font-variant-numeric: tabular-nums;
     }
     .progressBar {
       display: block;
@@ -790,7 +828,9 @@ body, #root, .App {
       animation: loadingSpinner 0.8s linear infinite;
     }
   }
-  a, .link, .linkButton {
+  a,
+  .link,
+  .linkButton {
     display: inline-block;
     color: #a0722a;
     text-decoration: none;
@@ -849,7 +889,7 @@ body, #root, .App {
       top: 70vh;
       left: 11vw;
     }
-    
+
     .touch-button-5 {
       top: 85vh;
       left: 5vw;
@@ -917,28 +957,28 @@ body, #root, .App {
     top: auto;
     bottom: 0;
     height: 35vh;
-      .touch-button {
-        width: 15vh;
-        height: 15vh;
-        position: absolute;
-        left: 50%;
-        background-color: #444;
-        transform: translate(-50%, -50%);
-        pointer-events: auto;
-        &.active {
-          background-color: #fff;
-        }
-        mask-size: 100% 100%;
+    .touch-button {
+      width: 15vh;
+      height: 15vh;
+      position: absolute;
+      left: 50%;
+      background-color: #444;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      &.active {
+        background-color: #fff;
       }
-      .touch-button-3 {
-        top: 0;
-        transform: translate(-50%, 0);
-        mask-image: url(./icons/f5.svg);
-      }
-      .touch-button-4 {
-        top:60%;
-        mask-image: url(./icons/f6.svg);
-      }
+      mask-size: 100% 100%;
+    }
+    .touch-button-3 {
+      top: 0;
+      transform: translate(-50%, 0);
+      mask-image: url(./icons/f5.svg);
+    }
+    .touch-button-4 {
+      top: 60%;
+      mask-image: url(./icons/f6.svg);
+    }
   }
 
   .touch-ui.fkeys-right {
@@ -947,28 +987,28 @@ body, #root, .App {
     right: 0;
     bottom: 0;
     height: 35vh;
-      .touch-button {
-        width: 15vh;
-        height: 15vh;
-        position: absolute;
-        left: 50%;
-        background-color: #444;
-        transform: translate(-50%, -50%);
-        pointer-events: auto;
-        &.active {
-          background-color: #fff;
-        }
-        mask-size: 100% 100%;
+    .touch-button {
+      width: 15vh;
+      height: 15vh;
+      position: absolute;
+      left: 50%;
+      background-color: #444;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      &.active {
+        background-color: #fff;
       }
-      .touch-button-5 {
-        top: 0;
-        transform: translate(-50%, 0);
-        mask-image: url(./icons/f7.svg);
-      }
-      .touch-button-6 {
-        top:60%;
-        mask-image: url(./icons/f8.svg);
-      }
+      mask-size: 100% 100%;
+    }
+    .touch-button-5 {
+      top: 0;
+      transform: translate(-50%, 0);
+      mask-image: url(./icons/f7.svg);
+    }
+    .touch-button-6 {
+      top: 60%;
+      mask-image: url(./icons/f8.svg);
+    }
   }
 
   &.touch .touch-ui {
@@ -1061,7 +1101,7 @@ body, #root, .App {
     }
   }
   .App .touch-ui.fkeys-left {
-    left:0;
+    left: 0;
     bottom: 15vh;
     width: 50%;
     height: 12vh;
@@ -1070,15 +1110,15 @@ body, #root, .App {
       width: 12vh;
     }
     .touch-button-3 {
-      left:25%;
+      left: 25%;
     }
     .touch-button-4 {
       top: 50%;
-      left:75%;
+      left: 75%;
     }
   }
   .App .touch-ui.fkeys-right {
-    left:auto;
+    left: auto;
     right: 0;
     bottom: 15vh;
     width: 50%;
@@ -1088,11 +1128,11 @@ body, #root, .App {
       width: 12vh;
     }
     .touch-button-5 {
-      left:25%;
+      left: 25%;
     }
     .touch-button-6 {
       top: 50%;
-      left:75%;
+      left: 75%;
     }
   }
 }
@@ -1215,7 +1255,9 @@ body, #root, .App {
 }
 
 @keyframes multiplayerSpinner {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .multiplayerBanner {
