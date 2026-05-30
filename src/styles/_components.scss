@@ -10,6 +10,15 @@ body,
 }
 .App {
   background-color: var(--color-bg-app);
+  background-image: radial-gradient(
+    ellipse 120% 90% at 50% 28%,
+    #17110a 0%,
+    #0b0807 48%,
+    #000 100%
+  );
+  &.started {
+    background-image: none;
+  }
   &.dropping {
     background-color: var(--color-bg-app-alt);
     &::after {
@@ -117,37 +126,57 @@ body,
     max-height: 90%;
     overflow-y: auto;
     pointer-events: auto;
+    border-radius: var(--radius-lg);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gold-border) transparent;
+    &::-webkit-scrollbar {
+      width: 9px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-gold-border);
+      border-radius: 6px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      &:hover {
+        background: var(--color-gold-accent);
+        background-clip: padding-box;
+      }
+    }
   }
 
   .start {
     border: 1px solid var(--color-gold-border);
     border-top: 2px solid var(--color-gold-accent);
-    padding: 16px 20px;
+    padding: 20px 24px;
     color: var(--color-text-primary);
     font-size: 16px;
     text-align: center;
     background: linear-gradient(180deg, #0d0a07 0%, #0a0808 100%);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.8),
-      inset 0 1px 0 rgba(160, 114, 42, 0.15);
+    box-shadow: var(--shadow-panel);
 
     .startTitle {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
-      margin-bottom: 14px;
-      padding-bottom: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
       border-bottom: 1px solid #3a2810;
     }
     .startTitleText {
-      font-size: 2.2em;
-      font-weight: 900;
-      letter-spacing: 0.18em;
-      color: var(--color-gold-primary);
-      text-shadow:
-        0 0 20px rgba(200, 149, 42, 0.4),
-        0 2px 4px rgba(0, 0, 0, 0.8);
+      font-family: var(--font-display);
+      font-size: 2.3em;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      background: linear-gradient(180deg, #f3dc9b 0%, #d7a93e 52%, #9c6f1f 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 18px rgba(200, 149, 42, 0.35))
+        drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8));
     }
     .startTitleDeco {
       font-size: 1.2em;
@@ -203,9 +232,21 @@ body,
     .startPathCard {
       flex: 1 1 240px;
       max-width: 100%;
-      padding: 12px 14px;
+      padding: 14px 16px;
       border: 1px solid #3a2810;
+      border-radius: var(--radius-md);
       background: rgba(13, 10, 7, 0.65);
+      transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+      &:hover {
+        border-color: var(--color-gold-accent);
+        background: rgba(26, 18, 8, 0.7);
+        box-shadow: var(--shadow-raised);
+        transform: translateY(-2px);
+      }
       .startPathCardLabel {
         font-size: 11px;
         text-transform: uppercase;
@@ -286,20 +327,24 @@ body,
       margin-top: 6px;
       width: 9em;
       text-align: center;
+      border-radius: var(--radius-md);
       transition:
         background var(--transition-fast),
         border-color var(--transition-fast),
         color var(--transition-fast),
+        transform var(--transition-fast),
         box-shadow var(--transition-fast);
       &:hover {
         background: linear-gradient(180deg, #2a1c0a 0%, #1a1108 100%);
         border-color: #a0722a;
         color: var(--color-text-primary);
         box-shadow: 0 0 10px rgba(160, 114, 42, 0.25);
+        transform: translateY(-1px);
       }
       &:active {
         background: #0d0a05;
         box-shadow: none;
+        transform: translateY(0);
       }
       &:focus-visible {
         outline: 2px solid #e8d5a3;
@@ -536,12 +581,16 @@ body,
 }
 
 .App.high-contrast {
+  background-image: none;
   .start {
     background: #000;
     border-color: #fff;
     color: #fff;
     .startTitleText {
       color: #fff;
+      background: none;
+      -webkit-text-fill-color: #fff;
+      filter: none;
       text-shadow: none;
     }
     .startTitleDeco {
