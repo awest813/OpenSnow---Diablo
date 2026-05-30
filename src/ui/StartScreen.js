@@ -26,14 +26,23 @@ export default function StartScreen(props) {
   const touchLayoutPreset = props.touchLayoutPreset || session.touchLayoutPreset;
   const touchPanSensitivity = props.touchPanSensitivity || session.touchPanSensitivity;
   const onTouchLayoutPresetChange = props.onTouchLayoutPresetChange || session.setTouchLayoutPreset;
-  const onTouchPanSensitivityChange = props.onTouchPanSensitivityChange || session.setTouchPanSensitivity;
+  const onTouchPanSensitivityChange =
+    props.onTouchPanSensitivityChange || session.setTouchPanSensitivity;
   const isTouchDevice = props.isTouchDevice != null ? props.isTouchDevice : session.isTouchDevice;
-  const showMobileOnboarding = props.showMobileOnboarding != null ? props.showMobileOnboarding : session.showMobileOnboarding;
-  const onDismissMobileOnboarding = props.onDismissMobileOnboarding || session.dismissMobileOnboarding;
-  const showTesterWelcome = props.showTesterWelcome != null ? props.showTesterWelcome : session.showTesterWelcome;
+  const showMobileOnboarding =
+    props.showMobileOnboarding != null ? props.showMobileOnboarding : session.showMobileOnboarding;
+  const onDismissMobileOnboarding =
+    props.onDismissMobileOnboarding || session.dismissMobileOnboarding;
+  const showTesterWelcome =
+    props.showTesterWelcome != null ? props.showTesterWelcome : session.showTesterWelcome;
   const onDismissTesterWelcome = props.onDismissTesterWelcome || session.dismissTesterWelcome;
-  const highContrastMode = props.highContrastMode != null ? props.highContrastMode : session.highContrastMode;
+  const highContrastMode =
+    props.highContrastMode != null ? props.highContrastMode : session.highContrastMode;
   const onHighContrastModeChange = props.onHighContrastModeChange || session.setHighContrastMode;
+  const showInstallPrompt =
+    props.showInstallPrompt != null ? props.showInstallPrompt : session.showInstallPrompt;
+  const onInstallPrompt = props.onInstallPrompt || session.triggerInstallPrompt;
+  const onDismissInstallPrompt = props.onDismissInstallPrompt || session.dismissInstallPrompt;
   const mpqInputRef = React.useRef(null);
 
   const openMpqPicker = () => {
@@ -54,11 +63,13 @@ export default function StartScreen(props) {
         <div className="testerWelcome" role="note" aria-live="polite">
           <div className="testerWelcomeTitle">Testing this build</div>
           <p className="testerWelcomeLead">
-            Quick checks: confirm the game loads, audio and input feel right, and saves stick after a refresh.
+            Quick checks: confirm the game loads, audio and input feel right, and saves stick after
+            a refresh.
           </p>
           <ul className="testerWelcomeList">
             <li>
-              <strong>Fastest path:</strong> use <strong>Play Shareware</strong> below—no files needed (first launch may download data).
+              <strong>Fastest path:</strong> use <strong>Play Shareware</strong> below—no files
+              needed (first launch may download data).
             </li>
             <li>
               <strong>Retail:</strong> you need <strong>DIABDAT.MPQ</strong> from a copy you own (
@@ -66,7 +77,8 @@ export default function StartScreen(props) {
               ). Drag it onto the page or use <strong>Select MPQ</strong>.
             </li>
             <li>
-              <strong>Saves:</strong> stored in this browser (IndexedDB). After a character exists, use <strong>Manage Saves</strong> to export or clean up.
+              <strong>Saves:</strong> stored in this browser (IndexedDB). After a character exists,
+              use <strong>Manage Saves</strong> to export or clean up.
             </li>
           </ul>
           <button type="button" className="linkButton" onClick={onDismissTesterWelcome}>
@@ -77,7 +89,9 @@ export default function StartScreen(props) {
 
       <p className="startMeta">
         Web port based on reconstructed source (
-        <ExternalLink href="https://github.com/awest813/OpenTristam">project on GitHub</ExternalLink>
+        <ExternalLink href="https://github.com/awest813/OpenTristam">
+          project on GitHub
+        </ExternalLink>
         ). Not affiliated with Blizzard.
       </p>
 
@@ -90,7 +104,11 @@ export default function StartScreen(props) {
               ? 'Shareware data is already cached in this browser.'
               : 'Downloads shareware data on first launch (~50 MB).'}
           </p>
-          <button type="button" className="startButton startButton--primary startPathCardCta" onClick={() => onStart(null)}>
+          <button
+            type="button"
+            className="startButton startButton--primary startPathCardCta"
+            onClick={() => onStart(null)}
+          >
             Play Shareware
           </button>
         </div>
@@ -101,8 +119,8 @@ export default function StartScreen(props) {
             Select <strong>DIABDAT.MPQ</strong> or drop it anywhere on the page.{' '}
             <button type="button" className="linkButton" onClick={onCompress}>
               Compress the MPQ
-            </button>
-            {' '}for a smaller file.
+            </button>{' '}
+            for a smaller file.
           </p>
           <button type="button" className="startButton startPathCardCta" onClick={openMpqPicker}>
             Select MPQ
@@ -113,10 +131,10 @@ export default function StartScreen(props) {
         accept=".mpq"
         type="file"
         ref={mpqInputRef}
-        style={{display: 'none'}}
+        style={{ display: 'none' }}
         aria-label="Select MPQ file"
-        onChange={e => {
-          const {files} = e.target;
+        onChange={(e) => {
+          const { files } = e.target;
           if (files && files.length > 0) onStart(files[0]);
         }}
       />
@@ -128,14 +146,19 @@ export default function StartScreen(props) {
         </li>
         <li>
           <span className="startStepTitle">Optional: shrink your MPQ</span>
-          Use <button type="button" className="linkButton" onClick={onCompress}>Compress the MPQ</button> before selecting it if you want a smaller upload.
+          Use{' '}
+          <button type="button" className="linkButton" onClick={onCompress}>
+            Compress the MPQ
+          </button>{' '}
+          before selecting it if you want a smaller upload.
         </li>
         <li>
           <span className="startStepTitle">Saves and issues</span>
           {hasSaves
             ? 'You have save files in this browser—open Manage Saves to download or remove them.'
             : 'After you play, saves appear here; use Manage Saves to back them up.'}{' '}
-          If something breaks, use the error screen’s link to report on GitHub with steps to reproduce.
+          If something breaks, use the error screen’s link to report on GitHub with steps to
+          reproduce.
         </li>
       </ol>
 
@@ -143,8 +166,12 @@ export default function StartScreen(props) {
         <div className="mobileOnboarding" role="note" aria-live="polite">
           <div className="mobileOnboardingTitle">Mobile Quick Start</div>
           <ul>
-            <li>Tap <strong>Select MPQ</strong> to import your retail MPQ file from device storage.</li>
-            <li>Use <strong>Play Shareware</strong> for immediate play without importing files.</li>
+            <li>
+              Tap <strong>Select MPQ</strong> to import your retail MPQ file from device storage.
+            </li>
+            <li>
+              Use <strong>Play Shareware</strong> for immediate play without importing files.
+            </li>
             <li>Touch controls appear when you start playing; customize layout below.</li>
           </ul>
           <button type="button" className="linkButton" onClick={onDismissMobileOnboarding}>
@@ -159,11 +186,13 @@ export default function StartScreen(props) {
             <span>Layout preset</span>
             <select
               value={touchLayoutPreset}
-              onChange={event => onTouchLayoutPresetChange(event.target.value)}
-              onBlur={event => onTouchLayoutPresetChange(event.target.value)}
+              onChange={(event) => onTouchLayoutPresetChange(event.target.value)}
+              onBlur={(event) => onTouchLayoutPresetChange(event.target.value)}
             >
-              {TOUCH_LAYOUT_PRESETS.map(value => (
-                <option key={value} value={value}>{TOUCH_LAYOUT_LABELS[value] || value}</option>
+              {TOUCH_LAYOUT_PRESETS.map((value) => (
+                <option key={value} value={value}>
+                  {TOUCH_LAYOUT_LABELS[value] || value}
+                </option>
               ))}
             </select>
           </label>
@@ -171,11 +200,13 @@ export default function StartScreen(props) {
             <span>Pan sensitivity</span>
             <select
               value={touchPanSensitivity}
-              onChange={event => onTouchPanSensitivityChange(event.target.value)}
-              onBlur={event => onTouchPanSensitivityChange(event.target.value)}
+              onChange={(event) => onTouchPanSensitivityChange(event.target.value)}
+              onBlur={(event) => onTouchPanSensitivityChange(event.target.value)}
             >
-              {TOUCH_PAN_SENSITIVITIES.map(value => (
-                <option key={value} value={value}>{TOUCH_PAN_LABELS[value] || value}</option>
+              {TOUCH_PAN_SENSITIVITIES.map((value) => (
+                <option key={value} value={value}>
+                  {TOUCH_PAN_LABELS[value] || value}
+                </option>
               ))}
             </select>
           </label>
@@ -187,7 +218,7 @@ export default function StartScreen(props) {
           <input
             type="checkbox"
             checked={highContrastMode}
-            onChange={event => onHighContrastModeChange(event.target.checked)}
+            onChange={(event) => onHighContrastModeChange(event.target.checked)}
           />
           <span>High-contrast UI mode</span>
         </label>
@@ -195,7 +226,33 @@ export default function StartScreen(props) {
 
       {hasSaves && (
         <div className="startActions">
-          <button type="button" className="startButton startButton--secondary" onClick={onShowSaves}>Manage Saves</button>
+          <button
+            type="button"
+            className="startButton startButton--secondary"
+            onClick={onShowSaves}
+          >
+            Manage Saves
+          </button>
+        </div>
+      )}
+
+      {showInstallPrompt && (
+        <div className="installPromptSection" role="complementary" aria-label="Install app">
+          <button
+            type="button"
+            className="startButton startButton--install"
+            onClick={onInstallPrompt}
+          >
+            Install App
+          </button>
+          <button
+            type="button"
+            className="installPromptDismiss"
+            onClick={onDismissInstallPrompt}
+            aria-label="Dismiss install prompt"
+          >
+            Not now
+          </button>
         </div>
       )}
     </DialogFrame>

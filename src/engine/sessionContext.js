@@ -44,6 +44,11 @@ export const defaultSessionValue = {
   dismissTesterWelcome: noop,
   highContrastMode: false,
   setHighContrastMode: noop,
+  // PWA
+  showInstallPrompt: false,
+  dismissInstallPrompt: noop,
+  triggerInstallPrompt: noop,
+  offlineReady: false,
 };
 
 const SessionContext = React.createContext(defaultSessionValue);

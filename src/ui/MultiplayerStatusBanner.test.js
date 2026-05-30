@@ -8,7 +8,7 @@ describe('MultiplayerStatusBanner', () => {
   let container;
   let root;
 
-  const renderWithSession = async overrides => {
+  const renderWithSession = async (overrides) => {
     const value = {
       ...defaultSessionValue,
       ...overrides,
@@ -16,8 +16,8 @@ describe('MultiplayerStatusBanner', () => {
     await act(async () => {
       root.render(
         <SessionContext.Provider value={value}>
-          <MultiplayerStatusBanner/>
-        </SessionContext.Provider>,
+          <MultiplayerStatusBanner />
+        </SessionContext.Provider>
       );
       await Promise.resolve();
     });
@@ -39,7 +39,7 @@ describe('MultiplayerStatusBanner', () => {
   });
 
   it('does not render in idle status', async () => {
-    await renderWithSession({multiplayerStatus: 'idle'});
+    await renderWithSession({ multiplayerStatus: 'idle' });
     expect(container.querySelector('.multiplayerBanner')).toBeNull();
   });
 
@@ -67,11 +67,11 @@ describe('MultiplayerStatusBanner', () => {
     expect(banner.getAttribute('aria-live')).toBe('assertive');
 
     const buttons = Array.from(container.querySelectorAll('button'));
-    const retryButton = buttons.find(node => node.textContent === 'Try again');
-    const reconnectButton = buttons.find(node => node.textContent === 'Reconnect');
-    const copySessionButton = buttons.find(node => node.textContent === 'Copy ID');
-    const copyShareButton = buttons.find(node => node.textContent === 'Copy Invite Link');
-    const dismissButton = buttons.find(node => node.textContent === 'Dismiss');
+    const retryButton = buttons.find((node) => node.textContent === 'Try again');
+    const reconnectButton = buttons.find((node) => node.textContent === 'Reconnect');
+    const copySessionButton = buttons.find((node) => node.textContent === 'Copy ID');
+    const copyShareButton = buttons.find((node) => node.textContent === 'Copy Invite Link');
+    const dismissButton = buttons.find((node) => node.textContent === 'Dismiss');
 
     expect(retryButton).toBeTruthy();
     expect(reconnectButton).toBeFalsy();
@@ -80,10 +80,10 @@ describe('MultiplayerStatusBanner', () => {
     expect(dismissButton).toBeTruthy();
 
     act(() => {
-      retryButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-      copySessionButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-      copyShareButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-      dismissButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+      retryButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      copySessionButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      copyShareButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      dismissButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
     expect(retryMultiplayer).toHaveBeenCalledTimes(1);
@@ -99,12 +99,13 @@ describe('MultiplayerStatusBanner', () => {
       reconnectMultiplayer,
     });
 
-    const reconnectButton = Array.from(container.querySelectorAll('button'))
-      .find(node => node.textContent === 'Reconnect');
+    const reconnectButton = Array.from(container.querySelectorAll('button')).find(
+      (node) => node.textContent === 'Reconnect'
+    );
     expect(reconnectButton).toBeTruthy();
 
     act(() => {
-      reconnectButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+      reconnectButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
     expect(reconnectMultiplayer).toHaveBeenCalledTimes(1);
@@ -131,17 +132,22 @@ describe('MultiplayerStatusBanner', () => {
   });
 
   it('shows a spinner when connecting', async () => {
-    await renderWithSession({multiplayerStatus: 'connecting'});
+    await renderWithSession({ multiplayerStatus: 'connecting', multiplayerSessionId: 'abc123' });
     expect(container.querySelector('.multiplayerBanner-spinner')).toBeTruthy();
   });
 
+  it('hides the banner when connecting without a session (single-player startup)', async () => {
+    await renderWithSession({ multiplayerStatus: 'connecting', multiplayerSessionId: null });
+    expect(container.querySelector('.multiplayerBanner')).toBeNull();
+  });
+
   it('shows a spinner when retrying', async () => {
-    await renderWithSession({multiplayerStatus: 'retrying'});
+    await renderWithSession({ multiplayerStatus: 'retrying' });
     expect(container.querySelector('.multiplayerBanner-spinner')).toBeTruthy();
   });
 
   it('does not show a spinner when failed', async () => {
-    await renderWithSession({multiplayerStatus: 'failed'});
+    await renderWithSession({ multiplayerStatus: 'failed' });
     expect(container.querySelector('.multiplayerBanner-spinner')).toBeNull();
   });
 
@@ -171,8 +177,8 @@ describe('MultiplayerStatusBanner', () => {
       multiplayerShareUrl: 'https://example.test/?session=abc123',
     });
     const buttons = Array.from(container.querySelectorAll('button'));
-    const copySessionButton = buttons.find(node => node.textContent === 'Copy ID');
-    const copyShareButton = buttons.find(node => node.textContent === 'Copy Invite Link');
+    const copySessionButton = buttons.find((node) => node.textContent === 'Copy ID');
+    const copyShareButton = buttons.find((node) => node.textContent === 'Copy Invite Link');
     expect(copySessionButton.getAttribute('aria-label')).toBe('Copy session ID to clipboard');
     expect(copyShareButton.getAttribute('aria-label')).toBe('Copy share link to clipboard');
   });

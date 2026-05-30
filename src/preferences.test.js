@@ -23,6 +23,7 @@ describe('preferences', () => {
       mobileOnboardingDismissed: true,
       testerWelcomeDismissed: false,
       highContrastMode: false,
+      installPromptDismissed: false,
     });
   });
 
@@ -40,6 +41,7 @@ describe('preferences', () => {
       mobileOnboardingDismissed: true,
       testerWelcomeDismissed: false,
       highContrastMode: false,
+      installPromptDismissed: false,
     });
   });
 
@@ -69,10 +71,16 @@ describe('preferences', () => {
     expect(normalizePreferences({}).testerWelcomeDismissed).toBe(false);
   });
 
-  it('persists and restores testerWelcomeDismissed', () => {
-    savePreferences({testerWelcomeDismissed: true});
-    expect(loadPreferences().testerWelcomeDismissed).toBe(true);
-    savePreferences({testerWelcomeDismissed: false});
-    expect(loadPreferences().testerWelcomeDismissed).toBe(false);
+  it('normalizes installPromptDismissed to boolean', () => {
+    expect(normalizePreferences({installPromptDismissed: 1}).installPromptDismissed).toBe(true);
+    expect(normalizePreferences({installPromptDismissed: 0}).installPromptDismissed).toBe(false);
+    expect(normalizePreferences({}).installPromptDismissed).toBe(false);
+  });
+
+  it('persists and restores installPromptDismissed', () => {
+    savePreferences({installPromptDismissed: true});
+    expect(loadPreferences().installPromptDismissed).toBe(true);
+    savePreferences({installPromptDismissed: false});
+    expect(loadPreferences().installPromptDismissed).toBe(false);
   });
 });
