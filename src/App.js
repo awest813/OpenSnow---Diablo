@@ -9,7 +9,9 @@ import { getDropFile, isDropFile } from './input/fileDrop';
 import createFileDropTarget from './input/fileDropTarget';
 import createEventListeners from './input/eventListeners';
 import {
-  TOUCH_MOVE, TOUCH_RMB, TOUCH_SHIFT,
+  TOUCH_MOVE,
+  TOUCH_RMB,
+  TOUCH_SHIFT,
   beginTouchGesture,
   cancelTouchGesture,
   finishTouchGesture,
@@ -17,9 +19,27 @@ import {
   updateTouchGesture,
   updateTouchButton as applyTouchButtonUpdate,
 } from './input/touchControls';
-import { findKeyboardRule, openKeyboard, handleKeyDown, handleKeyUp, handleKeyboardInput } from './input/keyboard';
-import { getMousePos, handleMouseMove, handleMouseDown, handleMouseUp } from './input/mouseHandlers';
-import { startGame, handleGameError, handleGameExit, handleProgress, setCurrentSave, setCursorPos } from './engine/session';
+import {
+  findKeyboardRule,
+  openKeyboard,
+  handleKeyDown,
+  handleKeyUp,
+  handleKeyboardInput,
+} from './input/keyboard';
+import {
+  getMousePos,
+  handleMouseMove,
+  handleMouseDown,
+  handleMouseUp,
+} from './input/mouseHandlers';
+import {
+  startGame,
+  handleGameError,
+  handleGameExit,
+  handleProgress,
+  setCurrentSave,
+  setCursorPos,
+} from './engine/session';
 import SessionContext from './engine/sessionContext';
 
 import ErrorOverlay from './ui/ErrorOverlay';
@@ -61,9 +81,10 @@ function getKeyboardRule() {
   return keyboardRule;
 }
 
-const scheduleIdle = typeof requestIdleCallback === 'function'
-  ? cb => requestIdleCallback(cb, {timeout: 500})
-  : cb => setTimeout(cb, 0);
+const scheduleIdle =
+  typeof requestIdleCallback === 'function'
+    ? (cb) => requestIdleCallback(cb, { timeout: 500 })
+    : (cb) => setTimeout(cb, 0);
 
 const CompressMpq = React.lazy(() => import('./mpqcmp'));
 
@@ -106,7 +127,7 @@ class App extends React.Component {
     installPromptDismissed: false,
     offlineReady: false,
   };
-  cursorPos = {x: 0, y: 0};
+  cursorPos = { x: 0, y: 0 };
 
   touchControls = false;
   touchButtons = [null, null, null, null, null, null, null, null, null, null];
@@ -129,19 +150,34 @@ class App extends React.Component {
       onDragLeave: this.onDragLeave,
     });
 
-    const touchListenerOptions = {passive: false, capture: true};
+    const touchListenerOptions = { passive: false, capture: true };
     this.runtimeListeners = createEventListeners([
-      {target: document, event: 'mousemove', handler: this.onMouseMove, options: true},
-      {target: document, event: 'mousedown', handler: this.onMouseDown, options: true},
-      {target: document, event: 'mouseup', handler: this.onMouseUp, options: true},
-      {target: document, event: 'keydown', handler: this.onKeyDown, options: true},
-      {target: document, event: 'keyup', handler: this.onKeyUp, options: true},
-      {target: document, event: 'contextmenu', handler: this.onMenu, options: true},
-      {target: document, event: 'touchstart', handler: this.onTouchStart, options: touchListenerOptions},
-      {target: document, event: 'touchmove', handler: this.onTouchMove, options: touchListenerOptions},
-      {target: document, event: 'touchend', handler: this.onTouchEnd, options: touchListenerOptions},
-      {target: document, event: 'pointerlockchange', handler: this.onPointerLockChange},
-      {target: window, event: 'resize', handler: this.onResize},
+      { target: document, event: 'mousemove', handler: this.onMouseMove, options: true },
+      { target: document, event: 'mousedown', handler: this.onMouseDown, options: true },
+      { target: document, event: 'mouseup', handler: this.onMouseUp, options: true },
+      { target: document, event: 'keydown', handler: this.onKeyDown, options: true },
+      { target: document, event: 'keyup', handler: this.onKeyUp, options: true },
+      { target: document, event: 'contextmenu', handler: this.onMenu, options: true },
+      {
+        target: document,
+        event: 'touchstart',
+        handler: this.onTouchStart,
+        options: touchListenerOptions,
+      },
+      {
+        target: document,
+        event: 'touchmove',
+        handler: this.onTouchMove,
+        options: touchListenerOptions,
+      },
+      {
+        target: document,
+        event: 'touchend',
+        handler: this.onTouchEnd,
+        options: touchListenerOptions,
+      },
+      { target: document, event: 'pointerlockchange', handler: this.onPointerLockChange },
+      { target: window, event: 'resize', handler: this.onResize },
     ]);
 
     this.setTouch0 = this.setTouch_.bind(this, 0);
@@ -158,7 +194,7 @@ class App extends React.Component {
   }
 
   resolveMultiplayerOptions() {
-    const config = {...(window.DIABLOWEB_MULTIPLAYER_OPTIONS || {})};
+    const config = { ...(window.DIABLOWEB_MULTIPLAYER_OPTIONS || {}) };
     const params = new URLSearchParams(window.location.search);
     const transport = params.get('transport');
     if (transport === 'peerjs' || transport === 'websocket') {
@@ -171,16 +207,16 @@ class App extends React.Component {
     return config;
   }
 
-  onSwUpdate = e => {
+  onSwUpdate = (e) => {
     const registration = e?.detail ?? window.__swRegistration ?? null;
-    this.setState({updateAvailable: true, updateRegistration: registration});
+    this.setState({ updateAvailable: true, updateRegistration: registration });
   };
 
-  onSwOfflineReady = () => this.setState({offlineReady: true});
+  onSwOfflineReady = () => this.setState({ offlineReady: true });
 
-  onPwaInstallReady = () => this.setState({installPromptAvailable: true});
+  onPwaInstallReady = () => this.setState({ installPromptAvailable: true });
 
-  onPwaInstalled = () => this.setState({installPromptAvailable: false});
+  onPwaInstalled = () => this.setState({ installPromptAvailable: false });
 
   componentDidMount() {
     this.fileDropTarget.attach();
@@ -207,17 +243,17 @@ class App extends React.Component {
       });
     });
 
-    this.fs.then(fs => {
+    this.fs.then((fs) => {
       if (fs.initError) {
-        this.setState({storageError: fs.initError.message || String(fs.initError)});
+        this.setState({ storageError: fs.initError.message || String(fs.initError) });
       }
       const spawn = fs.files.get('spawn.mpq');
       if (spawn && SpawnSizes.includes(spawn.byteLength)) {
-        this.setState({has_spawn: true});
+        this.setState({ has_spawn: true });
       }
       for (const name of fs.files.keys()) {
         if (/\.sv$/i.test(name)) {
-          this.setState({has_saves: true});
+          this.setState({ has_saves: true });
           break;
         }
       }
@@ -235,7 +271,7 @@ class App extends React.Component {
 
   // ─── Drag-and-drop ──────────────────────────────────────────────────────────
 
-  onDrop = e => {
+  onDrop = (e) => {
     const file = getDropFile(e);
     if (file) {
       e.preventDefault();
@@ -246,31 +282,31 @@ class App extends React.Component {
         this.start(file);
       }
     }
-    this.setState({dropping: 0});
-  }
+    this.setState({ dropping: 0 });
+  };
 
-  onDragEnter = e => {
+  onDragEnter = (e) => {
     e.preventDefault();
     this.setDropping(1);
-  }
+  };
 
-  onDragOver = e => {
+  onDragOver = (e) => {
     if (isDropFile(e)) {
       e.preventDefault();
     }
-  }
+  };
 
   onDragLeave = () => {
     this.setDropping(-1);
-  }
+  };
 
   setDropping(inc) {
-    this.setState(({dropping}) => ({dropping: Math.max(dropping + inc, 0)}));
+    this.setState(({ dropping }) => ({ dropping: Math.max(dropping + inc, 0) }));
   }
 
   // ─── Session delegates ──────────────────────────────────────────────────────
 
-  start = file => {
+  start = (file) => {
     this.setState({
       multiplayerStatus: 'idle',
       multiplayerErrorCategory: null,
@@ -283,18 +319,28 @@ class App extends React.Component {
     startGame(this, file);
   };
   onError = (message, stack) => handleGameError(this, message, stack);
-  onExit() { handleGameExit(this); }
-  onProgress(progress) { handleProgress(this, progress); }
-  setCurrentSave(name) { setCurrentSave(this, name); }
-  setCursorPos(x, y) { setCursorPos(this, x, y); }
-  openKeyboard(rect) { openKeyboard(this, getKeyboardRule(), rect); }
-  onMultiplayerEvent = event => {
+  onExit() {
+    handleGameExit(this);
+  }
+  onProgress(progress) {
+    handleProgress(this, progress);
+  }
+  setCurrentSave(name) {
+    setCurrentSave(this, name);
+  }
+  setCursorPos(x, y) {
+    setCursorPos(this, x, y);
+  }
+  openKeyboard(rect) {
+    openKeyboard(this, getKeyboardRule(), rect);
+  }
+  onMultiplayerEvent = (event) => {
     this.multiplayerEvents = [...(this.multiplayerEvents || []), event];
     if (this.multiplayerEvents.length > 200) {
       this.multiplayerEvents = this.multiplayerEvents.slice(this.multiplayerEvents.length - 200);
     }
-  }
-  onMultiplayerStatus = status => {
+  };
+  onMultiplayerStatus = (status) => {
     this.setState({
       multiplayerStatus: status.status || 'idle',
       multiplayerErrorCategory: status.category || null,
@@ -304,21 +350,21 @@ class App extends React.Component {
       multiplayerNoticeDismissed: false,
       multiplayerRetryCount: status.retryCount || 0,
     });
-  }
+  };
 
   retryMultiplayer = () => {
     if (this.game && this.game.retryMultiplayer) {
       this.game.retryMultiplayer();
     }
-  }
+  };
 
   reconnectMultiplayer = () => {
     if (this.game && this.game.reconnectMultiplayer) {
       this.game.reconnectMultiplayer();
     }
-  }
+  };
 
-  copyText = async text => {
+  copyText = async (text) => {
     if (!text) {
       return false;
     }
@@ -338,102 +384,104 @@ class App extends React.Component {
     const copied = document.execCommand ? document.execCommand('copy') : false;
     document.body.removeChild(input);
     return copied;
-  }
+  };
 
   copySessionId = async () => {
-    const {multiplayerSessionId} = this.state;
+    const { multiplayerSessionId } = this.state;
     const copied = await this.copyText(multiplayerSessionId);
     if (copied) {
-      this.setState({multiplayerMessage: 'Session ID copied to clipboard.'});
+      this.setState({ multiplayerMessage: 'Session ID copied to clipboard.' });
     }
-  }
+  };
 
   copyShareLink = async () => {
-    const {multiplayerShareUrl} = this.state;
+    const { multiplayerShareUrl } = this.state;
     const copied = await this.copyText(multiplayerShareUrl);
     if (copied) {
-      this.setState({multiplayerMessage: 'Share link copied to clipboard.'});
+      this.setState({ multiplayerMessage: 'Share link copied to clipboard.' });
     }
-  }
+  };
 
   dismissMultiplayerNotice = () => {
-    this.setState({multiplayerNoticeDismissed: true});
-  }
+    this.setState({ multiplayerNoticeDismissed: true });
+  };
 
   detectTouchDevice() {
     const nav = window.navigator || {};
     const hasTouchPoints = !!(nav.maxTouchPoints && nav.maxTouchPoints > 0);
     const hasTouchEvents = 'ontouchstart' in window;
-    const coarsePointer = window.matchMedia ? window.matchMedia('(pointer: coarse)').matches : false;
+    const coarsePointer = window.matchMedia
+      ? window.matchMedia('(pointer: coarse)').matches
+      : false;
     return hasTouchPoints || hasTouchEvents || coarsePointer;
   }
 
-  setTouchLayoutPreset = preset => {
+  setTouchLayoutPreset = (preset) => {
     if (!TOUCH_LAYOUT_PRESETS.includes(preset)) {
       return;
     }
-    savePreferences({touchLayoutPreset: preset});
-    this.setState({touchLayoutPreset: preset});
-  }
+    savePreferences({ touchLayoutPreset: preset });
+    this.setState({ touchLayoutPreset: preset });
+  };
 
-  setTouchPanSensitivity = sensitivity => {
+  setTouchPanSensitivity = (sensitivity) => {
     if (!TOUCH_PAN_SENSITIVITIES.includes(sensitivity)) {
       return;
     }
-    savePreferences({touchPanSensitivity: sensitivity});
-    this.setState({touchPanSensitivity: sensitivity});
-  }
+    savePreferences({ touchPanSensitivity: sensitivity });
+    this.setState({ touchPanSensitivity: sensitivity });
+  };
 
   dismissMobileOnboarding = () => {
-    savePreferences({mobileOnboardingDismissed: true});
+    savePreferences({ mobileOnboardingDismissed: true });
     this.setState({
       mobileOnboardingDismissed: true,
       showMobileOnboarding: false,
     });
-  }
+  };
 
   dismissTesterWelcome = () => {
-    savePreferences({testerWelcomeDismissed: true});
+    savePreferences({ testerWelcomeDismissed: true });
     this.setState({
       testerWelcomeDismissed: true,
       showTesterWelcome: false,
     });
-  }
+  };
 
-  setHighContrastMode = enabled => {
+  setHighContrastMode = (enabled) => {
     const highContrastMode = Boolean(enabled);
-    savePreferences({highContrastMode});
-    this.setState({highContrastMode});
-  }
+    savePreferences({ highContrastMode });
+    this.setState({ highContrastMode });
+  };
 
   dismissInstallPrompt = () => {
-    savePreferences({installPromptDismissed: true});
-    this.setState({installPromptDismissed: true, installPromptAvailable: false});
-  }
+    savePreferences({ installPromptDismissed: true });
+    this.setState({ installPromptDismissed: true, installPromptAvailable: false });
+  };
 
   triggerInstallPrompt = async () => {
     const deferred = window.__pwaInstallPrompt;
     if (!deferred) return;
     try {
       await deferred.prompt();
-      const {outcome} = await deferred.userChoice;
+      const { outcome } = await deferred.userChoice;
       if (outcome === 'accepted') {
         window.__pwaInstallPrompt = null;
-        this.setState({installPromptAvailable: false});
+        this.setState({ installPromptAvailable: false });
       }
     } catch (e) {
       // Prompt may have already been used; ignore.
     }
-  }
+  };
 
-  dismissOfflineReady = () => this.setState({offlineReady: false});
+  dismissOfflineReady = () => this.setState({ offlineReady: false });
 
   applySwUpdate = () => {
-    const {updateRegistration} = this.state;
-    import('./serviceWorker').then(({applyUpdate}) => {
+    const { updateRegistration } = this.state;
+    import('./serviceWorker').then(({ applyUpdate }) => {
       applyUpdate(updateRegistration);
     });
-  }
+  };
 
   flushPendingCompressedFile = () => {
     if (!this.pendingCompressedFile || !this.compressMpq || !this.state.compress) {
@@ -442,23 +490,23 @@ class App extends React.Component {
     const file = this.pendingCompressedFile;
     this.pendingCompressedFile = null;
     this.compressMpq.start(file);
-  }
+  };
 
-  setCompressMpqRef = node => {
+  setCompressMpqRef = (node) => {
     this.compressMpq = node;
     this.flushPendingCompressedFile();
-  }
+  };
 
   onSaveUploaded() {
-    this.setState(s => ({savesVersion: s.savesVersion + 1, has_saves: true}));
+    this.setState((s) => ({ savesVersion: s.savesVersion + 1, has_saves: true }));
   }
 
-  openSaveManager = () => this.setState({show_saves: true});
-  closeSaveManager = () => this.setState({show_saves: false});
-  openCompressor = () => this.setState({compress: true}, this.flushPendingCompressedFile);
+  openSaveManager = () => this.setState({ show_saves: true });
+  closeSaveManager = () => this.setState({ show_saves: false });
+  openCompressor = () => this.setState({ compress: true }, this.flushPendingCompressedFile);
   closeCompressor = () => {
     this.pendingCompressedFile = null;
-    this.setState({compress: false});
+    this.setState({ compress: false });
   };
 
   getSessionContextValue() {
@@ -543,33 +591,44 @@ class App extends React.Component {
   // ─── Pointer lock ───────────────────────────────────────────────────────────
 
   pointerLocked() {
-    return document.pointerLockElement === this.canvas || document.mozPointerLockElement === this.canvas;
+    return (
+      document.pointerLockElement === this.canvas || document.mozPointerLockElement === this.canvas
+    );
   }
 
   eventMods(e) {
-    return ((e.shiftKey || this.touchMods[TOUCH_SHIFT]) ? 1 : 0) + (e.ctrlKey ? 2 : 0) + (e.altKey ? 4 : 0) + (e.touches ? 8 : 0);
+    return (
+      (e.shiftKey || this.touchMods[TOUCH_SHIFT] ? 1 : 0) +
+      (e.ctrlKey ? 2 : 0) +
+      (e.altKey ? 4 : 0) +
+      (e.touches ? 8 : 0)
+    );
   }
 
-  onResize = () => { document.exitPointerLock(); }
+  onResize = () => {
+    document.exitPointerLock();
+  };
 
   onPointerLockChange = () => {
     if (window.screen && window.innerHeight === window.screen.height && !this.pointerLocked()) {
       this.game('DApi_Key', 0, 0, 27);
       this.game('DApi_Key', 1, 0, 27);
     }
-  }
+  };
 
   // ─── Mouse event delegates ──────────────────────────────────────────────────
 
-  onMouseMove = e => handleMouseMove(this, e);
-  onMouseDown = e => handleMouseDown(this, e);
-  onMouseUp = e => handleMouseUp(this, e);
-  onMenu = e => { e.preventDefault(); }
+  onMouseMove = (e) => handleMouseMove(this, e);
+  onMouseDown = (e) => handleMouseDown(this, e);
+  onMouseUp = (e) => handleMouseUp(this, e);
+  onMenu = (e) => {
+    e.preventDefault();
+  };
 
   // ─── Keyboard event delegates ───────────────────────────────────────────────
 
-  onKeyDown = e => handleKeyDown(this, e);
-  onKeyUp = e => handleKeyUp(this, e);
+  onKeyDown = (e) => handleKeyDown(this, e);
+  onKeyUp = (e) => handleKeyUp(this, e);
   onKeyboard = () => handleKeyboardInput(this, 0);
   onKeyboardBlur = () => handleKeyboardInput(this, 1);
 
@@ -582,7 +641,7 @@ class App extends React.Component {
 
   // ─── Touch events ───────────────────────────────────────────────────────────
 
-  onTouchStart = e => {
+  onTouchStart = (e) => {
     if (!this.canvas) return;
     if (e.target === this.keyboard) {
       return;
@@ -591,9 +650,10 @@ class App extends React.Component {
     }
     e.preventDefault();
     if (applyTouchButtonUpdate(this, e.touches, false)) {
-      const {x, y} = getMousePos(this, this.touchCanvas);
+      const { x, y } = getMousePos(this, this.touchCanvas);
       this.game('DApi_Mouse', 0, 0, this.eventMods(e), x, y);
-      const useGestureControl = !this.touchMods[TOUCH_MOVE] && !this.touchButton && e.touches.length === 1;
+      const useGestureControl =
+        !this.touchMods[TOUCH_MOVE] && !this.touchButton && e.touches.length === 1;
       if (useGestureControl) {
         beginTouchGesture(this, this.touchCanvas, this.getTouchEventTimestamp(e));
       } else if (!this.touchMods[TOUCH_MOVE]) {
@@ -603,20 +663,29 @@ class App extends React.Component {
     } else {
       cancelTouchGesture(this);
     }
-  }
+  };
 
-  onTouchMove = e => {
+  onTouchMove = (e) => {
     if (!this.canvas) return;
     if (e.target === this.keyboard) {
       return;
     }
     e.preventDefault();
     if (applyTouchButtonUpdate(this, e.touches, false)) {
-      const {x, y} = getMousePos(this, this.touchCanvas);
+      const { x, y } = getMousePos(this, this.touchCanvas);
       this.game('DApi_Mouse', 0, 0, this.eventMods(e), x, y);
-      if (this.touchGesture && this.touchCanvas && this.touchGesture.id === this.touchCanvas.identifier) {
+      if (
+        this.touchGesture &&
+        this.touchCanvas &&
+        this.touchGesture.id === this.touchCanvas.identifier
+      ) {
         const pointerButton = this.touchMods[TOUCH_RMB] ? 2 : 1;
-        const gestureUpdate = updateTouchGesture(this, this.touchCanvas, this.getTouchEventTimestamp(e), pointerButton);
+        const gestureUpdate = updateTouchGesture(
+          this,
+          this.touchCanvas,
+          this.getTouchEventTimestamp(e),
+          pointerButton
+        );
         if (gestureUpdate.startDrag && !this.touchMods[TOUCH_MOVE]) {
           this.game('DApi_Mouse', 1, pointerButton, this.eventMods(e), x, y);
         }
@@ -627,9 +696,9 @@ class App extends React.Component {
     } else {
       cancelTouchGesture(this);
     }
-  }
+  };
 
-  onTouchEnd = e => {
+  onTouchEnd = (e) => {
     if (!this.canvas) return;
     if (e.target !== this.keyboard) {
       e.preventDefault();
@@ -638,7 +707,7 @@ class App extends React.Component {
     const hadGesture = !!this.touchGesture && !!prevTc;
     applyTouchButtonUpdate(this, e.touches, true);
     if (prevTc && !this.touchCanvas) {
-      const {x, y} = getMousePos(this, prevTc);
+      const { x, y } = getMousePos(this, prevTc);
       const mods = this.eventMods(e);
 
       if (hadGesture) {
@@ -661,23 +730,35 @@ class App extends React.Component {
         this.game('DApi_Mouse', 2, 2, mods, x, y);
       }
 
-      if (this.touchMods[TOUCH_RMB] && (!this.touchButton || this.touchButton.index !== TOUCH_RMB)) {
+      if (
+        this.touchMods[TOUCH_RMB] &&
+        (!this.touchButton || this.touchButton.index !== TOUCH_RMB)
+      ) {
         applyTouchMod(this, TOUCH_RMB, false);
       }
     }
-    if (this.touchGesture && (!this.touchCanvas || this.touchGesture.id !== this.touchCanvas.identifier)) {
+    if (
+      this.touchGesture &&
+      (!this.touchCanvas || this.touchGesture.id !== this.touchCanvas.identifier)
+    ) {
       cancelTouchGesture(this);
     }
     if (!document.fullscreenElement) {
       this.element.requestFullscreen();
     }
-  }
+  };
 
   // ─── Ref setters ────────────────────────────────────────────────────────────
 
-  setCanvas = e => { this.canvas = e; }
-  setElement = e => { this.element = e; }
-  setKeyboard = e => { this.keyboard = e; }
+  setCanvas = (e) => {
+    this.canvas = e;
+  };
+  setElement = (e) => {
+    this.element = e;
+  };
+  setKeyboard = (e) => {
+    this.keyboard = e;
+  };
 
   setTouch_(i, e) {
     this.touchButtons[i] = e;
@@ -735,12 +816,14 @@ class App extends React.Component {
   // ─── Render ──────────────────────────────────────────────────────────────────
 
   renderUi() {
-    const {started, loading, error, show_saves, compress} = this.state;
+    const { started, loading, error, show_saves, compress } = this.state;
     if (show_saves) {
-      return <SaveManager/>;
+      return <SaveManager />;
     } else if (compress) {
       return (
-        <React.Suspense fallback={<LoadingScreen progress={{text: 'Loading MPQ compressor...'}}/>}>
+        <React.Suspense
+          fallback={<LoadingScreen progress={{ text: 'Loading MPQ compressor...' }} />}
+        >
           <CompressMpq
             onClose={this.closeCompressor}
             onError={this.onError}
@@ -749,16 +832,25 @@ class App extends React.Component {
         </React.Suspense>
       );
     } else if (error) {
-      return <ErrorOverlay/>;
+      return <ErrorOverlay />;
     } else if (loading && !started) {
-      return <LoadingScreen/>;
+      return <LoadingScreen />;
     } else if (!started) {
-      return <StartScreen/>;
+      return <StartScreen />;
     }
   }
 
   render() {
-    const {started, error, dropping, updateAvailable, touchLayoutPreset, highContrastMode, compress, offlineReady} = this.state;
+    const {
+      started,
+      error,
+      dropping,
+      updateAvailable,
+      touchLayoutPreset,
+      highContrastMode,
+      compress,
+      offlineReady,
+    } = this.state;
     const sessionContextValue = this.getSessionContextValue();
     const touchPresetClass = `touch-preset-${touchLayoutPreset || DEFAULT_TOUCH_LAYOUT_PRESET}`;
     const dropHint = compress
@@ -766,17 +858,34 @@ class App extends React.Component {
       : 'Drop DIABDAT.MPQ or a .sv save file here.';
     return (
       <SessionContext.Provider value={sessionContextValue}>
-        <div className={classNames('App', touchPresetClass, {'high-contrast': highContrastMode, touch: this.touchControls, started, dropping, keyboard: !!this.showKeyboard})} ref={this.setElement}>
+        <div
+          className={classNames('App', touchPresetClass, {
+            'high-contrast': highContrastMode,
+            touch: this.touchControls,
+            started,
+            dropping,
+            keyboard: !!this.showKeyboard,
+          })}
+          ref={this.setElement}
+        >
           {updateAvailable && !started && (
             <div className="updateBanner" role="status" aria-live="polite" aria-atomic="true">
               A new version is available.{' '}
-              <button type="button" onClick={this.applySwUpdate}>Reload</button>
+              <button type="button" onClick={this.applySwUpdate}>
+                Reload
+              </button>
             </div>
           )}
           {offlineReady && (
             <div className="offlineReadyToast" role="status" aria-live="polite" aria-atomic="true">
               App is ready to work offline.{' '}
-              <button type="button" onClick={this.dismissOfflineReady} aria-label="Dismiss">✕</button>
+              <button
+                type="button"
+                onClick={this.dismissOfflineReady}
+                aria-label="Dismiss offline ready notification"
+              >
+                Close
+              </button>
             </div>
           )}
           {this.state.storageError && (
@@ -785,7 +894,7 @@ class App extends React.Component {
               <small>({this.state.storageError})</small>
             </div>
           )}
-          <MultiplayerStatusBanner/>
+          <MultiplayerStatusBanner />
           {dropping > 0 && (
             <div className="dropHint" role="status" aria-live="polite" aria-atomic="true">
               <div className="dropHintTitle">Drop file to import</div>
@@ -793,32 +902,105 @@ class App extends React.Component {
             </div>
           )}
           <div className="touch-ui touch-mods">
-            <div className={classNames('touch-button', 'touch-button-0', {active: this.touchMods[0]})} ref={this.setTouch0} role="button" tabIndex={0} aria-label="Touch Mod 1"/>
-            <div className={classNames('touch-button', 'touch-button-1', {active: this.touchMods[1]})} ref={this.setTouch1} role="button" tabIndex={0} aria-label="Touch Mod 2"/>
-            <div className={classNames('touch-button', 'touch-button-2', {active: this.touchMods[2]})} ref={this.setTouch2} role="button" tabIndex={0} aria-label="Touch Mod 3"/>
+            <div
+              className={classNames('touch-button', 'touch-button-0', {
+                active: this.touchMods[0],
+              })}
+              ref={this.setTouch0}
+              role="button"
+              tabIndex={0}
+              aria-label="Touch Mod 1"
+            />
+            <div
+              className={classNames('touch-button', 'touch-button-1', {
+                active: this.touchMods[1],
+              })}
+              ref={this.setTouch1}
+              role="button"
+              tabIndex={0}
+              aria-label="Touch Mod 2"
+            />
+            <div
+              className={classNames('touch-button', 'touch-button-2', {
+                active: this.touchMods[2],
+              })}
+              ref={this.setTouch2}
+              role="button"
+              tabIndex={0}
+              aria-label="Touch Mod 3"
+            />
           </div>
           <div className="touch-ui touch-belt">
-            <div className={classNames('touch-button', 'touch-button-0')} ref={this.setTouch3} role="button" tabIndex={0} aria-label="Belt Slot 1"/>
-            <div className={classNames('touch-button', 'touch-button-1')} ref={this.setTouch4} role="button" tabIndex={0} aria-label="Belt Slot 2"/>
-            <div className={classNames('touch-button', 'touch-button-2')} ref={this.setTouch5} role="button" tabIndex={0} aria-label="Belt Slot 3"/>
+            <div
+              className={classNames('touch-button', 'touch-button-0')}
+              ref={this.setTouch3}
+              role="button"
+              tabIndex={0}
+              aria-label="Belt Slot 1"
+            />
+            <div
+              className={classNames('touch-button', 'touch-button-1')}
+              ref={this.setTouch4}
+              role="button"
+              tabIndex={0}
+              aria-label="Belt Slot 2"
+            />
+            <div
+              className={classNames('touch-button', 'touch-button-2')}
+              ref={this.setTouch5}
+              role="button"
+              tabIndex={0}
+              aria-label="Belt Slot 3"
+            />
           </div>
           <div className="touch-ui fkeys-left">
-            <div className={classNames('touch-button', 'touch-button-3')} ref={this.setTouch6} role="button" tabIndex={0} aria-label="F-Key Left 1"/>
-            <div className={classNames('touch-button', 'touch-button-4')} ref={this.setTouch7} role="button" tabIndex={0} aria-label="F-Key Left 2"/>
+            <div
+              className={classNames('touch-button', 'touch-button-3')}
+              ref={this.setTouch6}
+              role="button"
+              tabIndex={0}
+              aria-label="F-Key Left 1"
+            />
+            <div
+              className={classNames('touch-button', 'touch-button-4')}
+              ref={this.setTouch7}
+              role="button"
+              tabIndex={0}
+              aria-label="F-Key Left 2"
+            />
           </div>
           <div className="touch-ui fkeys-right">
-            <div className={classNames('touch-button', 'touch-button-5')} ref={this.setTouch8} role="button" tabIndex={0} aria-label="F-Key Right 1"/>
-            <div className={classNames('touch-button', 'touch-button-6')} ref={this.setTouch9} role="button" tabIndex={0} aria-label="F-Key Right 2"/>
+            <div
+              className={classNames('touch-button', 'touch-button-5')}
+              ref={this.setTouch8}
+              role="button"
+              tabIndex={0}
+              aria-label="F-Key Right 1"
+            />
+            <div
+              className={classNames('touch-button', 'touch-button-6')}
+              ref={this.setTouch9}
+              role="button"
+              tabIndex={0}
+              aria-label="F-Key Right 2"
+            />
           </div>
           <div className="Body">
             <div className="inner">
-              {!error && <canvas ref={this.setCanvas} width={640} height={480}/>}
-              <input type="text" className="keyboard" onChange={this.onKeyboard} onBlur={this.onKeyboardBlur} ref={this.setKeyboard} spellCheck={false} aria-label="Game keyboard input" style={this.showKeyboard || {}}/>
+              {!error && <canvas ref={this.setCanvas} width={640} height={480} />}
+              <input
+                type="text"
+                className="keyboard"
+                onChange={this.onKeyboard}
+                onBlur={this.onKeyboardBlur}
+                ref={this.setKeyboard}
+                spellCheck={false}
+                aria-label="Game keyboard input"
+                style={this.showKeyboard || {}}
+              />
             </div>
           </div>
-          <div className="BodyV">
-            {this.renderUi()}
-          </div>
+          <div className="BodyV">{this.renderUi()}</div>
         </div>
       </SessionContext.Provider>
     );
