@@ -142,15 +142,8 @@ export default function StartScreen(props) {
       <ol className="startStepList">
         <li>
           <span className="startStepTitle">Choose how to load data</span>
-          Shareware is the quickest smoke test; retail needs your <strong>DIABDAT.MPQ</strong>.
-        </li>
-        <li>
-          <span className="startStepTitle">Optional: shrink your MPQ</span>
-          Use{' '}
-          <button type="button" className="linkButton" onClick={onCompress}>
-            Compress the MPQ
-          </button>{' '}
-          before selecting it if you want a smaller upload.
+          Shareware is the quickest smoke test; retail needs your <strong>DIABDAT.MPQ</strong>. Use{' '}
+          <strong>Compress the MPQ</strong> on the Retail card first if you want a smaller upload.
         </li>
         <li>
           <span className="startStepTitle">Saves and issues</span>

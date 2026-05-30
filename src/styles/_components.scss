@@ -1148,7 +1148,7 @@ body,
 }
 .updateBanner {
   position: fixed;
-  bottom: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
@@ -1182,8 +1182,8 @@ body,
 
 .storageBanner {
   position: fixed;
-  top: 12px;
-  left: 12px;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
   z-index: 9999;
   max-width: min(90vw, 520px);
   background: rgba(92, 34, 34, 0.95);
@@ -1197,8 +1197,8 @@ body,
 
 .offlineReadyToast {
   position: fixed;
-  bottom: 12px;
-  right: 16px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  right: max(16px, env(safe-area-inset-right));
   z-index: 9999;
   background: rgba(20, 60, 20, 0.95);
   color: #c8f0c8;
@@ -1262,7 +1262,7 @@ body,
 
 .multiplayerBanner {
   position: fixed;
-  top: 12px;
+  top: max(12px, env(safe-area-inset-top));
   left: 50%;
   transform: translateX(-50%);
   z-index: 10000;
