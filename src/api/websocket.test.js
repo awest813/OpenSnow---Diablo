@@ -11,8 +11,10 @@ class FakeWebSocket {
     this.binaryType = 'blob';
     this.listeners = {};
     this.sent = [];
-    this.send = jest.fn(data => this.sent.push(data));
-    this.close = jest.fn(() => { this.readyState = 3; });
+    this.send = jest.fn((data) => this.sent.push(data));
+    this.close = jest.fn(() => {
+      this.readyState = 3;
+    });
     FakeWebSocket.instances.push(this);
   }
 
@@ -29,7 +31,7 @@ class FakeWebSocket {
   }
 
   emit(type, event) {
-    (this.listeners[type] || []).forEach(h => h(event || {}));
+    (this.listeners[type] || []).forEach((h) => h(event || {}));
   }
 }
 
@@ -52,7 +54,7 @@ async function completeHandshake(socket) {
   // Flush the microtask that runs after the first `await` resolves so that
   // the second `await new Promise(...)` executor fires and sets versionCbk.
   await Promise.resolve();
-  socket.emit('message', {data: versionPacket});
+  socket.emit('message', { data: versionPacket });
   // Flush continuation of the second await (do_websocket_open sends clientInfo
   // and returns socket), then flush websocket_open's .then() handler.
   await Promise.resolve();
@@ -103,10 +105,19 @@ describe('websocket_open — successful connection', () => {
     await completeHandshake(socket);
 
     // Client info packet starts with byte 0x31
-    const clientInfo = socket.sent.find(
-      data => data instanceof Uint8Array && data[0] === 0x31,
-    );
+    const clientInfo = socket.sent.find((data) => data instanceof Uint8Array && data[0] === 0x31);
     expect(clientInfo).toBeTruthy();
+  });
+
+  it('sends zero version bytes when VERSION is unset', async () => {
+    delete process.env.VERSION;
+    websocket_open('ws://relay.test', () => {}, jest.fn());
+
+    const socket = FakeWebSocket.instances[0];
+    await completeHandshake(socket);
+
+    const clientInfo = socket.sent.find((data) => data instanceof Uint8Array && data[0] === 0x31);
+    expect(clientInfo).toEqual(new Uint8Array([0x31, 0, 0, 0, 0]));
   });
 
   it('forwards received messages to the handler after handshake', async () => {
@@ -117,8 +128,8 @@ describe('websocket_open — successful connection', () => {
     await completeHandshake(socket);
     handler.mockClear(); // ignore version message forwarded to handler
 
-    const gamePacket = new Uint8Array([0xAB, 0xCD]).buffer;
-    socket.emit('message', {data: gamePacket});
+    const gamePacket = new Uint8Array([0xab, 0xcd]).buffer;
+    socket.emit('message', { data: gamePacket });
 
     expect(handler).toHaveBeenCalledWith(gamePacket);
   });
@@ -224,7 +235,7 @@ describe('websocket_open — close() before connection establishes', () => {
     // No batch interval should run since connection was cancelled
     jest.advanceTimersByTime(200);
     const batchSends = socket.send.mock.calls.filter(
-      ([data]) => data instanceof Uint8Array && data[0] === 0x00,
+      ([data]) => data instanceof Uint8Array && data[0] === 0x00
     );
     expect(batchSends).toHaveLength(0);
   });
