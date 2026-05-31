@@ -13,7 +13,8 @@ const SpawnSize = 1337416;
 /* eslint-disable-next-line no-restricted-globals */
 const worker = self;
 
-let canvas = null, context = null;
+let canvas = null,
+  context = null;
 let imageData = null;
 let files = null;
 let renderBatch = null;
@@ -32,9 +33,9 @@ function stopRenderLoop() {
 function onError(err, action = WorkerToMain.ERROR) {
   stopRenderLoop();
   if (err instanceof Error) {
-    worker.postMessage({action, error: err.toString(), stack: err.stack});
+    worker.postMessage({ action, error: err.toString(), stack: err.stack });
   } else {
-    worker.postMessage({action, error: err.toString()});
+    worker.postMessage({ action, error: err.toString() });
   }
 }
 
@@ -47,7 +48,7 @@ class RemoteFile {
     if (request.status < 200 || request.status >= 300) {
       throw Error('Failed to load remote file');
     }
-    this.byteLength = parseInt(request.getResponseHeader('Content-Length'));
+    this.byteLength = parseInt(request.getResponseHeader('Content-Length'), 10);
 
     this.url = url;
 
@@ -58,7 +59,8 @@ class RemoteFile {
   subarray(start, end) {
     let chunk0 = (start / ChunkSize) | 0;
     let chunk1 = ((end + ChunkSize - 1) / ChunkSize) | 0;
-    let missing0 = chunk1, missing1 = chunk0;
+    let missing0 = chunk1,
+      missing1 = chunk0;
     for (let i = chunk0; i < chunk1; ++i) {
       if (!this.chunks[i]) {
         missing0 = Math.min(missing0, i);
@@ -68,16 +70,20 @@ class RemoteFile {
     if (missing0 <= missing1) {
       const request = new XMLHttpRequest();
       request.open('GET', this.url, false);
-      request.setRequestHeader('Range', `bytes=${missing0 * ChunkSize}-${Math.min(missing1 * ChunkSize + ChunkSize - 1, this.byteLength - 1)}`);
+      request.setRequestHeader(
+        'Range',
+        `bytes=${missing0 * ChunkSize}-${Math.min(missing1 * ChunkSize + ChunkSize - 1, this.byteLength - 1)}`
+      );
       request.responseType = 'arraybuffer';
       request.send();
       if (request.status < 200 || request.status >= 300) {
         throw Error('Failed to load remote file');
       } else {
         const header = request.getResponseHeader('Content-Range');
-        let m, start = 0;
+        let m,
+          start = 0;
         if (header && (m = header.match(/bytes (\d+)-(\d+)\/(\d+)/))) {
-          start = parseInt(m[1]);
+          start = parseInt(m[1], 10);
         }
         this.buffer.set(new Uint8Array(request.response), start);
         chunk0 = ((start + ChunkSize - 1) / ChunkSize) | 0;
@@ -98,10 +104,13 @@ const DApi = {
 
   exit_game() {
     stopRenderLoop();
-    worker.postMessage({action: WorkerToMain.EXIT});
+    worker.postMessage({ action: WorkerToMain.EXIT });
   },
   current_save_id(id) {
-    worker.postMessage({action: WorkerToMain.CURRENT_SAVE, name: id >= 0 ? (is_spawn ? `spawn${id}.sv` : `single_${id}.sv`) : null});
+    worker.postMessage({
+      action: WorkerToMain.CURRENT_SAVE,
+      name: id >= 0 ? (is_spawn ? `spawn${id}.sv` : `single_${id}.sv`) : null,
+    });
   },
 
   get_file_size(path) {
@@ -117,41 +126,45 @@ const DApi = {
   put_file_contents(path, array) {
     path = path.toLowerCase();
     files.set(path, array);
-    worker.postMessage({action: WorkerToMain.FS, func: 'update', params: [path, array]});
+    worker.postMessage({ action: WorkerToMain.FS, func: 'update', params: [path, array] });
   },
   remove_file(path) {
     path = path.toLowerCase();
     files.delete(path);
-    worker.postMessage({action: WorkerToMain.FS, func: 'delete', params: [path]});
+    worker.postMessage({ action: WorkerToMain.FS, func: 'delete', params: [path] });
   },
 
   set_cursor(x, y) {
-    worker.postMessage({action: WorkerToMain.CURSOR, x, y});
+    worker.postMessage({ action: WorkerToMain.CURSOR, x, y });
   },
   open_keyboard(...args) {
-    worker.postMessage({action: WorkerToMain.KEYBOARD, rect: [...args]});
+    worker.postMessage({ action: WorkerToMain.KEYBOARD, rect: [...args] });
   },
   close_keyboard() {
-    worker.postMessage({action: WorkerToMain.KEYBOARD, rect: null});
+    worker.postMessage({ action: WorkerToMain.KEYBOARD, rect: null });
   },
 
   use_websocket(flag) {
     if (flag) {
       if (!websocket || websocket.readyState !== 1) {
-        const sock = websocket = websocket_open('wss://diablo.rivsoft.net/websocket', data => {
-          if (websocket === sock) {
-            try_api(() => {
-              const ptr = wasm._DApi_AllocPacket(data.byteLength);
-              wasm.HEAPU8.set(new Uint8Array(data), ptr);
-            });
+        const sock = (websocket = websocket_open(
+          'wss://diablo.rivsoft.net/websocket',
+          (data) => {
+            if (websocket === sock) {
+              try_api(() => {
+                const ptr = wasm._DApi_AllocPacket(data.byteLength);
+                wasm.HEAPU8.set(new Uint8Array(data), ptr);
+              });
+            }
+          },
+          (code) => {
+            if (typeof code !== 'number') {
+              throw code;
+            } else {
+              call_api('SNet_WebsocketStatus', code);
+            }
           }
-        }, code => {
-          if (typeof code !== 'number') {
-            throw code;
-          } else {
-            call_api('SNet_WebsocketStatus', code);
-          }
-        });
+        ));
       } else {
         call_api('SNet_WebsocketStatus', 0);
       }
@@ -178,13 +191,13 @@ const DApi_renderLegacy = {
     drawBelt = null;
   },
   draw_blit(x, y, w, h, data) {
-    renderBatch.images.push({x, y, w, h, data: data.slice()});
+    renderBatch.images.push({ x, y, w, h, data: data.slice() });
   },
   draw_clip_text(x0, y0, x1, y1) {
-    renderBatch.clip = {x0, y0, x1, y1};
+    renderBatch.clip = { x0, y0, x1, y1 };
   },
   draw_text(x, y, text, color) {
-    renderBatch.text.push({x, y, text, color});
+    renderBatch.text.push({ x, y, text, color });
   },
   draw_end() {
     // ⚡ Bolt: Replace Array.prototype.map() with a pre-allocated Array and a standard
@@ -196,7 +209,7 @@ const DApi_renderLegacy = {
     if (renderBatch.belt) {
       transfer.push(renderBatch.belt.buffer);
     }
-    worker.postMessage({action: WorkerToMain.RENDER, batch: renderBatch}, transfer);
+    worker.postMessage({ action: WorkerToMain.RENDER, batch: renderBatch }, transfer);
     renderBatch = null;
   },
   draw_belt(items) {
@@ -219,9 +232,9 @@ const DApi_renderOffscreen = {
     context.clip();
   },
   draw_text(x, y, text, color) {
-    const r = ((color >> 16) & 0xFF);
-    const g = ((color >> 8) & 0xFF);
-    const b = (color & 0xFF);
+    const r = (color >> 16) & 0xff;
+    const g = (color >> 8) & 0xff;
+    const b = color & 0xff;
     context.fillStyle = `rgb(${r}, ${g}, ${b})`;
     context.fillText(text, x, y + 22);
   },
@@ -232,7 +245,10 @@ const DApi_renderOffscreen = {
     if (drawBelt) {
       transfer.push(drawBelt.buffer);
     }
-    worker.postMessage({action: WorkerToMain.RENDER, batch: {bitmap, belt: drawBelt}}, transfer);
+    worker.postMessage(
+      { action: WorkerToMain.RENDER, batch: { bitmap, belt: drawBelt } },
+      transfer
+    );
     drawBelt = null;
   },
   draw_belt(items) {
@@ -240,13 +256,15 @@ const DApi_renderOffscreen = {
   },
 };
 
-let audioBatch = null, audioTransfer = null;
-let maxSoundId = 0, maxBatchId = 0;
-['create_sound_raw', 'create_sound', 'duplicate_sound'].forEach(func => {
-  DApi[func] = function(...params) {
+let audioBatch = null,
+  audioTransfer = null;
+let maxSoundId = 0,
+  maxBatchId = 0;
+['create_sound_raw', 'create_sound', 'duplicate_sound'].forEach((func) => {
+  DApi[func] = function (...params) {
     if (audioBatch) {
       maxBatchId = params[0] + 1;
-      audioBatch.push({func, params});
+      audioBatch.push({ func, params });
       if (func !== 'duplicate_sound') {
         audioTransfer.push(params[1].buffer);
       }
@@ -256,28 +274,28 @@ let maxSoundId = 0, maxBatchId = 0;
       if (func !== 'duplicate_sound') {
         transfer.push(params[1].buffer);
       }
-      worker.postMessage({action: WorkerToMain.AUDIO, func, params}, transfer);
+      worker.postMessage({ action: WorkerToMain.AUDIO, func, params }, transfer);
     }
   };
 });
-['play_sound', 'set_volume', 'stop_sound', 'delete_sound'].forEach(func => {
-  DApi[func] = function(...params) {
+['play_sound', 'set_volume', 'stop_sound', 'delete_sound'].forEach((func) => {
+  DApi[func] = function (...params) {
     if (audioBatch && params[0] >= maxSoundId) {
-      audioBatch.push({func, params});
+      audioBatch.push({ func, params });
     } else {
-      worker.postMessage({action: WorkerToMain.AUDIO, func, params});
+      worker.postMessage({ action: WorkerToMain.AUDIO, func, params });
     }
   };
 });
 
 let packetBatch = null;
-DApi.websocket_send = function(data) {
+DApi.websocket_send = function (data) {
   if (websocket) {
     websocket.send(data);
   } else if (packetBatch) {
     packetBatch.push(data.slice().buffer);
   } else {
-    worker.postMessage({action: WorkerToMain.PACKET, buffer: data});
+    worker.postMessage({ action: WorkerToMain.PACKET, buffer: data });
   }
 };
 
@@ -295,7 +313,7 @@ function try_api(func) {
 
 function call_api(func, ...params) {
   try_api(() => {
-    const nested = (audioBatch != null);
+    const nested = audioBatch != null;
     if (!nested) {
       audioBatch = [];
       audioTransfer = [];
@@ -317,10 +335,10 @@ function call_api(func, ...params) {
     if (!nested) {
       if (audioBatch.length) {
         maxSoundId = maxBatchId;
-        worker.postMessage({action: WorkerToMain.AUDIO_BATCH, batch: audioBatch}, audioTransfer);
+        worker.postMessage({ action: WorkerToMain.AUDIO_BATCH, batch: audioBatch }, audioTransfer);
       }
       if (packetBatch.length) {
-        worker.postMessage({action: WorkerToMain.PACKET_BATCH, batch: packetBatch}, packetBatch);
+        worker.postMessage({ action: WorkerToMain.PACKET_BATCH, batch: packetBatch }, packetBatch);
       }
       audioBatch = null;
       audioTransfer = null;
@@ -330,24 +348,25 @@ function call_api(func, ...params) {
 }
 
 function progress(text, loaded, total) {
-  worker.postMessage({action: WorkerToMain.PROGRESS, text, loaded, total});
+  worker.postMessage({ action: WorkerToMain.PROGRESS, text, loaded, total });
 }
 
-const readFile = (file, progressCb) => new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onload = () => {
+const readFile = (file, progressCb) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (progressCb) {
+        progressCb({ loaded: file.size });
+      }
+      resolve(reader.result);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.onabort = () => reject();
     if (progressCb) {
-      progressCb({loaded: file.size});
+      reader.addEventListener('progress', progressCb);
     }
-    resolve(reader.result);
-  };
-  reader.onerror = () => reject(reader.error);
-  reader.onabort = () => reject();
-  if (progressCb) {
-    reader.addEventListener('progress', progressCb);
-  }
-  reader.readAsArrayBuffer(file);
-});
+    reader.readAsArrayBuffer(file);
+  });
 
 async function initWasm(spawn, progressCb) {
   const binary = await axios.request({
@@ -355,8 +374,8 @@ async function initWasm(spawn, progressCb) {
     responseType: 'arraybuffer',
     onDownloadProgress: progressCb,
   });
-  const result = await (spawn ? SpawnModule : DiabloModule)({wasmBinary: binary.data}).ready;
-  progressCb({loaded: 2000000});
+  const result = await (spawn ? SpawnModule : DiabloModule)({ wasmBinary: binary.data }).ready;
+  progressCb({ loaded: 2000000 });
   return result;
 }
 
@@ -372,7 +391,7 @@ async function init_game(mpq, spawn, offscreen) {
   }
 
   if (!mpq) {
-    const name = (spawn ? 'spawn.mpq' : 'diabdat.mpq');
+    const name = spawn ? 'spawn.mpq' : 'diabdat.mpq';
     if (!files.has(name)) {
       // This should never happen, but we do support remote loading
       files.set(name, new RemoteFile(`${process.env.PUBLIC_URL}/${name}`));
@@ -380,19 +399,24 @@ async function init_game(mpq, spawn, offscreen) {
   }
 
   progress('Loading...');
-  let mpqLoaded = 0, mpqTotal = (mpq ? mpq.size : 0), wasmLoaded = 0, wasmTotal = (spawn ? SpawnSize : DiabloSize);
+  let mpqLoaded = 0,
+    mpqTotal = mpq ? mpq.size : 0,
+    wasmLoaded = 0,
+    wasmTotal = spawn ? SpawnSize : DiabloSize;
   const wasmWeight = 5;
   function updateProgress() {
     progress('Loading...', mpqLoaded + wasmLoaded * wasmWeight, mpqTotal + wasmTotal * wasmWeight);
   }
-  const loadWasm = initWasm(spawn, e => {
+  const loadWasm = initWasm(spawn, (e) => {
     wasmLoaded = Math.min(e.loaded, wasmTotal);
     updateProgress();
   });
-  let loadMpq = mpq ? readFile(mpq, e => {
-    mpqLoaded = e.loaded;
-    updateProgress();
-  }) : Promise.resolve(null);
+  let loadMpq = mpq
+    ? readFile(mpq, (e) => {
+        mpqLoaded = e.loaded;
+        updateProgress();
+      })
+    : Promise.resolve(null);
   [wasm, mpq] = await Promise.all([loadWasm, loadMpq]);
 
   if (mpq) {
@@ -401,45 +425,54 @@ async function init_game(mpq, spawn, offscreen) {
 
   progress('Initializing...');
 
-  const versMatch = process.env.VERSION ? String(process.env.VERSION).match(/(\d+)\.(\d+)\.(\d+)/) : null;
+  const versMatch = process.env.VERSION
+    ? String(process.env.VERSION).match(/(\d+)\.(\d+)\.(\d+)/)
+    : null;
   const versMajor = versMatch ? parseInt(versMatch[1], 10) : 0;
   const versMinor = versMatch ? parseInt(versMatch[2], 10) : 0;
   const versPatch = versMatch ? parseInt(versMatch[3], 10) : 0;
 
-  wasm._DApi_Init(Math.floor(performance.now()), offscreen ? 1 : 0, versMajor, versMinor, versPatch);
+  wasm._DApi_Init(
+    Math.floor(performance.now()),
+    offscreen ? 1 : 0,
+    versMajor,
+    versMinor,
+    versPatch
+  );
 
   renderInterval = setInterval(() => {
     call_api('DApi_Render', Math.floor(performance.now()));
   }, 50);
 }
 
-worker.addEventListener('message', ({data}) => {
+worker.addEventListener('message', ({ data }) => {
   switch (data.action) {
-  case MainToWorker.INIT:
-    files = data.files;
-    init_game(data.mpq, data.spawn, data.offscreen).then(
-      () => worker.postMessage({action: WorkerToMain.LOADED}),
-      e => onError(e, WorkerToMain.FAILED));
-    break;
-  case MainToWorker.EVENT:
-    call_api(data.func, ...data.params);
-    break;
-  case MainToWorker.PACKET:
-    try_api(() => {
-      const ptr = wasm._DApi_AllocPacket(data.buffer.byteLength);
-      wasm.HEAPU8.set(new Uint8Array(data.buffer), ptr);
-    });
-    break;
-  case MainToWorker.PACKET_BATCH:
-    try_api(() => {
-      // ⚡ Bolt: Replace for...of with standard for loop to avoid iterator allocation per batch
-      for (let i = 0; i < data.batch.length; i++) {
-        const packet = data.batch[i];
-        const ptr = wasm._DApi_AllocPacket(packet.byteLength);
-        wasm.HEAPU8.set(new Uint8Array(packet), ptr);
-      }
-    });
-    break;
-  default:
+    case MainToWorker.INIT:
+      files = data.files;
+      init_game(data.mpq, data.spawn, data.offscreen).then(
+        () => worker.postMessage({ action: WorkerToMain.LOADED }),
+        (e) => onError(e, WorkerToMain.FAILED)
+      );
+      break;
+    case MainToWorker.EVENT:
+      call_api(data.func, ...data.params);
+      break;
+    case MainToWorker.PACKET:
+      try_api(() => {
+        const ptr = wasm._DApi_AllocPacket(data.buffer.byteLength);
+        wasm.HEAPU8.set(new Uint8Array(data.buffer), ptr);
+      });
+      break;
+    case MainToWorker.PACKET_BATCH:
+      try_api(() => {
+        // ⚡ Bolt: Replace for...of with standard for loop to avoid iterator allocation per batch
+        for (let i = 0; i < data.batch.length; i++) {
+          const packet = data.batch[i];
+          const ptr = wasm._DApi_AllocPacket(packet.byteLength);
+          wasm.HEAPU8.set(new Uint8Array(packet), ptr);
+        }
+      });
+      break;
+    default:
   }
 });
