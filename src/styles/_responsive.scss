@@ -1,10 +1,24 @@
 @media (prefers-reduced-motion: reduce) {
-  .App .start,
-  .App .error,
   .App .loading,
-  .App button {
+  .App button,
+  .App .startPathCard {
     animation: none !important;
     transition: none !important;
     transform: none !important;
+  }
+
+  /* Keep the centering transform on overlay panels and fixed banners; only
+     drop the entrance animation and transitions so reduced-motion users still
+     see them anchored in place. */
+  .App .start,
+  .App .error,
+  .updateBanner,
+  .storageBanner,
+  .offlineReadyToast,
+  .dropHint,
+  .multiplayerBanner,
+  .startupNotice {
+    animation: none !important;
+    transition: none !important;
   }
 }

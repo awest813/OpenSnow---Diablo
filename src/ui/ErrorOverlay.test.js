@@ -74,6 +74,30 @@ describe('ErrorOverlay', () => {
     expect(reloadMock).toHaveBeenCalledTimes(1);
   });
 
+  it('falls back to a generic message when the error has no message', async () => {
+    await renderWithSession({ error: { message: '' } });
+
+    expect(container.querySelector('.body').textContent).toBe('An unexpected error occurred.');
+  });
+
+  it('shows friendly, retry-oriented copy for a network failure', async () => {
+    await renderWithSession({ error: { message: 'Network Error' } });
+
+    expect(container.querySelector('.header').textContent).toBe('Connection problem');
+    expect(container.querySelector('.body').textContent).toMatch(/could not be downloaded/i);
+    expect(container.querySelector('.body').textContent).not.toMatch(/Network Error/);
+
+    const primary = Array.from(container.querySelectorAll('button')).find((btn) =>
+      btn.className.includes('startButton--primary')
+    );
+    expect(primary.textContent.trim()).toBe('Try again');
+  });
+
+  it('hides the GitHub report link for network failures', async () => {
+    await renderWithSession({ error: { message: 'Network Error' } });
+    expect(container.querySelector('a.errorIssueLink')).toBeNull();
+  });
+
   it('shows a save file download link when error.save is provided', async () => {
     const error = { message: 'Oops', save: 'blob:https://example.com/abc' };
     await renderWithSession({ error, saveName: 'hero.sv' });

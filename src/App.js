@@ -126,6 +126,8 @@ class App extends React.Component {
     installPromptAvailable: false,
     installPromptDismissed: false,
     offlineReady: false,
+    // Transient startup notices (invalid file, save import, etc.)
+    startupNotice: null,
   };
   cursorPos = { x: 0, y: 0 };
 
@@ -261,6 +263,10 @@ class App extends React.Component {
   }
 
   componentWillUnmount() {
+    if (this.startupNoticeTimer) {
+      clearTimeout(this.startupNoticeTimer);
+      this.startupNoticeTimer = null;
+    }
     this.fileDropTarget.detach();
     this.runtimeListeners.detach();
     window.removeEventListener('swUpdate', this.onSwUpdate);
@@ -476,6 +482,32 @@ class App extends React.Component {
 
   dismissOfflineReady = () => this.setState({ offlineReady: false });
 
+  // ─── Startup notices ────────────────────────────────────────────────────────
+  // A single transient channel for pre-game feedback (e.g. "that's not an MPQ",
+  // "save imported"). Error notices persist until dismissed; informational and
+  // success notices auto-dismiss so they don't linger over the start screen.
+
+  startupNoticeTimer = null;
+
+  showStartupNotice = (notice) => {
+    if (this.startupNoticeTimer) {
+      clearTimeout(this.startupNoticeTimer);
+      this.startupNoticeTimer = null;
+    }
+    this.setState({ startupNotice: notice || null });
+    if (notice && notice.tone !== 'error') {
+      this.startupNoticeTimer = setTimeout(this.dismissStartupNotice, 6000);
+    }
+  };
+
+  dismissStartupNotice = () => {
+    if (this.startupNoticeTimer) {
+      clearTimeout(this.startupNoticeTimer);
+      this.startupNoticeTimer = null;
+    }
+    this.setState({ startupNotice: null });
+  };
+
   applySwUpdate = () => {
     const { updateRegistration } = this.state;
     import('./serviceWorker').then(({ applyUpdate }) => {
@@ -579,6 +611,7 @@ class App extends React.Component {
       dismissTesterWelcome: this.dismissTesterWelcome,
       highContrastMode,
       setHighContrastMode: this.setHighContrastMode,
+      showNotice: this.showStartupNotice,
       // PWA
       showInstallPrompt: installPromptAvailable && !installPromptDismissed,
       dismissInstallPrompt: this.dismissInstallPrompt,
@@ -895,6 +928,27 @@ class App extends React.Component {
             </div>
           )}
           <MultiplayerStatusBanner />
+          {this.state.startupNotice && (
+            <div
+              className={classNames(
+                'startupNotice',
+                `startupNotice--${this.state.startupNotice.tone || 'info'}`
+              )}
+              role={this.state.startupNotice.tone === 'error' ? 'alert' : 'status'}
+              aria-live={this.state.startupNotice.tone === 'error' ? 'assertive' : 'polite'}
+              aria-atomic="true"
+            >
+              <span className="startupNotice-message">{this.state.startupNotice.message}</span>
+              <button
+                type="button"
+                className="startupNotice-dismiss"
+                onClick={this.dismissStartupNotice}
+                aria-label="Dismiss notice"
+              >
+                ✕
+              </button>
+            </div>
+          )}
           {dropping > 0 && (
             <div className="dropHint" role="status" aria-live="polite" aria-atomic="true">
               <div className="dropHintTitle">Drop file to import</div>

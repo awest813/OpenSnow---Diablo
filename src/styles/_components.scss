@@ -1,4 +1,6 @@
-body, #root, .App {
+body,
+#root,
+.App {
   overflow: hidden;
   position: absolute;
   left: 0;
@@ -8,6 +10,15 @@ body, #root, .App {
 }
 .App {
   background-color: var(--color-bg-app);
+  background-image: radial-gradient(
+    ellipse 120% 90% at 50% 28%,
+    #17110a 0%,
+    #0b0807 48%,
+    #000 100%
+  );
+  &.started {
+    background-image: none;
+  }
   &.dropping {
     background-color: var(--color-bg-app-alt);
     &::after {
@@ -22,9 +33,12 @@ body, #root, .App {
 }
 
 @keyframes loadingSpinner {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
-.Body, .BodyV {
+.Body,
+.BodyV {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -91,51 +105,78 @@ body, #root, .App {
     &::selection {
       background: rgba(0, 0, 0, 0);
       color: rgba(0, 0, 0, 0);
-      }
+    }
   }
   &.keyboard .keyboard {
     display: block;
   }
 
-  .start, .error, .loading {
+  .start,
+  .error,
+  .loading {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
   }
 
-  .start, .error {
+  .start,
+  .error {
     max-width: 90%;
     max-height: 90%;
     overflow-y: auto;
     pointer-events: auto;
+    border-radius: var(--radius-lg);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gold-border) transparent;
+    &::-webkit-scrollbar {
+      width: 9px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-gold-border);
+      border-radius: 6px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      &:hover {
+        background: var(--color-gold-accent);
+        background-clip: padding-box;
+      }
+    }
   }
 
   .start {
     border: 1px solid var(--color-gold-border);
     border-top: 2px solid var(--color-gold-accent);
-    padding: 16px 20px;
+    padding: 20px 24px;
     color: var(--color-text-primary);
     font-size: 16px;
     text-align: center;
     background: linear-gradient(180deg, #0d0a07 0%, #0a0808 100%);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(160, 114, 42, 0.15);
+    box-shadow: var(--shadow-panel);
 
     .startTitle {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
-      margin-bottom: 14px;
-      padding-bottom: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
       border-bottom: 1px solid #3a2810;
     }
     .startTitleText {
-      font-size: 2.2em;
-      font-weight: 900;
-      letter-spacing: 0.18em;
-      color: var(--color-gold-primary);
-      text-shadow: 0 0 20px rgba(200, 149, 42, 0.4), 0 2px 4px rgba(0, 0, 0, 0.8);
+      font-family: var(--font-display);
+      font-size: 2.3em;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      background: linear-gradient(180deg, #f3dc9b 0%, #d7a93e 52%, #9c6f1f 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 18px rgba(200, 149, 42, 0.35))
+        drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8));
     }
     .startTitleDeco {
       font-size: 1.2em;
@@ -191,9 +232,21 @@ body, #root, .App {
     .startPathCard {
       flex: 1 1 240px;
       max-width: 100%;
-      padding: 12px 14px;
+      padding: 14px 16px;
       border: 1px solid #3a2810;
+      border-radius: var(--radius-md);
       background: rgba(13, 10, 7, 0.65);
+      transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+      &:hover {
+        border-color: var(--color-gold-accent);
+        background: rgba(26, 18, 8, 0.7);
+        box-shadow: var(--shadow-raised);
+        transform: translateY(-2px);
+      }
       .startPathCardLabel {
         font-size: 11px;
         text-transform: uppercase;
@@ -252,6 +305,21 @@ body, #root, .App {
       font-size: 14px;
       text-align: left;
     }
+    .saveManagerActions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #3a2810;
+      .startButton {
+        margin: 0;
+        width: auto;
+        min-width: 8em;
+        font-size: 1.2em;
+      }
+    }
     .startActions {
       display: flex;
       flex-direction: column;
@@ -274,16 +342,24 @@ body, #root, .App {
       margin-top: 6px;
       width: 9em;
       text-align: center;
-      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+      border-radius: var(--radius-md);
+      transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
       &:hover {
         background: linear-gradient(180deg, #2a1c0a 0%, #1a1108 100%);
         border-color: #a0722a;
         color: var(--color-text-primary);
         box-shadow: 0 0 10px rgba(160, 114, 42, 0.25);
+        transform: translateY(-1px);
       }
       &:active {
         background: #0d0a05;
         box-shadow: none;
+        transform: translateY(0);
       }
       &:focus-visible {
         outline: 2px solid #e8d5a3;
@@ -385,7 +461,10 @@ body, #root, .App {
           align-items: center;
           justify-content: center;
           gap: 6px;
-          transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+          transition:
+            color var(--transition-fast),
+            border-color var(--transition-fast),
+            background var(--transition-fast);
           &:focus-visible {
             outline: 2px solid #e8d5a3;
             outline-offset: 2px;
@@ -407,6 +486,37 @@ body, #root, .App {
         }
         .btnDownload {
           color: #d4bf88;
+          &:hover {
+            color: #f4e7bf;
+            background: rgba(58, 40, 16, 0.35);
+          }
+        }
+        .saveConfirm {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+        .saveConfirmText {
+          font-size: 13px;
+          font-weight: 700;
+          color: #f0c4c4;
+          letter-spacing: 0.02em;
+        }
+        .btnConfirmDelete {
+          color: #e08585;
+          border-color: #b35c5c;
+          background: rgba(92, 34, 34, 0.45);
+          &:hover {
+            color: #fff;
+            background: rgba(140, 44, 44, 0.6);
+            border-color: #d36d6d;
+          }
+        }
+        .btnCancelDelete {
+          color: #cdbb92;
           &:hover {
             color: #f4e7bf;
             background: rgba(58, 40, 16, 0.35);
@@ -505,7 +615,7 @@ body, #root, .App {
         gap: 8px;
         margin-bottom: 0;
         cursor: pointer;
-        input[type="checkbox"] {
+        input[type='checkbox'] {
           accent-color: #c8a84a;
           width: 16px;
           height: 16px;
@@ -517,19 +627,24 @@ body, #root, .App {
 }
 
 .App.high-contrast {
+  background-image: none;
   .start {
     background: #000;
     border-color: #fff;
     color: #fff;
     .startTitleText {
       color: #fff;
+      background: none;
+      -webkit-text-fill-color: #fff;
+      filter: none;
       text-shadow: none;
     }
     .startTitleDeco {
       color: #fff;
       opacity: 1;
     }
-    p, li {
+    p,
+    li {
       color: #fff;
     }
     .startButton {
@@ -601,10 +716,12 @@ body, #root, .App {
         color: #fff;
       }
     }
-    .touchSettings, .displaySettings {
+    .touchSettings,
+    .displaySettings {
       background: #111;
       border-color: #fff;
-      .touchSettingsTitle, .displaySettingsTitle {
+      .touchSettingsTitle,
+      .displaySettingsTitle {
         color: #fff;
       }
       select {
@@ -623,7 +740,8 @@ body, #root, .App {
     background: rgba(0, 0, 0, 0.95);
     color: #fff;
     border: 1px solid #fff;
-    .loadingPercent {
+    .loadingPercent,
+    .loadingBytes {
       color: #fff;
     }
     .progressBar > span {
@@ -637,7 +755,8 @@ body, #root, .App {
       border-top-color: #fff;
     }
   }
-  .updateBanner, .storageBanner {
+  .updateBanner,
+  .storageBanner {
     background: #000;
     color: #fff;
     border-color: #fff;
@@ -677,6 +796,19 @@ body, #root, .App {
       color: #fff;
     }
   }
+  .touch-ui .touch-button {
+    background-color: #ccc;
+    filter: none;
+    &.active {
+      background-color: #fff;
+      filter: none;
+    }
+  }
+  .touch-ui.touch-belt .touch-button {
+    background-color: #000;
+    border-color: #fff;
+    box-shadow: none;
+  }
 }
 
 .App {
@@ -685,7 +817,9 @@ body, #root, .App {
     border: 1px solid #7a2020;
     border-top: 2px solid #b03030;
     background: linear-gradient(180deg, #1a0505 0%, #110303 100%);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(176, 48, 48, 0.1);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.8),
+      inset 0 1px 0 rgba(176, 48, 48, 0.1);
     padding: 16px;
     color: #e88;
     font-size: 16px;
@@ -752,10 +886,22 @@ body, #root, .App {
       flex-direction: column;
       gap: 8px;
     }
+    .loadingMeta {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
     .loadingPercent {
       font-size: 12px;
       color: var(--color-text-muted);
       letter-spacing: 0.12em;
+    }
+    .loadingBytes {
+      font-size: 12px;
+      color: #7a6a54;
+      letter-spacing: 0.06em;
+      font-variant-numeric: tabular-nums;
     }
     .progressBar {
       display: block;
@@ -790,7 +936,9 @@ body, #root, .App {
       animation: loadingSpinner 0.8s linear infinite;
     }
   }
-  a, .link, .linkButton {
+  a,
+  .link,
+  .linkButton {
     display: inline-block;
     color: #a0722a;
     text-decoration: none;
@@ -824,11 +972,17 @@ body, #root, .App {
     .touch-button {
       position: absolute;
       left: 50%;
-      background-color: #444;
+      background-color: rgba(232, 213, 163, 0.5);
       transform: translate(-50%, -50%);
       pointer-events: auto;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+      transition:
+        background-color var(--transition-fast),
+        filter var(--transition-fast);
       &.active {
-        background-color: #fff;
+        background-color: var(--color-gold-soft);
+        filter: drop-shadow(0 0 7px rgba(200, 149, 42, 0.75))
+          drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
       }
       mask-size: 100% 100%;
     }
@@ -849,7 +1003,7 @@ body, #root, .App {
       top: 70vh;
       left: 11vw;
     }
-    
+
     .touch-button-5 {
       top: 85vh;
       left: 5vw;
@@ -889,10 +1043,13 @@ body, #root, .App {
       width: 12vh;
       height: 12vh;
       font-size: 1vh;
-      border-radius: 20%;
+      border-radius: 24%;
       overflow: hidden;
       background-color: var(--color-bg-app);
-      border: 2px solid #444;
+      border: 2px solid rgba(160, 114, 42, 0.55);
+      box-shadow:
+        var(--shadow-raised),
+        inset 0 1px 0 rgba(232, 213, 163, 0.12);
       canvas {
         position: absolute;
         left: 5%;
@@ -907,7 +1064,7 @@ body, #root, .App {
         top: 0;
         right: 0;
         bottom: 0;
-        border-radius: 20%;
+        border-radius: 24%;
         box-shadow: inset 0 0 1em 1.5em #000;
       }
     }
@@ -917,28 +1074,34 @@ body, #root, .App {
     top: auto;
     bottom: 0;
     height: 35vh;
-      .touch-button {
-        width: 15vh;
-        height: 15vh;
-        position: absolute;
-        left: 50%;
-        background-color: #444;
-        transform: translate(-50%, -50%);
-        pointer-events: auto;
-        &.active {
-          background-color: #fff;
-        }
-        mask-size: 100% 100%;
+    .touch-button {
+      width: 15vh;
+      height: 15vh;
+      position: absolute;
+      left: 50%;
+      background-color: rgba(232, 213, 163, 0.5);
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+      transition:
+        background-color var(--transition-fast),
+        filter var(--transition-fast);
+      &.active {
+        background-color: var(--color-gold-soft);
+        filter: drop-shadow(0 0 7px rgba(200, 149, 42, 0.75))
+          drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
       }
-      .touch-button-3 {
-        top: 0;
-        transform: translate(-50%, 0);
-        mask-image: url(./icons/f5.svg);
-      }
-      .touch-button-4 {
-        top:60%;
-        mask-image: url(./icons/f6.svg);
-      }
+      mask-size: 100% 100%;
+    }
+    .touch-button-3 {
+      top: 0;
+      transform: translate(-50%, 0);
+      mask-image: url(./icons/f5.svg);
+    }
+    .touch-button-4 {
+      top: 60%;
+      mask-image: url(./icons/f6.svg);
+    }
   }
 
   .touch-ui.fkeys-right {
@@ -947,28 +1110,34 @@ body, #root, .App {
     right: 0;
     bottom: 0;
     height: 35vh;
-      .touch-button {
-        width: 15vh;
-        height: 15vh;
-        position: absolute;
-        left: 50%;
-        background-color: #444;
-        transform: translate(-50%, -50%);
-        pointer-events: auto;
-        &.active {
-          background-color: #fff;
-        }
-        mask-size: 100% 100%;
+    .touch-button {
+      width: 15vh;
+      height: 15vh;
+      position: absolute;
+      left: 50%;
+      background-color: rgba(232, 213, 163, 0.5);
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+      transition:
+        background-color var(--transition-fast),
+        filter var(--transition-fast);
+      &.active {
+        background-color: var(--color-gold-soft);
+        filter: drop-shadow(0 0 7px rgba(200, 149, 42, 0.75))
+          drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
       }
-      .touch-button-5 {
-        top: 0;
-        transform: translate(-50%, 0);
-        mask-image: url(./icons/f7.svg);
-      }
-      .touch-button-6 {
-        top:60%;
-        mask-image: url(./icons/f8.svg);
-      }
+      mask-size: 100% 100%;
+    }
+    .touch-button-5 {
+      top: 0;
+      transform: translate(-50%, 0);
+      mask-image: url(./icons/f7.svg);
+    }
+    .touch-button-6 {
+      top: 60%;
+      mask-image: url(./icons/f8.svg);
+    }
   }
 
   &.touch .touch-ui {
@@ -1061,7 +1230,7 @@ body, #root, .App {
     }
   }
   .App .touch-ui.fkeys-left {
-    left:0;
+    left: 0;
     bottom: 15vh;
     width: 50%;
     height: 12vh;
@@ -1070,15 +1239,15 @@ body, #root, .App {
       width: 12vh;
     }
     .touch-button-3 {
-      left:25%;
+      left: 25%;
     }
     .touch-button-4 {
       top: 50%;
-      left:75%;
+      left: 75%;
     }
   }
   .App .touch-ui.fkeys-right {
-    left:auto;
+    left: auto;
     right: 0;
     bottom: 15vh;
     width: 50%;
@@ -1088,11 +1257,11 @@ body, #root, .App {
       width: 12vh;
     }
     .touch-button-5 {
-      left:25%;
+      left: 25%;
     }
     .touch-button-6 {
       top: 50%;
-      left:75%;
+      left: 75%;
     }
   }
 }
@@ -1108,30 +1277,39 @@ body, #root, .App {
 }
 .updateBanner {
   position: fixed;
-  bottom: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
-  background: rgba(30, 30, 30, 0.95);
+  background: linear-gradient(180deg, rgba(26, 18, 8, 0.96) 0%, rgba(13, 10, 5, 0.96) 100%);
   color: var(--color-text-primary);
   border: 1px solid var(--color-gold-border);
-  border-radius: 4px;
-  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
   font-size: 13px;
   pointer-events: all;
   display: flex;
   align-items: center;
   gap: 12px;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  animation: bannerInBottomCenter var(--transition-slow);
   button {
-    background: #6b4c1e;
+    background: linear-gradient(180deg, #8a6130 0%, #6b4c1e 100%);
     color: var(--color-text-primary);
-    border: none;
-    border-radius: 3px;
-    padding: 4px 10px;
+    border: 1px solid var(--color-gold-accent);
+    border-radius: var(--radius-sm);
+    padding: 5px 12px;
     cursor: pointer;
     font-size: 12px;
+    transition:
+      background var(--transition-fast),
+      box-shadow var(--transition-fast),
+      transform var(--transition-fast);
     &:hover {
-      background: #8a6130;
+      background: linear-gradient(180deg, #a0722a 0%, #7a5622 100%);
+      box-shadow: var(--shadow-gold-glow);
+      transform: translateY(-1px);
     }
     &:focus-visible {
       outline: 2px solid #e8d5a3;
@@ -1142,34 +1320,40 @@ body, #root, .App {
 
 .storageBanner {
   position: fixed;
-  top: 12px;
-  left: 12px;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
   z-index: 9999;
   max-width: min(90vw, 520px);
-  background: rgba(92, 34, 34, 0.95);
+  background: linear-gradient(180deg, rgba(92, 34, 34, 0.96) 0%, rgba(58, 18, 18, 0.96) 100%);
   color: #f2d7d7;
   border: 1px solid #b35c5c;
-  border-radius: 4px;
-  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
   font-size: 12px;
   pointer-events: all;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  animation: toastInTop var(--transition-slow);
 }
 
 .offlineReadyToast {
   position: fixed;
-  bottom: 12px;
-  right: 16px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  right: max(16px, env(safe-area-inset-right));
   z-index: 9999;
-  background: rgba(20, 60, 20, 0.95);
+  background: linear-gradient(180deg, rgba(20, 60, 20, 0.96) 0%, rgba(12, 38, 12, 0.96) 100%);
   color: #c8f0c8;
   border: 1px solid #4a8c4a;
-  border-radius: 4px;
-  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
   font-size: 13px;
   pointer-events: all;
   display: flex;
   align-items: center;
   gap: 10px;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  animation: toastInBottom var(--transition-slow);
   button {
     background: transparent;
     color: #c8f0c8;
@@ -1178,6 +1362,7 @@ body, #root, .App {
     font-size: 14px;
     line-height: 1;
     padding: 0 2px;
+    transition: color var(--transition-fast);
     &:hover {
       color: #fff;
     }
@@ -1194,12 +1379,15 @@ body, #root, .App {
   transform: translate(-50%, -50%);
   z-index: 10002;
   width: min(90vw, 420px);
-  padding: 18px 20px;
-  border: 1px solid #a0722a;
-  background: rgba(13, 10, 7, 0.96);
+  padding: 20px 22px;
+  border: 1px solid var(--color-gold-accent);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(20, 14, 8, 0.97) 0%, rgba(10, 8, 6, 0.97) 100%);
   color: var(--color-text-primary);
   text-align: center;
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.65);
+  box-shadow: var(--shadow-panel), var(--shadow-gold-glow);
+  backdrop-filter: blur(10px);
+  animation: dropHintIn var(--transition-normal);
   pointer-events: none;
   .dropHintTitle {
     font-size: 18px;
@@ -1214,13 +1402,84 @@ body, #root, .App {
   }
 }
 
+.startupNotice {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: min(92vw, 560px);
+  padding: 12px 14px;
+  border: 1px solid var(--color-gold-border);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(26, 22, 16, 0.96) 0%, rgba(15, 12, 9, 0.96) 100%);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: left;
+  pointer-events: all;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  animation: bannerInTopCenter var(--transition-slow);
+
+  .startupNotice-message {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .startupNotice-dismiss {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 15px;
+    line-height: 1;
+    padding: 4px 6px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast);
+    &:hover {
+      color: var(--color-text-primary);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--color-focus-ring);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.startupNotice--success {
+  border-color: #4a8c4a;
+  background: linear-gradient(180deg, rgba(20, 48, 20, 0.96) 0%, rgba(10, 28, 10, 0.96) 100%);
+  color: #d6f0d6;
+}
+
+.startupNotice--error {
+  border-color: #b35c5c;
+  background: linear-gradient(180deg, rgba(74, 24, 24, 0.96) 0%, rgba(40, 14, 14, 0.96) 100%);
+  color: #f2d7d7;
+}
+
+.App.high-contrast .startupNotice {
+  background: #000;
+  border-color: #fff;
+  color: #fff;
+  .startupNotice-dismiss {
+    color: #fff;
+  }
+}
+
 @keyframes multiplayerSpinner {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .multiplayerBanner {
   position: fixed;
-  top: 12px;
+  top: max(12px, env(safe-area-inset-top));
   left: 50%;
   transform: translateX(-50%);
   z-index: 10000;
@@ -1229,12 +1488,14 @@ body, #root, .App {
   flex-direction: column;
   gap: 8px;
   min-width: min(90vw, 560px);
-  background: rgba(24, 24, 24, 0.95);
+  background: linear-gradient(180deg, rgba(26, 22, 16, 0.96) 0%, rgba(15, 12, 9, 0.96) 100%);
   color: var(--color-text-primary);
   border: 1px solid var(--color-gold-border);
-  border-radius: 6px;
-  padding: 10px 12px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  animation: bannerInTopCenter var(--transition-slow);
 
   .multiplayerBanner-main {
     display: flex;
@@ -1295,16 +1556,22 @@ body, #root, .App {
   }
 
   button {
-    background: #6b4c1e;
+    background: linear-gradient(180deg, #8a6130 0%, #6b4c1e 100%);
     color: var(--color-text-primary);
-    border: none;
-    border-radius: 3px;
+    border: 1px solid var(--color-gold-accent);
+    border-radius: var(--radius-sm);
     min-height: 34px;
     padding: 6px 12px;
     cursor: pointer;
     font-size: 13px;
+    transition:
+      background var(--transition-fast),
+      box-shadow var(--transition-fast),
+      transform var(--transition-fast);
     &:hover {
-      background: #8a6130;
+      background: linear-gradient(180deg, #a0722a 0%, #7a5622 100%);
+      box-shadow: var(--shadow-gold-glow);
+      transform: translateY(-1px);
     }
     &:focus-visible {
       outline: 2px solid #e8d5a3;

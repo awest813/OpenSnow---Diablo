@@ -1,5 +1,5 @@
 import React from 'react';
-import { buildIssueUrl, ExternalLink } from '../api/errorReporter';
+import { buildIssueUrl, describeStartupError, ExternalLink } from '../api/errorReporter';
 import { useSession } from '../engine/sessionContext';
 import DialogFrame from './DialogFrame';
 
@@ -14,6 +14,13 @@ export default function ErrorOverlay(props) {
     return null;
   }
 
+  const { isNetwork, message } = describeStartupError(error.message);
+  const heading = isNetwork ? 'Connection problem' : 'Something went wrong';
+  const lead = isNetwork
+    ? 'The game data could not be downloaded.'
+    : 'The game hit an unexpected error and had to stop.';
+  const primaryActionLabel = isNetwork ? 'Try again' : 'Restart game';
+
   return (
     <DialogFrame
       className="error"
@@ -21,17 +28,24 @@ export default function ErrorOverlay(props) {
       ariaLabel="Game error details"
       onEscape={onReload}
     >
-      <p className="header">Something went wrong</p>
-      <p className="errorLead">The game hit an unexpected error and had to stop.</p>
-      <p className="body">{error.message}</p>
+      <p className="header">{heading}</p>
+      <p className="errorLead">{lead}</p>
+      <p className="body">{message}</p>
       <div className="errorActions">
-        <ExternalLink className="errorIssueLink" href={buildIssueUrl(error, retail)}>
-          Report on GitHub
-        </ExternalLink>
-        {error.save != null && <a className="errorSaveLink" href={error.save} download={saveName}>Download save</a>}
+        {/* Network failures are not bugs — don't nudge the player to file one. */}
+        {!isNetwork && (
+          <ExternalLink className="errorIssueLink" href={buildIssueUrl(error, retail)}>
+            Report on GitHub
+          </ExternalLink>
+        )}
+        {error.save != null && (
+          <a className="errorSaveLink" href={error.save} download={saveName}>
+            Download save
+          </a>
+        )}
       </div>
       <button type="button" className="startButton startButton--primary" onClick={onReload}>
-        Restart game
+        {primaryActionLabel}
       </button>
     </DialogFrame>
   );
