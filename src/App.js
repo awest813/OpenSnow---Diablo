@@ -204,7 +204,18 @@ class App extends React.Component {
     }
     const websocketUrl = params.get('websocketUrl');
     if (websocketUrl) {
-      config.websocketUrl = websocketUrl;
+      // Only allow wss: URLs on the same origin or the known relay to prevent
+      // crafted links from routing player traffic to attacker-controlled servers.
+      try {
+        const parsed = new URL(websocketUrl);
+        const isSameOrigin = parsed.origin === window.location.origin;
+        const isKnownRelay = parsed.hostname === 'diablo.rivsoft.net';
+        if (parsed.protocol === 'wss:' && (isSameOrigin || isKnownRelay)) {
+          config.websocketUrl = websocketUrl;
+        }
+      } catch (_e) {
+        // Ignore malformed URLs
+      }
     }
     return config;
   }
@@ -240,7 +251,10 @@ class App extends React.Component {
           installPromptDismissed: preferences.installPromptDismissed,
           isTouchDevice,
           showMobileOnboarding: isTouchDevice && !preferences.mobileOnboardingDismissed,
-          showTesterWelcome: !isTouchDevice && !preferences.testerWelcomeDismissed,
+          showTesterWelcome:
+            process.env.NODE_ENV !== 'production' &&
+            !isTouchDevice &&
+            !preferences.testerWelcomeDismissed,
         });
       });
     });
@@ -962,8 +976,9 @@ class App extends React.Component {
               })}
               ref={this.setTouch0}
               role="button"
-              tabIndex={0}
+              tabIndex={-1}
               aria-label="Touch Mod 1"
+              aria-hidden="true"
             />
             <div
               className={classNames('touch-button', 'touch-button-1', {
@@ -971,8 +986,9 @@ class App extends React.Component {
               })}
               ref={this.setTouch1}
               role="button"
-              tabIndex={0}
+              tabIndex={-1}
               aria-label="Touch Mod 2"
+              aria-hidden="true"
             />
             <div
               className={classNames('touch-button', 'touch-button-2', {
@@ -980,8 +996,9 @@ class App extends React.Component {
               })}
               ref={this.setTouch2}
               role="button"
-              tabIndex={0}
+              tabIndex={-1}
               aria-label="Touch Mod 3"
+              aria-hidden="true"
             />
           </div>
           <div className="touch-ui touch-belt">
@@ -989,22 +1006,25 @@ class App extends React.Component {
               className={classNames('touch-button', 'touch-button-0')}
               ref={this.setTouch3}
               role="button"
-              tabIndex={0}
+              tabIndex={-1}
               aria-label="Belt Slot 1"
+              aria-hidden="true"
             />
             <div
               className={classNames('touch-button', 'touch-button-1')}
               ref={this.setTouch4}
               role="button"
-              tabIndex={0}
+              tabIndex={-1}
               aria-label="Belt Slot 2"
+              aria-hidden="true"
             />
             <div
               className={classNames('touch-button', 'touch-button-2')}
               ref={this.setTouch5}
               role="button"
-              tabIndex={0}
+              tabIndex={-1}
               aria-label="Belt Slot 3"
+              aria-hidden="true"
             />
           </div>
           <div className="touch-ui fkeys-left">
@@ -1012,15 +1032,17 @@ class App extends React.Component {
               className={classNames('touch-button', 'touch-button-3')}
               ref={this.setTouch6}
               role="button"
-              tabIndex={0}
+              tabIndex={-1}
               aria-label="F-Key Left 1"
+              aria-hidden="true"
             />
             <div
               className={classNames('touch-button', 'touch-button-4')}
               ref={this.setTouch7}
               role="button"
-              tabIndex={0}
+              tabIndex={-1}
               aria-label="F-Key Left 2"
+              aria-hidden="true"
             />
           </div>
           <div className="touch-ui fkeys-right">
@@ -1028,15 +1050,17 @@ class App extends React.Component {
               className={classNames('touch-button', 'touch-button-5')}
               ref={this.setTouch8}
               role="button"
-              tabIndex={0}
+              tabIndex={-1}
               aria-label="F-Key Right 1"
+              aria-hidden="true"
             />
             <div
               className={classNames('touch-button', 'touch-button-6')}
               ref={this.setTouch9}
               role="button"
-              tabIndex={0}
+              tabIndex={-1}
               aria-label="F-Key Right 2"
+              aria-hidden="true"
             />
           </div>
           <div className="Body">

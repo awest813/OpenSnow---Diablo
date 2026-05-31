@@ -32,6 +32,10 @@ function stopRenderLoop() {
 
 function onError(err, action = WorkerToMain.ERROR) {
   stopRenderLoop();
+  if (websocket) {
+    websocket.close();
+    websocket = null;
+  }
   if (err instanceof Error) {
     worker.postMessage({ action, error: err.toString(), stack: err.stack });
   } else {
@@ -104,6 +108,10 @@ const DApi = {
 
   exit_game() {
     stopRenderLoop();
+    if (websocket) {
+      websocket.close();
+      websocket = null;
+    }
     worker.postMessage({ action: WorkerToMain.EXIT });
   },
   current_save_id(id) {

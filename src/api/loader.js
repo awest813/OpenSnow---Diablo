@@ -125,6 +125,7 @@ async function do_load_game(api, audio, mpq, spawn) {
             break;
           case WorkerToMain.FAILED:
             dispose();
+            audioAdapter.dispose();
             reject({ message: data.error, stack: data.stack });
             break;
           case WorkerToMain.PROGRESS:
