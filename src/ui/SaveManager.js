@@ -153,8 +153,15 @@ export default class SaveManager extends React.Component {
           <div className="savesEmpty">
             <p className="savesEmptyTitle">No save files found.</p>
             <p className="savesEmptyBody">
-              Start a new game to create one, or upload an existing .sv file below.
+              Start a new game to create one, or import an existing .sv save file.
             </p>
+            <button
+              type="button"
+              className="startButton savesEmptyCta"
+              onClick={this.openUploadPicker}
+            >
+              Upload a save
+            </button>
           </div>
         ) : (
           <ul className="saveList">

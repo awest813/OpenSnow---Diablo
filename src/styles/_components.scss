@@ -542,6 +542,12 @@ body,
         font-size: 14px;
         color: var(--color-text-muted);
       }
+      .savesEmptyCta {
+        margin-top: 16px;
+        width: auto;
+        min-width: 9em;
+        font-size: 1.2em;
+      }
     }
     .mobileOnboarding {
       margin: 14px 0;
