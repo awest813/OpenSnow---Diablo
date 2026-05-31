@@ -1,31 +1,32 @@
 import React from 'react';
 import compress from './compress';
 import DialogFrame from '../ui/DialogFrame';
+import LoadingScreen from '../ui/LoadingScreen';
 
 export default class CompressMpq extends React.Component {
   state = {};
   fileInputRef = React.createRef();
 
-  parseFile = e => {
+  parseFile = (e) => {
     const files = e.target.files;
     if (files.length > 0) {
       this.start(files[0]);
     }
-  }
+  };
 
   openFilePicker = () => {
     if (this.fileInputRef.current) {
       this.fileInputRef.current.click();
     }
-  }
+  };
 
   onProgress(progress) {
-    this.setState({progress});
+    this.setState({ progress });
   }
-  onDone = blob => {
+  onDone = (blob) => {
     //const blob = new Blob([result], {type: 'binary/octet-stream'});
     const url = URL.createObjectURL(blob);
-    this.setState({url});
+    this.setState({ url });
 
     const lnk = document.createElement('a');
     lnk.setAttribute('href', url);
@@ -33,7 +34,7 @@ export default class CompressMpq extends React.Component {
     document.body.appendChild(lnk);
     lnk.click();
     document.body.removeChild(lnk);
-  }
+  };
   onError(message, stack) {
     this.props.onClose();
     this.props.onError(message, stack);
@@ -44,12 +45,24 @@ export default class CompressMpq extends React.Component {
       URL.revokeObjectURL(this.state.url);
     }
     this.props.onClose();
-  }
+  };
 
   start(file) {
-    this.setState({started: true});
-    compress(file, (text, loaded, total) => this.onProgress({text, loaded, total}))
-      .then(this.onDone, e => this.onError(e.message, e.stack));
+    this.setState({ started: true });
+    compress(file, (text, loaded, total) => this.onProgress({ text, loaded, total })).then(
+      this.onDone,
+      (e) => this.onError(e.message, e.stack)
+    );
+  }
+
+  renderTitle() {
+    return (
+      <div className="startTitle" aria-hidden="true">
+        <span className="startTitleDeco">⚔</span>
+        <span className="startTitleText">COMPRESS</span>
+        <span className="startTitleDeco">⚔</span>
+      </div>
+    );
   }
 
   render() {
@@ -57,43 +70,60 @@ export default class CompressMpq extends React.Component {
     if (url) {
       return (
         <DialogFrame className="start" ariaLabel="MPQ compression complete">
+          {this.renderTitle()}
           <p>
-            <a href={url} download="DIABDAT.MPQ">Download DIABDAT.MPQ</a> if it doesn&apos;t start automatically.
+            Compression complete.{' '}
+            <a href={url} download="DIABDAT.MPQ">
+              Download DIABDAT.MPQ
+            </a>{' '}
+            if it doesn&apos;t start automatically.
           </p>
-          <button type="button" className="startButton" onClick={this.onClose}>Back</button>
+          <div className="dialogActions">
+            <button type="button" className="startButton" onClick={this.onClose}>
+              Back
+            </button>
+          </div>
         </DialogFrame>
       );
     }
     if (started) {
-      return (
-        <div className="loading" role="status" aria-live="polite" aria-atomic="true">
-          {(progress && progress.text) || 'Processing...'}
-          {progress != null && !!progress.total && (
-            <span className="progressBar">
-              <span>
-                <span
-                  style={{width: `${Math.round(100 * progress.loaded / progress.total)}%`}}
-                  role="progressbar"
-                  aria-label="Compression progress"
-                  aria-valuenow={Math.round(100 * progress.loaded / progress.total)}
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                />
-              </span>
-            </span>
-          )}
-        </div>
-      );
+      // Compression reports weighted bytes then file counts, so a byte readout
+      // would be misleading — pass only the unified percent to the shared
+      // loading screen for a consistent look.
+      const loadingProgress = { text: (progress && progress.text) || 'Processing...' };
+      if (progress && progress.total) {
+        loadingProgress.percent = Math.round((100 * progress.loaded) / progress.total);
+      }
+      return <LoadingScreen progress={loadingProgress} />;
     }
     return (
       <DialogFrame className="start" ariaLabel="Compress MPQ">
+        {this.renderTitle()}
         <p>
-          You can use this tool to reduce the original MPQ to about half its size. It encodes sounds in MP3 format and uses better compression for regular files.
-          To begin, click the button below or drop the MPQ onto the page.
+          You can use this tool to reduce the original MPQ to about half its size. It encodes sounds
+          in MP3 format and uses better compression for regular files. To begin, click the button
+          below or drop the MPQ onto the page.
         </p>
-        <button type="button" className="startButton" onClick={this.openFilePicker}>Select MPQ</button>
-        <input accept=".mpq" type="file" ref={this.fileInputRef} style={{display: "none"}} aria-label="Select MPQ file to compress" onChange={this.parseFile}/>
-        <button type="button" className="startButton" onClick={this.onClose}>Back</button>
+        <div className="dialogActions">
+          <button
+            type="button"
+            className="startButton startButton--secondary"
+            onClick={this.onClose}
+          >
+            Back
+          </button>
+          <button type="button" className="startButton" onClick={this.openFilePicker}>
+            Select MPQ
+          </button>
+        </div>
+        <input
+          accept=".mpq"
+          type="file"
+          ref={this.fileInputRef}
+          style={{ display: 'none' }}
+          aria-label="Select MPQ file to compress"
+          onChange={this.parseFile}
+        />
       </DialogFrame>
     );
   }

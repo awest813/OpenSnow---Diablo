@@ -179,6 +179,24 @@ describe('SaveManager', () => {
     expect(container.querySelector('ul.saveList')).toBeNull();
   });
 
+  it('offers an inline upload CTA in the empty state that opens the file picker', async () => {
+    const fsApi = { files: new Map(), delete: jest.fn(), download: jest.fn(), upload: jest.fn() };
+    await renderWithSession({ fs: Promise.resolve(fsApi) });
+
+    const cta = container.querySelector('.savesEmpty .savesEmptyCta');
+    expect(cta).toBeTruthy();
+    expect(cta.textContent.trim()).toBe('Upload a save');
+
+    const input = container.querySelector('input[type="file"]');
+    input.click = jest.fn();
+
+    act(() => {
+      cta.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    expect(input.click).toHaveBeenCalledTimes(1);
+  });
+
   it('upload file input has an accessible aria-label', async () => {
     const fsApi = { files: new Map(), delete: jest.fn(), download: jest.fn(), upload: jest.fn() };
     await renderWithSession({ fs: Promise.resolve(fsApi) });
