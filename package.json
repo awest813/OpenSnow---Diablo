@@ -65,7 +65,19 @@
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
-      "!src/**/*.d.ts"
+      "!src/**/*.d.ts",
+      "!src/App.js",
+      "!src/index.js",
+      "!src/storage.js",
+      "!src/serviceWorker.js",
+      "!src/api/game.worker.js",
+      "!src/api/loader.js",
+      "!src/api/load_spawn.js",
+      "!src/api/explode.js",
+      "!src/api/webrtc.js",
+      "!src/mpqcmp/mpqcmp.worker.js",
+      "!src/mpqcmp/compress.js",
+      "!src/ui/MpqCompressor.js"
     ],
     "setupFiles": [
       "react-app-polyfill/jsdom"
