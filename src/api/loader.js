@@ -9,15 +9,17 @@ import { createTransportAdapter } from './transportAdapter';
 import { createTransport } from './transports';
 import { createMultiplayerDiagnostics } from './multiplayerDiagnostics';
 import { createLazyMultiplayerTransport } from './lazyMultiplayerTransport';
+import { createStartupProgress } from './startupProgress';
 
 async function do_load_game(api, audio, mpq, spawn) {
   const fs = await api.fs;
+  const progress = createStartupProgress(api);
   if (spawn && !mpq) {
-    await load_spawn(api, fs);
+    await load_spawn({ onProgress: progress.download }, fs);
   }
 
   const audioAdapter = createAudioAdapter(audio);
-  const renderAdapter = createRenderAdapter(api.canvas, belt => api.updateBelt(belt));
+  const renderAdapter = createRenderAdapter(api.canvas, (belt) => api.updateBelt(belt));
   const fsAdapter = createFsAdapter(fs);
 
   // Pause canvas rendering while the tab is hidden to reduce idle CPU load.
@@ -32,12 +34,12 @@ async function do_load_game(api, audio, mpq, spawn) {
     try {
       const worker = new GameWorker();
       const diagnostics = createMultiplayerDiagnostics({
-        onEvent: event => {
+        onEvent: (event) => {
           if (api.onMultiplayerEvent) {
             api.onMultiplayerEvent(event);
           }
         },
-        onStatusChange: status => {
+        onStatusChange: (status) => {
           if (api.onMultiplayerStatus) {
             api.onMultiplayerStatus(status);
           }
@@ -48,16 +50,17 @@ async function do_load_game(api, audio, mpq, spawn) {
       // WebRTC is wired in immediately after creation so the lambda below can
       // reference the adapter by closure.
       const transport = createTransportAdapter(worker, null, {
-        onInboundPacket: packet => diagnostics.observeInboundPacket(packet),
-        onOutboundPacket: packet => diagnostics.observeOutboundPacket(packet),
+        onInboundPacket: (packet) => diagnostics.observeInboundPacket(packet),
+        onOutboundPacket: (packet) => diagnostics.observeOutboundPacket(packet),
       });
       const multiplayerOptions = api.multiplayerOptions || {};
 
-      const createMultiplayerTransport = () => createTransport(multiplayerOptions, {
-        onPacket: data => transport.enqueue(data),
-        onLifecycle: event => diagnostics.observeTransportLifecycle(event),
-        onError: error => diagnostics.observeTransportError(error),
-      });
+      const createMultiplayerTransport = () =>
+        createTransport(multiplayerOptions, {
+          onPacket: (data) => transport.enqueue(data),
+          onLifecycle: (event) => diagnostics.observeTransportLifecycle(event),
+          onError: (error) => diagnostics.observeTransportError(error),
+        });
       const multiplayerTransport = createLazyMultiplayerTransport({
         createTransport: createMultiplayerTransport,
       });
@@ -78,68 +81,69 @@ async function do_load_game(api, audio, mpq, spawn) {
         }
       };
 
-      worker.addEventListener('message', ({data}) => {
+      worker.addEventListener('message', ({ data }) => {
         switch (data.action) {
-        case WorkerToMain.LOADED:
-          {
-            const gameApi = (func, ...params) => worker.postMessage({action: MainToWorker.EVENT, func, params});
-            gameApi.retryMultiplayer = () => {
-              diagnostics.recordAppAction('retry_requested');
-              multiplayerTransport.reconnect();
-            };
-            gameApi.reconnectMultiplayer = () => {
-              diagnostics.recordAppAction('reconnect_requested');
-              multiplayerTransport.replace();
-            };
-            gameApi.getMultiplayerDiagnostics = () => diagnostics.getEvents();
-            gameApi.getMultiplayerStatus = () => diagnostics.getStatus();
-            resolve(gameApi);
-          }
-          break;
-        case WorkerToMain.RENDER:
-          renderAdapter.handleRender(data.batch);
-          break;
-        case WorkerToMain.AUDIO:
-          audioAdapter.handleAudio(data);
-          break;
-        case WorkerToMain.AUDIO_BATCH:
-          audioAdapter.handleAudioBatch(data);
-          break;
-        case WorkerToMain.FS:
-          fsAdapter.handleFs(data);
-          break;
-        case WorkerToMain.CURSOR:
-          api.setCursorPos(data.x, data.y);
-          break;
-        case WorkerToMain.KEYBOARD:
-          api.openKeyboard(data.rect);
-          break;
-        case WorkerToMain.ERROR:
-          dispose();
-          audioAdapter.dispose();
-          api.onError(data.error, data.stack);
-          break;
-        case WorkerToMain.FAILED:
-          dispose();
-          reject({message: data.error, stack: data.stack});
-          break;
-        case WorkerToMain.PROGRESS:
-          api.onProgress({text: data.text, loaded: data.loaded, total: data.total});
-          break;
-        case WorkerToMain.EXIT:
-          dispose();
-          api.onExit();
-          break;
-        case WorkerToMain.CURRENT_SAVE:
-          api.setCurrentSave(data.name);
-          break;
-        case WorkerToMain.PACKET:
-          transport.send(data.buffer);
-          break;
-        case WorkerToMain.PACKET_BATCH:
-          transport.sendBatch(data.batch);
-          break;
-        default:
+          case WorkerToMain.LOADED:
+            {
+              const gameApi = (func, ...params) =>
+                worker.postMessage({ action: MainToWorker.EVENT, func, params });
+              gameApi.retryMultiplayer = () => {
+                diagnostics.recordAppAction('retry_requested');
+                multiplayerTransport.reconnect();
+              };
+              gameApi.reconnectMultiplayer = () => {
+                diagnostics.recordAppAction('reconnect_requested');
+                multiplayerTransport.replace();
+              };
+              gameApi.getMultiplayerDiagnostics = () => diagnostics.getEvents();
+              gameApi.getMultiplayerStatus = () => diagnostics.getStatus();
+              resolve(gameApi);
+            }
+            break;
+          case WorkerToMain.RENDER:
+            renderAdapter.handleRender(data.batch);
+            break;
+          case WorkerToMain.AUDIO:
+            audioAdapter.handleAudio(data);
+            break;
+          case WorkerToMain.AUDIO_BATCH:
+            audioAdapter.handleAudioBatch(data);
+            break;
+          case WorkerToMain.FS:
+            fsAdapter.handleFs(data);
+            break;
+          case WorkerToMain.CURSOR:
+            api.setCursorPos(data.x, data.y);
+            break;
+          case WorkerToMain.KEYBOARD:
+            api.openKeyboard(data.rect);
+            break;
+          case WorkerToMain.ERROR:
+            dispose();
+            audioAdapter.dispose();
+            api.onError(data.error, data.stack);
+            break;
+          case WorkerToMain.FAILED:
+            dispose();
+            reject({ message: data.error, stack: data.stack });
+            break;
+          case WorkerToMain.PROGRESS:
+            progress.worker({ text: data.text, loaded: data.loaded, total: data.total });
+            break;
+          case WorkerToMain.EXIT:
+            dispose();
+            api.onExit();
+            break;
+          case WorkerToMain.CURRENT_SAVE:
+            api.setCurrentSave(data.name);
+            break;
+          case WorkerToMain.PACKET:
+            transport.send(data.buffer);
+            break;
+          case WorkerToMain.PACKET_BATCH:
+            transport.sendBatch(data.batch);
+            break;
+          default:
         }
       });
 
@@ -147,7 +151,16 @@ async function do_load_game(api, audio, mpq, spawn) {
       for (let [, file] of fs.files) {
         transfer.push(file.buffer);
       }
-      worker.postMessage({action: MainToWorker.INIT, files: fs.files, mpq, spawn, offscreen: renderAdapter.offscreen}, transfer);
+      worker.postMessage(
+        {
+          action: MainToWorker.INIT,
+          files: fs.files,
+          mpq,
+          spawn,
+          offscreen: renderAdapter.offscreen,
+        },
+        transfer
+      );
       delete fs.files;
     } catch (e) {
       reject(e);

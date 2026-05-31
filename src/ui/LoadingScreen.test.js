@@ -48,6 +48,31 @@ describe('LoadingScreen', () => {
     expect(progressBar.getAttribute('aria-valuenow')).toBe('25');
   });
 
+  it('renders the unified percent from the startup coordinator', async () => {
+    await renderWithSession({ progress: { text: 'Loading...', percent: 73 } });
+
+    expect(container.textContent).toContain('73%');
+    const progressBar = container.querySelector('[role="progressbar"]');
+    expect(progressBar).toBeTruthy();
+    expect(progressBar.getAttribute('aria-valuenow')).toBe('73');
+    // No raw byte counts → no readout.
+    expect(container.querySelector('.loadingBytes')).toBeNull();
+  });
+
+  it('shows the byte readout alongside a unified percent during the download', async () => {
+    await renderWithSession({
+      progress: {
+        text: 'Downloading...',
+        percent: 45,
+        loaded: 25 * 1024 * 1024,
+        total: 50 * 1024 * 1024,
+      },
+    });
+
+    expect(container.textContent).toContain('45%');
+    expect(container.querySelector('.loadingBytes').textContent).toBe('25.0 MB / 50.0 MB');
+  });
+
   it('omits the byte readout for tiny synthetic ratios', async () => {
     await renderWithSession({ progress: { text: 'Loading assets', loaded: 25, total: 100 } });
 

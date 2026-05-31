@@ -21,13 +21,28 @@ function formatBytes(bytes) {
 export default function LoadingScreen({ progress: progressProp }) {
   const { progress: sessionProgress } = useSession();
   const progress = progressProp || sessionProgress;
-  const hasProgress = progress != null && Number.isFinite(progress.total) && progress.total > 0;
-  const percent = hasProgress
-    ? Math.max(0, Math.min(100, Math.round((100 * progress.loaded) / progress.total)))
-    : null;
+  // The startup coordinator emits a unified, monotonic `percent`; other callers
+  // (e.g. the MPQ compressor) may still send raw loaded/total ratios.
+  const hasPercent = progress != null && Number.isFinite(progress.percent);
+  const hasRatio =
+    progress != null &&
+    Number.isFinite(progress.total) &&
+    progress.total > 0 &&
+    Number.isFinite(progress.loaded);
+  const hasProgress = hasPercent || hasRatio;
+  let percent = null;
+  if (hasPercent) {
+    percent = Math.max(0, Math.min(100, Math.round(progress.percent)));
+  } else if (hasRatio) {
+    percent = Math.max(0, Math.min(100, Math.round((100 * progress.loaded) / progress.total)));
+  }
   // Only surface a byte readout for real downloads (not the small synthetic
   // ratios used internally), so users can gauge how much is left.
-  const showBytes = hasProgress && progress.total >= 1024 && Number.isFinite(progress.loaded);
+  const showBytes =
+    progress != null &&
+    Number.isFinite(progress.total) &&
+    progress.total >= 1024 &&
+    Number.isFinite(progress.loaded);
   const bytesLabel = showBytes
     ? `${formatBytes(Math.min(progress.loaded, progress.total))} / ${formatBytes(progress.total)}`
     : null;
