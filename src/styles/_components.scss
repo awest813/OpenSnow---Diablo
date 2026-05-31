@@ -476,6 +476,37 @@ body,
             background: rgba(58, 40, 16, 0.35);
           }
         }
+        .saveConfirm {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+        .saveConfirmText {
+          font-size: 13px;
+          font-weight: 700;
+          color: #f0c4c4;
+          letter-spacing: 0.02em;
+        }
+        .btnConfirmDelete {
+          color: #e08585;
+          border-color: #b35c5c;
+          background: rgba(92, 34, 34, 0.45);
+          &:hover {
+            color: #fff;
+            background: rgba(140, 44, 44, 0.6);
+            border-color: #d36d6d;
+          }
+        }
+        .btnCancelDelete {
+          color: #cdbb92;
+          &:hover {
+            color: #f4e7bf;
+            background: rgba(58, 40, 16, 0.35);
+          }
+        }
         &:hover {
           background-color: rgba(58, 40, 16, 0.4);
         }

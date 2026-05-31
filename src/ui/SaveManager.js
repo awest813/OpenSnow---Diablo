@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faDownload, faCheck } from '@fortawesome/free-solid-svg-icons';
 import getPlayerName from '../api/savefile';
 import SessionContext from '../engine/sessionContext';
 import DialogFrame from './DialogFrame';
@@ -10,14 +10,16 @@ const PLAYER_CLASSES = ['Warrior', 'Rogue', 'Sorcerer'];
 export default class SaveManager extends React.Component {
   static contextType = SessionContext;
 
-  state = { saves: {} };
+  state = { saves: {}, pendingDelete: null };
   lastSavesVersion = null;
   uploadInputRef = React.createRef();
+  confirmButtonRef = React.createRef();
 
   getSessionValues() {
     return {
       fs: this.props.fs || this.context.fs,
-      savesVersion: this.props.savesVersion != null ? this.props.savesVersion : this.context.savesVersion,
+      savesVersion:
+        this.props.savesVersion != null ? this.props.savesVersion : this.context.savesVersion,
       onClose: this.props.onClose || this.context.closeSaveManager,
     };
   }
@@ -27,18 +29,27 @@ export default class SaveManager extends React.Component {
     this.loadSaves();
   }
 
-  componentDidUpdate() {
-    const {savesVersion} = this.getSessionValues();
+  componentDidUpdate(prevProps, prevState) {
+    const { savesVersion } = this.getSessionValues();
     if (savesVersion !== this.lastSavesVersion) {
       this.lastSavesVersion = savesVersion;
       this.loadSaves();
     }
+    // Move focus onto the confirmation control as it appears so keyboard users
+    // land on the destructive choice rather than losing their place.
+    if (
+      this.state.pendingDelete &&
+      this.state.pendingDelete !== prevState.pendingDelete &&
+      this.confirmButtonRef.current
+    ) {
+      this.confirmButtonRef.current.focus();
+    }
   }
 
   async loadSaves() {
-    const {fs} = this.getSessionValues();
+    const { fs } = this.getSessionValues();
     if (!fs) {
-      this.setState({saves: {}});
+      this.setState({ saves: {} });
       return;
     }
 
@@ -52,43 +63,65 @@ export default class SaveManager extends React.Component {
     this.setState({ saves });
   }
 
-  removeSave = async name => {
-    if (!window.confirm(`Are you sure you want to delete ${name}?`)) return;
-    const {fs} = this.getSessionValues();
+  requestRemoveSave = (name) => {
+    this.setState({ pendingDelete: name });
+  };
+
+  cancelRemoveSave = () => {
+    this.setState({ pendingDelete: null });
+  };
+
+  confirmRemoveSave = async (name) => {
+    this.setState({ pendingDelete: null });
+    const { fs } = this.getSessionValues();
     if (!fs) return;
     const fsApi = await fs;
     await fsApi.delete(name.toLowerCase());
     fsApi.files.delete(name.toLowerCase());
     this.loadSaves();
-  }
+  };
 
-  downloadSave = name => {
-    const {fs} = this.getSessionValues();
+  onConfirmKeyDown = (event) => {
+    // Cancel the pending delete on Escape without bubbling up to DialogFrame,
+    // which would otherwise close the whole Save Manager.
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.cancelRemoveSave();
+    }
+  };
+
+  downloadSave = (name) => {
+    const { fs } = this.getSessionValues();
     if (!fs) return;
-    fs.then(fsApi => fsApi.download(name));
-  }
+    fs.then((fsApi) => fsApi.download(name));
+  };
 
-  uploadSave = e => {
+  uploadSave = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const {fs} = this.getSessionValues();
+      const { fs } = this.getSessionValues();
       if (!fs) return;
-      fs.then(fsApi => fsApi.upload(file)).then(() => this.loadSaves());
+      fs.then((fsApi) => fsApi.upload(file)).then(() => this.loadSaves());
     }
-  }
+  };
 
   openUploadPicker = () => {
     if (this.uploadInputRef.current) {
       this.uploadInputRef.current.click();
     }
-  }
+  };
 
   render() {
-    const {onClose} = this.getSessionValues();
-    const { saves } = this.state;
+    const { onClose } = this.getSessionValues();
+    const { saves, pendingDelete } = this.state;
     const saveEntries = Object.entries(saves);
     return (
-      <DialogFrame className="start saveManager" ariaLabel="Manage saves" onEscape={onClose || (() => {})}>
+      <DialogFrame
+        className="start saveManager"
+        ariaLabel="Manage saves"
+        onEscape={onClose || (() => {})}
+      >
         <div className="startTitle" aria-hidden="true">
           <span className="startTitleDeco">⚔</span>
           <span className="startTitleText">SAVES</span>
@@ -100,7 +133,9 @@ export default class SaveManager extends React.Component {
         {saveEntries.length === 0 ? (
           <div className="savesEmpty">
             <p className="savesEmptyTitle">No save files found.</p>
-            <p className="savesEmptyBody">Start a new game to create one, or upload an existing .sv file below.</p>
+            <p className="savesEmptyBody">
+              Start a new game to create one, or upload an existing .sv file below.
+            </p>
           </div>
         ) : (
           <ul className="saveList">
@@ -108,37 +143,79 @@ export default class SaveManager extends React.Component {
               <li key={name}>
                 <div className="saveListMeta">
                   <span className="saveName">{name}</span>
-                  {info && <span className="info">{info.name} (lv. {info.level} {PLAYER_CLASSES[info.cls] ?? 'Unknown'})</span>}
+                  {info && (
+                    <span className="info">
+                      {info.name} (lv. {info.level} {PLAYER_CLASSES[info.cls] ?? 'Unknown'})
+                    </span>
+                  )}
                 </div>
-                <div className="saveListActions">
-                  <button
-                    type="button"
-                    className="saveIconButton btnDownload"
-                    onClick={() => this.downloadSave(name)}
-                    aria-label={`Download ${name}`}
-                    title={`Download ${name}`}
-                  >
-                    <FontAwesomeIcon icon={faDownload}/>
-                    <span className="saveIconButtonLabel">Download</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="saveIconButton btnRemove"
-                    onClick={() => this.removeSave(name)}
-                    aria-label={`Delete ${name}`}
-                    title={`Delete ${name}`}
-                  >
-                    <FontAwesomeIcon icon={faTimes}/>
-                    <span className="saveIconButtonLabel">Delete</span>
-                  </button>
-                </div>
+                {pendingDelete === name ? (
+                  <div className="saveConfirm" role="group" aria-label={`Confirm deleting ${name}`}>
+                    <span className="saveConfirmText">Delete?</span>
+                    <button
+                      type="button"
+                      ref={this.confirmButtonRef}
+                      className="saveIconButton btnConfirmDelete"
+                      onClick={() => this.confirmRemoveSave(name)}
+                      onKeyDown={this.onConfirmKeyDown}
+                      aria-label={`Confirm deleting ${name}`}
+                    >
+                      <FontAwesomeIcon icon={faCheck} />
+                      <span className="saveIconButtonLabel">Yes</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="saveIconButton btnCancelDelete"
+                      onClick={this.cancelRemoveSave}
+                      onKeyDown={this.onConfirmKeyDown}
+                      aria-label={`Cancel deleting ${name}`}
+                    >
+                      <FontAwesomeIcon icon={faTimes} />
+                      <span className="saveIconButtonLabel">No</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="saveListActions">
+                    <button
+                      type="button"
+                      className="saveIconButton btnDownload"
+                      onClick={() => this.downloadSave(name)}
+                      aria-label={`Download ${name}`}
+                      title={`Download ${name}`}
+                    >
+                      <FontAwesomeIcon icon={faDownload} />
+                      <span className="saveIconButtonLabel">Download</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="saveIconButton btnRemove"
+                      onClick={() => this.requestRemoveSave(name)}
+                      aria-label={`Delete ${name}`}
+                      title={`Delete ${name}`}
+                    >
+                      <FontAwesomeIcon icon={faTimes} />
+                      <span className="saveIconButtonLabel">Delete</span>
+                    </button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
         )}
-        <button type="button" className="startButton" onClick={this.openUploadPicker}>Upload Save</button>
-        <input accept=".sv" type="file" ref={this.uploadInputRef} style={{display: 'none'}} aria-label="Select save file to upload" onChange={this.uploadSave}/>
-        <button type="button" className="startButton" onClick={onClose || (() => {})}>Back</button>
+        <button type="button" className="startButton" onClick={this.openUploadPicker}>
+          Upload Save
+        </button>
+        <input
+          accept=".sv"
+          type="file"
+          ref={this.uploadInputRef}
+          style={{ display: 'none' }}
+          aria-label="Select save file to upload"
+          onChange={this.uploadSave}
+        />
+        <button type="button" className="startButton" onClick={onClose || (() => {})}>
+          Back
+        </button>
       </DialogFrame>
     );
   }

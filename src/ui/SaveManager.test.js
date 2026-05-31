@@ -25,9 +25,9 @@ describe('SaveManager', () => {
   async function renderWithSession(overrides) {
     await act(async () => {
       root.render(
-        <SessionContext.Provider value={{...defaultSessionValue, ...overrides}}>
-          <SaveManager/>
-        </SessionContext.Provider>,
+        <SessionContext.Provider value={{ ...defaultSessionValue, ...overrides }}>
+          <SaveManager />
+        </SessionContext.Provider>
       );
       await Promise.resolve();
       await Promise.resolve();
@@ -35,18 +35,15 @@ describe('SaveManager', () => {
   }
 
   it('renders semantic icon buttons and dispatches download/remove actions', async () => {
-    const files = new Map([
-      ['hero.sv', new Uint8Array([1])],
-    ]);
+    const files = new Map([['hero.sv', new Uint8Array([1])]]);
     const fsApi = {
       files,
       delete: jest.fn(() => Promise.resolve()),
       download: jest.fn(),
       upload: jest.fn(() => Promise.resolve()),
     };
-    jest.spyOn(window, 'confirm').mockReturnValue(true);
 
-    await renderWithSession({fs: Promise.resolve(fsApi)});
+    await renderWithSession({ fs: Promise.resolve(fsApi) });
 
     const downloadButton = container.querySelector('button[aria-label="Download hero.sv"]');
     const deleteButton = container.querySelector('button[aria-label="Delete hero.sv"]');
@@ -56,16 +53,57 @@ describe('SaveManager', () => {
     expect(deleteButton.classList.contains('saveIconButton')).toBe(true);
 
     await act(async () => {
-      downloadButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+      downloadButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       await Promise.resolve();
     });
     expect(fsApi.download).toHaveBeenCalledWith('hero.sv');
 
+    // Deleting is a two-step confirmation — the first click only reveals it.
     await act(async () => {
-      deleteButton.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+      deleteButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
+    expect(fsApi.delete).not.toHaveBeenCalled();
+
+    const confirmButton = container.querySelector('button[aria-label="Confirm deleting hero.sv"]');
+    expect(confirmButton).toBeTruthy();
+
+    await act(async () => {
+      confirmButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       await Promise.resolve();
     });
     expect(fsApi.delete).toHaveBeenCalledWith('hero.sv');
+  });
+
+  it('does not delete a save when the confirmation is cancelled', async () => {
+    const fsApi = {
+      files: new Map([['hero.sv', new Uint8Array([1])]]),
+      delete: jest.fn(() => Promise.resolve()),
+      download: jest.fn(),
+      upload: jest.fn(() => Promise.resolve()),
+    };
+
+    await renderWithSession({ fs: Promise.resolve(fsApi) });
+
+    await act(async () => {
+      container
+        .querySelector('button[aria-label="Delete hero.sv"]')
+        .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
+
+    const cancelButton = container.querySelector('button[aria-label="Cancel deleting hero.sv"]');
+    expect(cancelButton).toBeTruthy();
+
+    await act(async () => {
+      cancelButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
+
+    expect(fsApi.delete).not.toHaveBeenCalled();
+    // The standard download/delete actions are restored.
+    expect(container.querySelector('button[aria-label="Delete hero.sv"]')).toBeTruthy();
+    expect(container.querySelector('button[aria-label="Confirm deleting hero.sv"]')).toBeNull();
   });
 
   it('shows an empty state message when there are no save files', async () => {
@@ -76,15 +114,15 @@ describe('SaveManager', () => {
       upload: jest.fn(),
     };
 
-    await renderWithSession({fs: Promise.resolve(fsApi)});
+    await renderWithSession({ fs: Promise.resolve(fsApi) });
 
     expect(container.textContent).toContain('No save files found.');
     expect(container.querySelector('ul.saveList')).toBeNull();
   });
 
   it('upload file input has an accessible aria-label', async () => {
-    const fsApi = {files: new Map(), delete: jest.fn(), download: jest.fn(), upload: jest.fn()};
-    await renderWithSession({fs: Promise.resolve(fsApi)});
+    const fsApi = { files: new Map(), delete: jest.fn(), download: jest.fn(), upload: jest.fn() };
+    await renderWithSession({ fs: Promise.resolve(fsApi) });
 
     const uploadInput = container.querySelector('input[type="file"]');
     expect(uploadInput).toBeTruthy();
