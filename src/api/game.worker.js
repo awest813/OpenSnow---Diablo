@@ -48,7 +48,7 @@ class RemoteFile {
     if (request.status < 200 || request.status >= 300) {
       throw Error('Failed to load remote file');
     }
-    this.byteLength = parseInt(request.getResponseHeader('Content-Length'));
+    this.byteLength = parseInt(request.getResponseHeader('Content-Length'), 10);
 
     this.url = url;
 
