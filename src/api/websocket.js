@@ -103,6 +103,9 @@ export default function websocket_open(url, handler, finisher) {
           if (batchCount === 0) {
             return;
           }
+          if (!ws || ws.readyState !== 1) {
+            return;
+          }
           const buffer = batchBuffer;
           buffer[0] = 0;
           buffer[1] = batchCount & 0xff;
@@ -112,6 +115,14 @@ export default function websocket_open(url, handler, finisher) {
           batchCount = 0;
           batchSize = 0;
         }, 100);
+        const stopFlushInterval = () => {
+          if (intr) {
+            clearInterval(intr);
+            intr = null;
+          }
+        };
+        ws.addEventListener('close', stopFlushInterval);
+        ws.addEventListener('error', stopFlushInterval);
       } else {
         ws.close();
       }
