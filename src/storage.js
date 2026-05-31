@@ -4,7 +4,7 @@ const fsPromise = createFs();
 
 window.addEventListener('message', async ({ data, source, origin }) => {
   // Only accept messages from the same origin to prevent cross-origin data
-  // exfiltration and unauthorised save wipes.
+  // exfiltration and unauthorized save wipes.
   if (origin !== window.location.origin) return;
 
   switch (data?.method) {

@@ -115,18 +115,14 @@ export default function websocket_open(url, handler, finisher) {
           batchCount = 0;
           batchSize = 0;
         }, 100);
-        ws.addEventListener('close', () => {
+        const stopFlushInterval = () => {
           if (intr) {
             clearInterval(intr);
             intr = null;
           }
-        });
-        ws.addEventListener('error', () => {
-          if (intr) {
-            clearInterval(intr);
-            intr = null;
-          }
-        });
+        };
+        ws.addEventListener('close', stopFlushInterval);
+        ws.addEventListener('error', stopFlushInterval);
       } else {
         ws.close();
       }
