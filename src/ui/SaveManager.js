@@ -21,7 +21,15 @@ export default class SaveManager extends React.Component {
       savesVersion:
         this.props.savesVersion != null ? this.props.savesVersion : this.context.savesVersion,
       onClose: this.props.onClose || this.context.closeSaveManager,
+      showNotice: this.props.showNotice || this.context.showNotice,
     };
+  }
+
+  notify(notice) {
+    const { showNotice } = this.getSessionValues();
+    if (typeof showNotice === 'function') {
+      showNotice(notice);
+    }
   }
 
   componentDidMount() {
@@ -79,6 +87,7 @@ export default class SaveManager extends React.Component {
     await fsApi.delete(name.toLowerCase());
     fsApi.files.delete(name.toLowerCase());
     this.loadSaves();
+    this.notify({ tone: 'success', message: `Deleted “${name}”.` });
   };
 
   onConfirmKeyDown = (event) => {
@@ -102,7 +111,17 @@ export default class SaveManager extends React.Component {
     if (file) {
       const { fs } = this.getSessionValues();
       if (!fs) return;
-      fs.then((fsApi) => fsApi.upload(file)).then(() => this.loadSaves());
+      fs.then((fsApi) => fsApi.upload(file))
+        .then(() => {
+          this.loadSaves();
+          this.notify({ tone: 'success', message: `Imported “${file.name}”.` });
+        })
+        .catch(() =>
+          this.notify({
+            tone: 'error',
+            message: `Could not import “${file.name}”. Make sure it is a valid .sv save file.`,
+          })
+        );
     }
   };
 
@@ -202,9 +221,18 @@ export default class SaveManager extends React.Component {
             ))}
           </ul>
         )}
-        <button type="button" className="startButton" onClick={this.openUploadPicker}>
-          Upload Save
-        </button>
+        <div className="saveManagerActions">
+          <button
+            type="button"
+            className="startButton startButton--secondary"
+            onClick={onClose || (() => {})}
+          >
+            Back
+          </button>
+          <button type="button" className="startButton" onClick={this.openUploadPicker}>
+            Upload Save
+          </button>
+        </div>
         <input
           accept=".sv"
           type="file"
@@ -213,9 +241,6 @@ export default class SaveManager extends React.Component {
           aria-label="Select save file to upload"
           onChange={this.uploadSave}
         />
-        <button type="button" className="startButton" onClick={onClose || (() => {})}>
-          Back
-        </button>
       </DialogFrame>
     );
   }

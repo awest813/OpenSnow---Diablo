@@ -106,6 +106,65 @@ describe('SaveManager', () => {
     expect(container.querySelector('button[aria-label="Confirm deleting hero.sv"]')).toBeNull();
   });
 
+  it('reports a success notice after deleting a save', async () => {
+    const showNotice = jest.fn();
+    const fsApi = {
+      files: new Map([['hero.sv', new Uint8Array([1])]]),
+      delete: jest.fn(() => Promise.resolve()),
+      download: jest.fn(),
+      upload: jest.fn(() => Promise.resolve()),
+    };
+
+    await renderWithSession({ fs: Promise.resolve(fsApi), showNotice });
+
+    await act(async () => {
+      container
+        .querySelector('button[aria-label="Delete hero.sv"]')
+        .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
+    await act(async () => {
+      container
+        .querySelector('button[aria-label="Confirm deleting hero.sv"]')
+        .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(showNotice).toHaveBeenCalledWith(expect.objectContaining({ tone: 'success' }));
+  });
+
+  it('reports a success notice after importing a save', async () => {
+    const showNotice = jest.fn();
+    const upload = jest.fn(() => Promise.resolve());
+    const fsApi = { files: new Map(), delete: jest.fn(), download: jest.fn(), upload };
+
+    await renderWithSession({ fs: Promise.resolve(fsApi), showNotice });
+
+    const input = container.querySelector('input[type="file"]');
+    const file = new File(['x'], 'hero.sv', { type: 'application/octet-stream' });
+    Object.defineProperty(input, 'files', { value: [file], configurable: true });
+
+    await act(async () => {
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(upload).toHaveBeenCalledWith(file);
+    expect(showNotice).toHaveBeenCalledWith(expect.objectContaining({ tone: 'success' }));
+  });
+
+  it('lays out the footer Back and Upload actions in a single row', async () => {
+    const fsApi = { files: new Map(), delete: jest.fn(), download: jest.fn(), upload: jest.fn() };
+    await renderWithSession({ fs: Promise.resolve(fsApi) });
+
+    const actions = container.querySelector('.saveManagerActions');
+    expect(actions).toBeTruthy();
+    const labels = Array.from(actions.querySelectorAll('button')).map((b) => b.textContent.trim());
+    expect(labels).toEqual(['Back', 'Upload Save']);
+  });
+
   it('shows an empty state message when there are no save files', async () => {
     const fsApi = {
       files: new Map(),

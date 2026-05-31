@@ -611,6 +611,7 @@ class App extends React.Component {
       dismissTesterWelcome: this.dismissTesterWelcome,
       highContrastMode,
       setHighContrastMode: this.setHighContrastMode,
+      showNotice: this.showStartupNotice,
       // PWA
       showInstallPrompt: installPromptAvailable && !installPromptDismissed,
       dismissInstallPrompt: this.dismissInstallPrompt,
