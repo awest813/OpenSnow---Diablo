@@ -2,21 +2,58 @@ import load_game from '../api/loader';
 import { mapStackTrace } from 'sourcemapped-stacktrace';
 import ReactGA from 'react-ga';
 
+/**
+ * Surface a transient startup notice through the app, if it exposes one.
+ *
+ * @param {object} app App instance.
+ * @param {{tone: string, message: string}} notice Notice payload.
+ */
+function notify(app, notice) {
+  if (app && typeof app.showStartupNotice === 'function') {
+    app.showStartupNotice(notice);
+  }
+}
+
 export function startGame(app, file) {
   if (file && /\.sv$/i.test(file.name)) {
-    app.fs.then(fs => fs.upload(file)).then(() => app.onSaveUploaded());
+    app.fs
+      .then((fs) => fs.upload(file))
+      .then(() => {
+        app.onSaveUploaded();
+        notify(app, {
+          tone: 'success',
+          message: `Imported save “${file.name}”. Open Manage Saves to download or remove it.`,
+        });
+      })
+      .catch(() => {
+        notify(app, {
+          tone: 'error',
+          message: `Could not import “${file.name}”. Make sure it is a valid .sv save file.`,
+        });
+      });
     return;
   }
   if (app.state.show_saves) {
     return;
   }
   if (file && !/\.mpq$/i.test(file.name)) {
-    window.alert('Please select an MPQ file. If you downloaded the installer from GoG, you will need to install it on PC and use the MPQ file from the installation folder.');
+    notify(app, {
+      tone: 'error',
+      message:
+        'That is not an MPQ file. Diablo data comes as DIABDAT.MPQ — if you have a GoG installer, install it on PC first and use the MPQ from the install folder.',
+    });
+    return;
+  }
+
+  // Guard against re-entrant launches (double-click on Play, or dropping a file
+  // mid-load) that would otherwise spawn a second worker and a duplicate
+  // multi-megabyte asset download.
+  if (app.state.loading || app.state.started) {
     return;
   }
 
   app.fileDropTarget.detach();
-  app.setState({dropping: 0});
+  app.setState({ dropping: 0 });
 
   const retail = !!(file && !/^spawn\.mpq$/i.test(file.name));
   if (process.env.NODE_ENV === 'production') {
@@ -26,13 +63,16 @@ export function startGame(app, file) {
     });
   }
 
-  app.setState({loading: true, retail});
+  app.setState({ loading: true, retail });
 
-  load_game(app, file, !retail).then(game => {
-    app.game = game;
-    app.runtimeListeners.attach();
-    app.setState({started: true});
-  }, e => handleGameError(app, e.message, e.stack));
+  load_game(app, file, !retail).then(
+    (game) => {
+      app.game = game;
+      app.runtimeListeners.attach();
+      app.setState({ started: true });
+    },
+    (e) => handleGameError(app, e.message, e.stack)
+  );
 }
 
 /**
@@ -44,19 +84,21 @@ export function startGame(app, file) {
  */
 export function handleGameError(app, message, stack) {
   (async () => {
-    const errorObject = {message};
+    const errorObject = { message };
     if (app.saveName) {
       errorObject.save = await (await app.fs).fileUrl(app.saveName);
     }
     if (stack) {
-      mapStackTrace(stack, resolvedStack => {
-        app.setState(({error}) => !error && {error: {...errorObject, stack: resolvedStack.join('\n')}});
+      mapStackTrace(stack, (resolvedStack) => {
+        app.setState(
+          ({ error }) => !error && { error: { ...errorObject, stack: resolvedStack.join('\n') } }
+        );
       });
     } else {
-      app.setState(({error}) => !error && {error: errorObject});
+      app.setState(({ error }) => !error && { error: errorObject });
     }
   })().catch(() => {
-    app.setState(({error}) => !error && {error: {message}});
+    app.setState(({ error }) => !error && { error: { message } });
   });
 }
 
@@ -79,7 +121,7 @@ export function handleGameExit(app, reloadFn = () => window.location.reload()) {
  * @param {{text?: string, loaded?: number, total?: number}} progress Loading progress payload.
  */
 export function handleProgress(app, progress) {
-  app.setState({progress});
+  app.setState({ progress });
 }
 
 /**
@@ -102,8 +144,8 @@ export function setCurrentSave(app, name) {
 export function setCursorPos(app, x, y) {
   const rect = app.canvas.getBoundingClientRect();
   app.cursorPos = {
-    x: rect.left + (rect.right - rect.left) * x / 640,
-    y: rect.top + (rect.bottom - rect.top) * y / 480,
+    x: rect.left + ((rect.right - rect.left) * x) / 640,
+    y: rect.top + ((rect.bottom - rect.top) * y) / 480,
   };
   setTimeout(() => {
     app.game('DApi_Mouse', 0, 0, 0, x, y);

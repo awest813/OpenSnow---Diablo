@@ -1356,6 +1356,75 @@ body,
   }
 }
 
+.startupNotice {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: min(92vw, 560px);
+  padding: 12px 14px;
+  border: 1px solid var(--color-gold-border);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(26, 22, 16, 0.96) 0%, rgba(15, 12, 9, 0.96) 100%);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: left;
+  pointer-events: all;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(8px);
+  animation: bannerInTopCenter var(--transition-slow);
+
+  .startupNotice-message {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .startupNotice-dismiss {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 15px;
+    line-height: 1;
+    padding: 4px 6px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast);
+    &:hover {
+      color: var(--color-text-primary);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--color-focus-ring);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.startupNotice--success {
+  border-color: #4a8c4a;
+  background: linear-gradient(180deg, rgba(20, 48, 20, 0.96) 0%, rgba(10, 28, 10, 0.96) 100%);
+  color: #d6f0d6;
+}
+
+.startupNotice--error {
+  border-color: #b35c5c;
+  background: linear-gradient(180deg, rgba(74, 24, 24, 0.96) 0%, rgba(40, 14, 14, 0.96) 100%);
+  color: #f2d7d7;
+}
+
+.App.high-contrast .startupNotice {
+  background: #000;
+  border-color: #fff;
+  color: #fff;
+  .startupNotice-dismiss {
+    color: #fff;
+  }
+}
+
 @keyframes multiplayerSpinner {
   to {
     transform: rotate(360deg);
